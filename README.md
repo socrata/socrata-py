@@ -1,11 +1,11 @@
-## publish-py
+# publish-py
 experimental sdk for the socrata publishing api
 
 
 
-### Using
+## Using
 
-#### Create a revision
+### Create a revision
 ```python
 from src.authorization import Authorization
 
@@ -41,7 +41,7 @@ print(rev.attributes['fourfour'])
 'ij46-xpxe'
 ```
 
-# Make an upload, given a revision
+### Make an upload, given a revision
 ```python
 (ok, upload) = rev.create_upload({'filename': "foo.csv"}, progress = lambda p: print("Uploaded %s" % p['total_bytes']))
 assert ok
@@ -57,14 +57,14 @@ Resource({'content_type': None,
  'inserted_at': '2017-02-27T23:07:18.309676',
  'schemas': []})
 ```
-# Upload a csv, given an upload
+### Upload a csv, given an upload
 ```python
 with open('test/fixtures/simple.csv', 'rb') as f:
     (ok, input_schema) = upload.csv(f)
     assert ok
 ```
 
-# Transform a file, given an input schema
+### Transform a file, given an input schema
 ```python
 (ok, output_schema) = input_schema.transform({
     'output_columns': [

@@ -25,7 +25,7 @@ publishing = Publish(auth)
 fourfour = "ij46-xpxe"
 
 # Make a revision
-(ok, rev) = p.revisions.create(fourfour)
+(ok, rev) = publishing.revisions.create(fourfour)
 assert ok
 
 print(rev)

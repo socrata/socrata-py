@@ -74,10 +74,10 @@ with open('test/fixtures/simple.csv', 'rb') as f:
 
 ### Transform a file, given an input schema
 ```python
-# Putting bytes into an upload gives us an input schema. We can call `transform` on the input schema to get 
-# a new output schema with our transforms applied. 
-# We can also attach a progress callback, which will give us progress events, error events, and finish events 
-# to let us know when our transform is done running.
+# Putting bytes into an upload gives us an input schema. We can call `transform` on the 
+# input schema to get a new output schema with our transforms applied. 
+# We can also attach a progress callback, which will give us progress events, 
+# error events, and finish events to let us know when our transform is done.
 (ok, output_schema) = input_schema.transform({
     'output_columns': [
         {

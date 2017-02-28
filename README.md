@@ -7,8 +7,11 @@ experimental sdk for the socrata publishing api
 
 ### Create a revision
 ```python
+# Import some stuff
 from src.authorization import Authorization
+from src.publish import Publish
 
+# Boilerplate...
 # Make an auth object
 auth = Authorization(
   "pete-test.test-socrata.com",
@@ -16,11 +19,10 @@ auth = Authorization(
   os.environ['SOCRATA_LOCAL_PASS']
 )
 
+publishing = Publish(auth)
+
 # This is our view
 fourfour = "ij46-xpxe"
-
-# Boilerplate...
-publishing = Publish(auth)
 
 # Make a revision
 (ok, rev) = p.revisions.create(fourfour)

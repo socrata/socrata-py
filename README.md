@@ -28,6 +28,7 @@ fourfour = "ij46-xpxe"
 (ok, rev) = publishing.revisions.create(fourfour)
 assert ok
 
+# rev is a Revision object, we can print it
 print(rev)
 Resource({'created_by': {'display_name': 'rozap',
                 'email': 'chris.duranti@socrata.com',
@@ -39,15 +40,18 @@ Resource({'created_by': {'display_name': 'rozap',
  'update_seq': 285,
  'upsert_jobs': []})
 
+# We can also access the attributes of the revision
 print(rev.attributes['fourfour'])
 'ij46-xpxe'
 ```
 
 ### Make an upload, given a revision
 ```python
-(ok, upload) = rev.create_upload({'filename': "foo.csv"}, progress = lambda p: print("Uploaded %s" % p['total_bytes']))
+# Using that revision, we can create an upload
+(ok, upload) = rev.create_upload({'filename': "foo.csv"})
 assert ok
 
+# And print it
 print(upload)
 Resource({'content_type': None,
  'created_by': {'display_name': 'rozap',
@@ -61,13 +65,19 @@ Resource({'content_type': None,
 ```
 ### Upload a csv, given an upload
 ```python
+# And using that upload we just created, we can put bytes into it
+# We can also attach a progress callback
 with open('test/fixtures/simple.csv', 'rb') as f:
-    (ok, input_schema) = upload.csv(f)
+    (ok, input_schema) = upload.csv(f, progress = lambda p: print("Uploaded %s" % p['total_bytes']))
     assert ok
 ```
 
 ### Transform a file, given an input schema
 ```python
+# Putting bytes into an upload gives us an input schema. We can call `transform` on the input schema to get 
+# a new output schema with our transforms applied. 
+# We can also attach a progress callback, which will give us progress events, error events, and finish events 
+# to let us know when our transform is done running.
 (ok, output_schema) = input_schema.transform({
     'output_columns': [
         {

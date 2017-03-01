@@ -5,17 +5,12 @@ from src.resource import Collection, Resource
 from src.output_schema import OutputSchema
 
 class InputSchema(Resource):
+    def channel_name(self):
+        return "input_schema"
 
-    def transform(self, body, progress = noop):
-        # This should come back in the response like everything else
-        uri = self.path('/api/update/{fourfour}/{seq}/schema/{is_id}'.format(
-            fourfour = self.parent.parent.attributes['fourfour'],
-            seq = self.parent.parent.attributes['update_seq'],
-            is_id = self.attributes['id']
-        ))
-
+    def transform(self, uri, body, progress = noop):
         result = respond(requests.post(
-            uri,
+            self.path(uri),
             headers = headers(),
             auth = self.auth.basic,
             data = json.dumps(body),

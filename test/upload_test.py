@@ -1,20 +1,13 @@
 import unittest
 from src.publish import Publish
 from src.authorization import Authorization
-from test.auth import auth, fourfour
-
-def create_rev():
-    p = Publish(auth)
-    (ok, r) = p.revisions.create(fourfour)
-    assert ok
-    return r
+from test.auth import create_rev
 
 class TestUpload(unittest.TestCase):
     def test_create_upload(self):
         rev = create_rev()
 
         (ok, upload) = rev.create_upload({'filename': "foo.csv"})
-        print(upload)
         self.assertTrue(ok)
         self.assertEqual(upload.attributes['filename'], 'foo.csv')
 
@@ -28,7 +21,6 @@ class TestUpload(unittest.TestCase):
 
         with open('test/fixtures/simple.csv', 'rb') as f:
             (ok, input_schema) = upload.csv(f)
-            print(input_schema)
             self.assertTrue(ok)
             self.assertEqual(input_schema.attributes['total_rows'], 4)
 

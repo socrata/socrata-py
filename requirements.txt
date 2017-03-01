@@ -1,3 +1,3 @@
 requests
 https://github.com/jhosteny/occamy/zipball/master
-tqdm
+https://github.com/aaren/multi_progress

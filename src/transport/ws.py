@@ -1,6 +1,7 @@
 import json
 import requests
 from src.http import headers, respond
+from occamy import Socket
 
 def get_token(auth, fourfour):
     response = requests.post(
@@ -24,3 +25,19 @@ def get_token(auth, fourfour):
         verify = auth.verify,
         cookies = response.cookies
     ))
+
+def connect(auth, fourfour):
+      (ok, response) = get_token(auth, fourfour)
+      assert ok, "Failed to get channel token"
+
+      token = response['token']
+      socket = Socket("wss://{domain}/api/update/socket".format(
+          domain = auth.domain
+      ),
+      params = {
+          'fourfour': fourfour,
+          'token': token
+      })
+      socket.connect()
+
+      return socket

@@ -1,21 +1,6 @@
 import unittest
 from src.publish import Publish
-from test.auth import auth, fourfour
-
-def create_rev():
-    p = Publish(auth)
-    (ok, r) = p.revisions.create(fourfour)
-    assert ok
-    return r
-
-def create_input_schema():
-    rev = create_rev()
-    (ok, upload) = rev.create_upload({'filename': "foo.csv"})
-    assert ok
-    with open('test/fixtures/simple.csv', 'rb') as f:
-        (ok, input_schema) = upload.csv(f)
-        assert ok
-        return input_schema
+from test.auth import create_input_schema
 
 class TestInputSchema(unittest.TestCase):
     def test_transform(self):

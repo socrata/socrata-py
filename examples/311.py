@@ -25,9 +25,9 @@ def write_progress(progresses):
 
 def row_count(path):
     with open(path) as f:
-        for i, l in enumerate(f):
+        for i, _ in enumerate(f):
             pass
-    return i + 1
+    return i
 
 auth = Authorization(
   "localhost",
@@ -37,8 +37,8 @@ auth = Authorization(
 
 fourfour = "ij46-xpxe"
 
-# path = '/home/chris/Downloads/311_Service_Requests_from_2010_to_Present.csv'
-path = '/home/chris/Downloads/Seattle_Real_Time_Fire_911_Calls.csv'
+path = '/home/chris/Downloads/Crimes_-_2001_to_present.csv'
+
 
 def main():
     p = Publish(auth) #
@@ -59,26 +59,35 @@ def main():
         assert ok
 
         input_schema.show()
-
+        print(input_schema.show_uri())
         print("\nStarting transform...")
 
         columns = [
             {
-                "field_name": "latitude",
-                "display_name": "Latitude",
+                "field_name": "latlng",
+                "display_name": "LatLng WKT",
                 "position": 0,
-                "description": "latitude",
+                "description": "WKT of lat lng",
                 "transform": {
-                    "transform_expr": "to_fixed_timestamp(`latitude`)"
+                    "transform_expr": '"POINT(" || to_text(`latitude`) || " " || to_text(`longitude`) || ")"'
                 }
             },
             {
-                "field_name": "longitude",
-                "display_name": "Longitude",
+                "field_name": "x_coord",
+                "display_name": "X",
                 "position": 1,
-                "description": "longitude",
+                "description": "x plus 20",
                 "transform": {
-                    "transform_expr": "to_fixed_timestamp(`longitude`)"
+                    "transform_expr": "to_number(`x_coordinate`) + 20"
+                }
+            },
+            {
+                "field_name": "y_coord",
+                "display_name": "y",
+                "position": 2,
+                "description": "y plus 10",
+                "transform": {
+                    "transform_expr": "to_number(`y_coordinate`) + 10"
                 }
             }
         ]

@@ -1,6 +1,6 @@
 import os
-from src.authorization import Authorization
-from src.publish import Publish
+from socrata.authorization import Authorization
+from socrata.publish import Publish
 from time import sleep
 import sys
 
@@ -24,6 +24,7 @@ def write_progress(progresses):
     sys.stdout.flush()
 
 def row_count(path):
+    return 105381
     with open(path) as f:
         for i, _ in enumerate(f):
             pass
@@ -38,7 +39,8 @@ auth = Authorization(
 fourfour = "ij46-xpxe"
 
 path = '/home/chris/Downloads/Crimes_-_2001_to_present.csv'
-
+path = '/home/chris/Downloads/boo.csv'
+path = '/home/chris/Downloads/metcalf.csv'
 
 def main():
     p = Publish(auth) #
@@ -56,10 +58,12 @@ def main():
     with open(path, 'rb') as f:
         print("Starting...\n")
         (ok, input_schema) = upload.csv(f, progress = upload_progress) #
-        assert ok
+        assert ok, "Failed to upload the file! %s" % input_schema
 
         input_schema.show()
         print(input_schema.show_uri())
+        return
+
         print("\nStarting transform...")
 
         columns = [

@@ -1,14 +1,16 @@
 import json
 import requests
-from src.http import headers, respond
+from socrata.http import headers, respond
 from occamy import Socket
 
 def get_token(auth, fourfour):
     response = requests.post(
-        'https://{domain}/api/authenticate'.format(
+        'http://{domain}/api/authenticate'.format(
             domain = auth.domain
         ),
-        headers = headers(),
+        headers = headers({
+          'Host': 'localhost'
+        }),
         params = {
             'username': auth.username,
             'password': auth.password
@@ -16,6 +18,7 @@ def get_token(auth, fourfour):
         auth = auth.basic,
         verify = auth.verify
     )
+
     return respond(requests.get(
         'https://{domain}/api/update/{fourfour}/token'.format(
             fourfour = fourfour,
@@ -28,7 +31,7 @@ def get_token(auth, fourfour):
 
 def connect(auth, fourfour):
       (ok, response) = get_token(auth, fourfour)
-      assert ok, "Failed to get channel token"
+      assert ok, "Failed to get channel token %s" % response
 
       token = response['token']
       socket = Socket("wss://{domain}/api/update/socket".format(

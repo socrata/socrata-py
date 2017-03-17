@@ -8,8 +8,8 @@ experimental sdk for the socrata publishing api
 ### Create a revision
 ```python
 # Import some stuff
-from src.authorization import Authorization
-from src.publish import Publish
+from socrata.authorization import Authorization
+from socrata.publish import Publish
 
 # Boilerplate...
 # Make an auth object
@@ -74,9 +74,9 @@ with open('test/fixtures/simple.csv', 'rb') as f:
 
 ### Transform a file, given an input schema
 ```python
-# Putting bytes into an upload gives us an input schema. We can call `transform` on the 
-# input schema to get a new output schema with our transforms applied. 
-# We can also attach a progress callback, which will give us progress events, 
+# Putting bytes into an upload gives us an input schema. We can call `transform` on the
+# input schema to get a new output schema with our transforms applied.
+# We can also attach a progress callback, which will give us progress events,
 # error events, and finish events to let us know when our transform is done.
 (ok, output_schema) = input_schema.transform({
     'output_columns': [

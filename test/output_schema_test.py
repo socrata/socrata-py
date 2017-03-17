@@ -1,5 +1,5 @@
 import unittest
-from src.publish import Publish
+from socrata.publish import Publish
 from test.auth import auth, fourfour, create_input_schema
 
 def create_output_schema():

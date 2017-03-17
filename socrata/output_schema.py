@@ -1,7 +1,7 @@
-from src.resource import Resource
-from src.upsert_job import UpsertJob
+from socrata.resource import Resource
+from socrata.upsert_job import UpsertJob
 import requests
-from src.http import headers, respond, noop
+from socrata.http import headers, respond, noop
 
 class OutputSchema(Resource):
     def __init__(self, *args, **kwargs):
@@ -12,6 +12,7 @@ class OutputSchema(Resource):
         return "output_schema"
 
     def joined(self):
+        return
         for column in self.attributes['output_columns']:
             transform = column['transform']
 

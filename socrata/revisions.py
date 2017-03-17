@@ -1,19 +1,18 @@
 import json
 import requests
-from src.transport.ws import connect
-from src.http import headers, respond
-from src.resource import Collection, Resource
-from src.uploads import Upload
+from socrata.transport.ws import connect
+from socrata.http import headers, respond
+from socrata.resource import Collection, Resource
+from socrata.uploads import Upload
 
 class Revisions(Collection):
     def create(self, fourfour):
-        (ok, revision) = result = self.subresource(Revision, connect(self.auth, fourfour), respond(requests.post(
+        (ok, revision) = result = self.subresource(Revision, respond(requests.post(
             self.path(fourfour),
             headers = headers(),
             auth = self.auth.basic,
             verify = self.auth.verify
         )))
-
 
         return result
 

@@ -1,6 +1,6 @@
 import unittest
-from src.publish import Publish
-from src.authorization import Authorization
+from socrata.publish import Publish
+from socrata.authorization import Authorization
 from test.auth import create_rev
 
 class TestUpload(unittest.TestCase):

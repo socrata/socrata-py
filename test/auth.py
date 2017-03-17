@@ -1,6 +1,6 @@
 import os
-from src.authorization import Authorization
-from src.publish import Publish
+from socrata.authorization import Authorization
+from socrata.publish import Publish
 
 auth = Authorization(
   "localhost",

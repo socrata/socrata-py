@@ -1,9 +1,8 @@
 import json
 import requests
-from src.http import headers, respond
-from src.resource import Resource
-from src.input_schema import InputSchema
-
+from socrata.http import headers, respond
+from socrata.resource import Resource
+from socrata.input_schema import InputSchema
 
 def noop(*args, **kwargs):
     pass
@@ -13,7 +12,14 @@ class Upload(Resource):
         return "upload"
 
     def joined(self):
+        return
         def on_new_input_schema(payload, _):
+            payload = {
+                'resource': payload,
+                'links': {
+                    'show': self.show_uri() + '/schema/' + str(payload['id'])
+                }
+            }
             (ok, input_schema) = self.subresource(InputSchema, (True, payload))
             assert ok, "Failed to create InputSchema on Upload"
             for column in input_schema.attributes['output_schemas'][0]['output_columns']:

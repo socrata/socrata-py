@@ -1,8 +1,8 @@
 import json
 import requests
-from src.http import headers, respond, noop
-from src.resource import Collection, Resource
-from src.output_schema import OutputSchema
+from socrata.http import headers, respond, noop
+from socrata.resource import Collection, Resource
+from socrata.output_schema import OutputSchema
 
 class InputSchema(Resource):
     def channel_name(self):

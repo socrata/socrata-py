@@ -1,5 +1,5 @@
 import pprint
-from src.http import headers, respond, noop
+from socrata.http import headers, respond, noop
 import requests
 
 class Collection(object):
@@ -12,18 +12,17 @@ class Collection(object):
             fourfour = fourfour
         )
 
-    def subresource(self, klass, socket, result):
+    def subresource(self, klass, result):
         (ok, res) = result
         if ok:
-            return (ok, klass(self.auth, res, socket, self))
+            return (ok, klass(self.auth, res, self))
         return result
 
 class Resource(object):
-    def __init__(self, auth, response, socket, parent = None, *args, **kwargs):
+    def __init__(self, auth, response, parent = None, *args, **kwargs):
         self.auth = auth
-        self.socket = socket
-        self.channel = None
-        self.on = self.no_channel
+        # self.channel = None
+        # self.on = self.no_channel
         self.on_response(response)
         self.define_operations(self.links)
         self.parent = parent
@@ -31,39 +30,39 @@ class Resource(object):
     def on_response(self, response):
         self.attributes = response['resource']
         self.links = response['links']
-        if not self.channel:
-            channel = self.join_channel()
-            self.bind_channel(channel)
+        # if not self.channel:
+        #     channel = self.join_channel()
+        #     self.bind_channel(channel)
 
-    def no_channel(self):
-        raise AttributeError('Not connected to a channel yet.')
+    # def no_channel(self):
+    #     raise AttributeError('Not connected to a channel yet.')
 
-    def on_channel(self, channel):
-        def on(event, cb):
-            channel.on(event, cb)
-            return self
-        return on
+    # def on_channel(self, channel):
+    #     def on(event, cb):
+    #         channel.on(event, cb)
+    #         return self
+    #     return on
 
-    def joined(self):
-        pass
+    # def joined(self):
+    #     pass
 
-    def bind_channel(self, channel):
-        self.on = self.on_channel(channel)
-        self.joined()
+    # def bind_channel(self, channel):
+    #     self.on = self.on_channel(channel)
+    #     self.joined()
 
-    def channel_name(self):
-        return None
+    # def channel_name(self):
+    #     return None
 
-    def join_channel(self):
-        name = self.channel_name()
-        if name:
-            topic = '{name}:{id}'.format(
-                name = name,
-                id = self.attributes['id']
-            )
-            channel = self.socket.channel(topic, {})
-            channel.join()
-            return channel
+    # def join_channel(self):
+    #     name = self.channel_name()
+    #     if name:
+    #         topic = '{name}:{id}'.format(
+    #             name = name,
+    #             id = self.attributes['id']
+    #         )
+    #         channel = self.socket.channel(topic, {})
+    #         channel.join()
+    #         return channel
 
     def path(self, uri):
         return 'https://{domain}{uri}'.format(
@@ -74,7 +73,7 @@ class Resource(object):
     def subresource(self, klass, result, **kwargs):
         (ok, res) = result
         if ok:
-            return (ok, klass(self.auth, res, self.socket, self, **kwargs))
+            return (ok, klass(self.auth, res, self, **kwargs))
         return result
 
     def __repr__(self):

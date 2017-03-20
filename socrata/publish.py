@@ -21,4 +21,19 @@ class Publish(Collection):
             data = json.dumps(body)
         ))
 
+    def delete(self, id):
+        path = 'https://{domain}/api/views/{ff}'.format(
+            domain = self.auth.domain,
+            ff = id
+        )
+        response = requests.delete(
+            path,
+            headers = headers(),
+            auth = self.auth.basic,
+            verify = self.auth.verify
+        )
 
+        if response.status_code in [200, 201, 202]:
+            return (True, {})
+        else:
+            return (False, response)

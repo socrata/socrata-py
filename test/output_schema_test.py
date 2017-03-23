@@ -25,4 +25,4 @@ class TestOutputSchema(unittest.TestCase):
     def test_create_upsert_job(self):
         output_schema = create_output_schema()
         (ok, upsert_job) = output_schema.apply()
-        self.assertTrue(ok)
+        self.assertTrue(ok, upsert_job)

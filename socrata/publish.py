@@ -1,5 +1,6 @@
 from socrata.resource import Collection
 from socrata.revisions import Revisions
+from socrata.uploads import Uploads
 from socrata.http import headers, respond
 import json
 import requests
@@ -8,6 +9,7 @@ class Publish(Collection):
     def __init__(self, auth):
         super(Publish, self).__init__(auth)
         self.revisions = Revisions(auth)
+        self.uploads = Uploads(auth)
 
     def new(self, body):
         path = 'https://{domain}/api/views'.format(

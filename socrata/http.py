@@ -1,3 +1,5 @@
+import json
+
 def noop(*args, **kwargs):
     pass
 
@@ -11,7 +13,10 @@ def headers(extra = {}):
     return d
 
 def respond(response):
-    if response.status_code in [200, 201, 202]:
-        return (True, response.json())
-    else:
-        return (False, response.json())
+    try:
+        if response.status_code in [200, 201, 202]:
+            return (True, response.json())
+        else:
+            return (False, response.json())
+    except json.decoder.JSONDecodeError:
+        return (False, {'error': 'json', 'content': response.content})

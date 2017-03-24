@@ -1,6 +1,11 @@
 # publish-py
 experimental sdk for the socrata publishing api
 
+## Example
+Try the command line example with
+```bash
+python -m examples.create 'Police Reports' ~/Desktop/catalog.data.gov/Seattle_Real_Time_Fire_911_Calls.csv 'pete-test.test-socrata.com' --username $SOCRATA_USERNAME --password $SOCRATA_PASSWORD
+```
 ## Using
 
 ### Create a revision

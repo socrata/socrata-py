@@ -7,13 +7,24 @@ import sys
 import time
 import argparse
 
+parser = argparse.ArgumentParser(description='Create a dataset.')
+parser.add_argument('name', type=str, help='Name of your dataset')
+parser.add_argument('csv', type=str, help='Path to the CSV')
+parser.add_argument('domain', type=str, help='Your Socrata domain')
+parser.add_argument('--username', type=str, help='Your Socrata username', default = os.environ['SOCRATA_USERNAME'])
+parser.add_argument('--password', type=str, help='Your Socrata password', default = os.environ['SOCRATA_PASSWORD'])
+args = parser.parse_args()
+
+
 domain = 'localhost'
 auth = Authorization(
-  domain,
-  os.environ['SOCRATA_LOCAL_USER'],
-  os.environ['SOCRATA_LOCAL_PASS']
+  args.domain,
+  args.username,
+  args.password
 )
-auth.live_dangerously()
+
+if 'localhost' in args.domain:
+    auth.live_dangerously()
 
 def path_to_show(resource):
     return '{proto}{domain}{uri}'.format(
@@ -38,7 +49,6 @@ def create(name, filepath):
 
     with open(filepath, 'rb') as csv_file:
         (ok, input_schema) = upload.csv(csv_file)
-
         assert ok, input_schema
 
     (ok, output_schema) = input_schema.latest_output()
@@ -58,17 +68,8 @@ def create(name, filepath):
 
     upsert_job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attributes['log'][0]) + "\n"))
 
+    print("Your view is ready: {url}".format(
+        url = auth.proto + auth.domain + '/d/' + view['id']
+    ))
 
-
-def main():
-    parser = argparse.ArgumentParser(description='Create a dataset.')
-    parser.add_argument('name', type=str, help='Name of your dataset')
-    parser.add_argument('csv', type=str, help='Path to the CSV')
-
-    args = parser.parse_args()
-
-    create(args.name, args.csv)
-
-
-if __name__ == '__main__':
-    main()
+create(args.name, args.csv)

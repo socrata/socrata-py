@@ -7,6 +7,7 @@ auth = Authorization(
   os.environ['SOCRATA_LOCAL_USER'],
   os.environ['SOCRATA_LOCAL_PASS']
 )
+auth.live_dangerously()
 
 pub = Publish(auth)
 (ok, v) = pub.new({'name': 'test-view'})

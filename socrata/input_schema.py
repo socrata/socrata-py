@@ -5,7 +5,7 @@ from socrata.resource import Collection, Resource
 from socrata.output_schema import OutputSchema
 
 class InputSchema(Resource):
-    def transform(self, uri, body, progress = noop):
+    def transform(self, uri, body):
         result = respond(requests.post(
             self.path(uri),
             headers = headers(),
@@ -13,4 +13,13 @@ class InputSchema(Resource):
             data = json.dumps(body),
             verify = self.auth.verify
         ))
-        return self.subresource(OutputSchema, result, progress = progress)
+        return self.subresource(OutputSchema, result)
+
+    def latest_output(self, uri):
+        result = respond(requests.get(
+            self.path(uri),
+            headers = headers(),
+            auth = self.auth.basic,
+            verify = self.auth.verify
+        ))
+        return self.subresource(OutputSchema, result)

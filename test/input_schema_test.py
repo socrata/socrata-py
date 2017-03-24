@@ -21,3 +21,10 @@ class TestInputSchema(unittest.TestCase):
         )
 
         self.assertTrue(ok)
+
+    def test_show_latest(self):
+        input_schema = create_input_schema()
+
+        (ok, output_schema) = input_schema.latest_output()
+        self.assertTrue(ok)
+        self.assertEqual(input_schema.attributes['id'], output_schema.attributes['input_schema_id'])

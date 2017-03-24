@@ -1,3 +1,4 @@
+import time
 import requests
 import json
 from socrata.resource import Resource
@@ -14,3 +15,15 @@ class OutputSchema(Resource):
             auth = self.auth.basic,
             verify = self.auth.verify
         )))
+
+    def is_complete(self):
+        return all([column['transform']['completed_at'] for column in self.attributes['output_columns']])
+
+    def wait_for_finish(self, progress = noop):
+        while not self.is_complete():
+            (ok, me) = self.show()
+            progress(self)
+            if not ok:
+                return (ok, me)
+            time.sleep(1)
+        return (True, self)

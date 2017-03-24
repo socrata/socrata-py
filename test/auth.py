@@ -8,7 +8,11 @@ auth = Authorization(
   os.environ['SOCRATA_LOCAL_PASS']
 )
 
-fourfour = "ij46-xpxe"
+pub = Publish(auth)
+(ok, v) = pub.new({'name': 'test-view'})
+assert ok, v
+fourfour = v['id']
+
 
 
 def create_rev():
@@ -27,7 +31,6 @@ def create_input_schema():
         return input_schema
 
 def create_output_schema():
-    rev = create_rev()
     input_schema = create_input_schema()
 
     (ok, output_schema) = input_schema.transform({

@@ -1,8 +1,6 @@
 # publish-py
 experimental sdk for the socrata publishing api
 
-
-
 ## Using
 
 ### Create a revision
@@ -30,7 +28,7 @@ assert ok
 
 # rev is a Revision object, we can print it
 print(rev)
-Resource({'created_by': {'display_name': 'rozap',
+Revision({'created_by': {'display_name': 'rozap',
                 'email': 'chris.duranti@socrata.com',
                 'user_id': 'tugg-ikce'},
  'fourfour': 'ij46-xpxe',
@@ -53,7 +51,7 @@ assert ok
 
 # And print it
 print(upload)
-Resource({'content_type': None,
+Upload({'content_type': None,
  'created_by': {'display_name': 'rozap',
                 'email': 'chris.duranti@socrata.com',
                 'user_id': 'tugg-ikce'},
@@ -66,9 +64,8 @@ Resource({'content_type': None,
 ### Upload a csv, given an upload
 ```python
 # And using that upload we just created, we can put bytes into it
-# We can also attach a progress callback
 with open('test/fixtures/simple.csv', 'rb') as f:
-    (ok, input_schema) = upload.csv(f, progress = lambda p: print("Uploaded %s" % p['total_bytes']))
+    (ok, input_schema) = upload.csv(f)
     assert ok
 ```
 
@@ -76,8 +73,6 @@ with open('test/fixtures/simple.csv', 'rb') as f:
 ```python
 # Putting bytes into an upload gives us an input schema. We can call `transform` on the
 # input schema to get a new output schema with our transforms applied.
-# We can also attach a progress callback, which will give us progress events,
-# error events, and finish events to let us know when our transform is done.
 (ok, output_schema) = input_schema.transform({
     'output_columns': [
         {
@@ -89,8 +84,7 @@ with open('test/fixtures/simple.csv', 'rb') as f:
                 "transform_expr": "to_number(b)"
             }
         }
-    ]},
-    progress = lambda event: print('Column %s has transformed %s rows' % (event['column']['field_name'], event['end_row_offset']))
+    ]})
 )
 ```
 

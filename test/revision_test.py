@@ -7,13 +7,13 @@ class TestPublish(unittest.TestCase):
     def test_create_revision(self):
         p = Publish(auth)
         (ok, r) = p.revisions.create(fourfour)
-        self.assertTrue(ok)
+        self.assertTrue(ok, r)
 
     def test_list_operations(self):
         p = Publish(auth)
         (ok, r) = p.revisions.create(fourfour)
-        assert 'show' in r.list_operations()
-        assert 'create_upload' in r.list_operations()
+        assert 'show' in r.list_operations(), r
+        assert 'create_upload' in r.list_operations(), r
 
     def test_show_revision(self):
         p = Publish(auth)
@@ -21,4 +21,4 @@ class TestPublish(unittest.TestCase):
         self.assertTrue(ok)
 
         (ok, rev) = r.show()
-        self.assertTrue(ok)
+        self.assertTrue(ok, rev)

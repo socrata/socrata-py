@@ -1,45 +1,24 @@
 import json
 import requests
 from socrata.http import headers, respond
-from socrata.resource import Resource
+from socrata.resource import Resource, Collection
 from socrata.input_schema import InputSchema
 
-def noop(*args, **kwargs):
-    pass
+class Uploads(Collection):
+    def create(self, body):
+        path = 'https://{domain}/api/publishing/v1/upload'.format(
+            domain = self.auth.domain
+        )
+        return self.subresource(Upload, respond(requests.post(
+            path,
+            headers = headers(),
+            auth = self.auth.basic,
+            data = json.dumps(body),
+            verify = self.auth.verify
+        )))
 
 class Upload(Resource):
-    def channel_name(self):
-        return "upload"
-
-    def joined(self):
-        return
-        def on_new_input_schema(payload, _):
-            payload = {
-                'resource': payload,
-                'links': {
-                    'show': self.show_uri() + '/schema/' + str(payload['id'])
-                }
-            }
-            (ok, input_schema) = self.subresource(InputSchema, (True, payload))
-            assert ok, "Failed to create InputSchema on Upload"
-            for column in input_schema.attributes['output_schemas'][0]['output_columns']:
-                transform = column['transform']
-
-                channel = self.socket.channel(
-                    "transform_progress:{tid}".format(tid = transform['id']),
-                    {}
-                )
-                def on_progress(payload, _):
-                    payload['column'] = column
-                    self._row_progress(payload)
-                channel.on('max_ptr', on_progress)
-                channel.join()
-
-        self.on('insert_input_schema', on_new_input_schema)
-
-
-    def bytes(self, uri, file_handle, content_type, progress):
-        self._row_progress = progress
+    def bytes(self, uri, file_handle, content_type):
         return self.subresource(InputSchema, respond(requests.post(
             self.path(uri),
             headers = headers({
@@ -50,5 +29,23 @@ class Upload(Resource):
             verify = self.auth.verify
         )))
 
-    def csv(self, file_handle, progress = noop):
-        return self.bytes(file_handle, "text/csv", progress)
+    def csv(self, file_handle):
+        return self.bytes(file_handle, "text/csv")
+
+    def add_to_revision(self, uri, revision):
+        (ok, res) = result = respond(requests.patch(
+            self.path(uri),
+            headers = headers(),
+            auth = self.auth.basic,
+            verify = self.auth.verify,
+            data = json.dumps({
+                'revision': {
+                    'fourfour': revision.attributes['fourfour'],
+                    'revision_seq': revision.attributes['revision_seq']
+                }
+            })
+        ))
+        if ok:
+            self.on_response(res)
+            return (ok, self)
+        return result

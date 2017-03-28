@@ -18,5 +18,5 @@ def respond(response):
             return (True, response.json())
         else:
             return (False, response.json())
-    except json.decoder.JSONDecodeError:
+    except Exception: # json.decoder.JSONDecodeError isn't always a thing???? WHY PYTHON
         return (False, {'error': 'json', 'content': response.content})

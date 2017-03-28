@@ -91,6 +91,13 @@ with open('test/fixtures/simple.csv', 'rb') as f:
         }
     ]})
 )
+
+# Wait for the transformation to finish
+(ok, output_schema) = output_schema.wait_for_finish()
+assert ok, output_schema
+
+# Look at how many validation errors happened while trying to transform our dataset
+print(output_schema.attributes['error_count'])
 ```
 
 ### Do the upsert!
@@ -112,13 +119,8 @@ print(upsert_job.attributes['log'])
 ]
 
 
-# So maybe we just want to wait here forever until the job is done
-done = False
-while not done:
-    (ok, job) = upsert_job.show()
-    assert ok, "Job poller failed to poll!"
-    done = job.attributes['status'] == 'successful'
-    sleep(0.5)
+# So maybe we just want to wait here, printing the progress, until the job is done
+upsert_job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attributes['log'][0]) + "\n"))
 
 # So now if we go look at our original four-four, our data will be there
 ```

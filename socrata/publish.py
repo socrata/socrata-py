@@ -12,7 +12,8 @@ class Publish(Collection):
         self.uploads = Uploads(auth)
 
     def new(self, body):
-        path = 'https://{domain}/api/views'.format(
+        path = '{proto}{domain}/api/views'.format(
+            proto = self.auth.proto,
             domain = self.auth.domain
         )
         return respond(requests.post(
@@ -24,7 +25,8 @@ class Publish(Collection):
         ))
 
     def delete(self, id):
-        path = 'https://{domain}/api/views/{ff}'.format(
+        path = '{proto}{domain}/api/views/{ff}'.format(
+            proto = self.auth.proto,
             domain = self.auth.domain,
             ff = id
         )

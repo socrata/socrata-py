@@ -32,3 +32,11 @@ class Revision(Resource):
             verify = self.auth.verify
         )))
 
+    def discard(self, uri):
+        return respond(requests.delete(
+            self.path(uri),
+            headers = headers(),
+            auth = self.auth.basic,
+            verify = self.auth.verify
+        ))
+

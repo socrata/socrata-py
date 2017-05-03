@@ -46,7 +46,6 @@ class Resource(object):
         setattr(self, 'list_operations', lambda: list(links.keys()))
 
     def dispatch(self, name, uri):
-
         og_method_name = '_' + name
         if not hasattr(self, og_method_name):
             og_method = getattr(self, name, self.noop)

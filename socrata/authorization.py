@@ -12,7 +12,6 @@ class Authorization(object):
         self.basic = HTTPBasicAuth(self.username, self.password)
 
     def live_dangerously(self):
-        self.proto = 'http://'
         import requests
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)

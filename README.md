@@ -100,6 +100,20 @@ assert ok, output_schema
 print(output_schema.attributes['error_count'])
 ```
 
+
+# Look at some rows
+```python
+(ok, rows) = output_schema.rows(offset = 0, limit = 20)
+asssert ok,
+
+self.assertEqual(rows, [
+    {'b': {'ok': ' bfoo'}},
+    {'b': {'ok': ' bfoo'}},
+    {'b': {'ok': ' bfoo'}},
+    {'b': {'ok': ' bfoo'}}
+])
+```
+
 ### Do the upsert!
 ```python
 # Now we have transformed our data into the shape we want, let's do an upsert

@@ -37,9 +37,13 @@ def create(name, filepath):
     publishing = Publish(auth)
 
     (ok, view) = publishing.new({'name': name})
+    print(ok)
+    print(view)
     assert ok, view
 
-    (ok, revision) = publishing.revisions.create(view['id'])
+    # fourfour = view['id']
+    fourfour = 'jn6b-t8bv'
+    (ok, revision) = publishing.revisions.create(fourfour)
     assert ok, revision
 
     (ok, upload) = revision.create_upload({'filename': path.basename(filepath)})
@@ -61,6 +65,7 @@ def create(name, filepath):
     print("Found {error_count} validation errors as the result of applying transforms".format(
         error_count = output_schema.attributes['error_count']
     ))
+    return
 
     (ok, upsert_job) = output_schema.apply()
     assert ok, upsert_job

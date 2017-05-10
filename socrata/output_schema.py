@@ -18,18 +18,19 @@ class OutputSchema(Resource):
             verify = self.auth.verify
         )))
 
-    def is_complete(self):
-        return all([column['transform']['completed_at'] for column in self.attributes['output_columns']])
+    def any_failed(self):
+        return any([column['transform']['failed_at'] for column in self.attributes['output_columns']])
 
     def wait_for_finish(self, progress = noop):
-        while not self.is_complete():
+        while not self.attributes['completed_at']:
             (ok, me) = self.show()
             progress(self)
             if not ok:
                 return (ok, me)
+            if self.any_failed():
+                return (False, me)
             time.sleep(1)
         return (True, self)
-
 
     def munge_row(self, row):
         row = row['row']

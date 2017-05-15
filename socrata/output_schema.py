@@ -5,7 +5,8 @@ from socrata.resource import Resource
 from socrata.upsert_job import UpsertJob
 from socrata.http import headers, respond, noop
 
-
+class TimeoutException(Exception):
+    pass
 
 class OutputSchema(Resource):
     def apply(self):
@@ -21,8 +22,12 @@ class OutputSchema(Resource):
     def any_failed(self):
         return any([column['transform']['failed_at'] for column in self.attributes['output_columns']])
 
-    def wait_for_finish(self, progress = noop):
+    def wait_for_finish(self, progress = noop, timeout = None):
+        started = time.time()
         while not self.attributes['completed_at']:
+            current = time.time()
+            if timeout and (current - started > timeout):
+                raise TimeoutException("Timed out after %s seconds waiting for completion" % timeout)
             (ok, me) = self.show()
             progress(self)
             if not ok:

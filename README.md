@@ -30,7 +30,7 @@ publishing = Publish(auth)
 ### Simple usage
 To create a dataset with as little code as possible, you can do this:
 
-```
+```python
 with open('path/to/my/file.csv', 'rb') as file:
     # Upload the data, validate it
     output = Publish(auth).create(
@@ -132,7 +132,7 @@ print(output_schema.attributes['error_count'])
 ```
 
 
-# Look at some rows
+### Validating rows
 ```python
 (ok, rows) = output_schema.rows(offset = 0, limit = 20)
 asssert ok,

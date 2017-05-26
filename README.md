@@ -8,22 +8,53 @@ python -m examples.create 'Police Reports' ~/Desktop/catalog.data.gov/Seattle_Re
 ```
 ## Using
 
-### Create a revision
+
+### Boilerplate
 ```python
 # Import some stuff
 from socrata.authorization import Authorization
 from socrata.publish import Publish
+import os
 
 # Boilerplate...
 # Make an auth object
 auth = Authorization(
   "pete-test.test-socrata.com",
-  os.environ['SOCRATA_LOCAL_USER'],
-  os.environ['SOCRATA_LOCAL_PASS']
+  os.environ['SOCRATA_USERNAME'],
+  os.environ['SOCRATA_PASSWORD']
 )
 
 publishing = Publish(auth)
+```
 
+### Simple usage
+To create a dataset with as little code as possible, you can do this:
+
+```
+with open('path/to/my/file.csv', 'rb') as file:
+    # Upload the data, validate it
+    output = Publish(auth).create(
+        name = "cool dataset",
+        description = "a description"
+    ).csv(file)
+
+    # It's wise to make sure you have no type errors, if that's what you expect
+    assert output.attributes['error_count'] == 0
+
+    # Publish the dataset - this will make it public and available to make
+    # visualizations from
+    output.apply()
+```
+
+Similar to the `csv` method are the `xls`, `xlsx`, and `tsv` methods, which upload
+those files.
+
+
+### Advanced usage
+
+#### Create a revision
+
+```python
 # This is our view
 fourfour = "ij46-xpxe"
 

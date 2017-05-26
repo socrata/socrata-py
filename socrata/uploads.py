@@ -32,6 +32,16 @@ class Upload(Resource):
     def csv(self, file_handle):
         return self.bytes(file_handle, "text/csv")
 
+    def xls(self, file_handle):
+        return self.bytes(file_handle, "application/vnd.ms-excel")
+
+    def xlsx(self, file_handle):
+        return self.bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+    def tsv(self, file_handle):
+        return self.bytes(file_handle, "text/tab-separated-values")
+
+
     def add_to_revision(self, uri, revision):
         (ok, res) = result = respond(requests.patch(
             self.path(uri),

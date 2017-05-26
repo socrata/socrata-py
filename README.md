@@ -24,7 +24,6 @@ auth = Authorization(
   os.environ['SOCRATA_PASSWORD']
 )
 
-publishing = Publish(auth)
 ```
 
 ### Simple usage
@@ -55,6 +54,9 @@ those files.
 #### Create a revision
 
 ```python
+# This is our publishing object, using the auth variable from above
+publishing = Publish(auth)
+
 # This is our view
 fourfour = "ij46-xpxe"
 

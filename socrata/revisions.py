@@ -40,3 +40,16 @@ class Revision(Resource):
             verify = self.auth.verify
         ))
 
+    def metadata(self, uri, meta):
+        (ok, res) = result = respond(requests.put(
+            self.path(uri),
+            headers = headers(),
+            auth = self.auth.basic,
+            data = json.dumps({'metadata': meta}),
+            verify = self.auth.verify
+        ))
+        if ok:
+            self.on_response(res)
+            return (ok, self)
+        return result
+

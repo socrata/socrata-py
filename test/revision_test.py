@@ -22,3 +22,25 @@ class TestPublish(unittest.TestCase):
 
         (ok, rev) = r.show()
         self.assertTrue(ok, rev)
+
+    def test_create_upload(self):
+        p = Publish(auth)
+        (ok, r) = p.revisions.create(fourfour)
+        self.assertTrue(ok)
+
+        (ok, upload) = r.create_upload({'filename': 'foo.csv'})
+        self.assertTrue(ok, upload)
+
+    def test_metadata_revision(self):
+        p = Publish(auth)
+        (ok, r) = p.revisions.create(fourfour)
+        self.assertTrue(ok)
+
+        (ok, rev) = r.metadata({
+            'name': 'foo',
+            'description': 'bar',
+            'category': 'fun'
+        })
+        self.assertTrue(ok, rev)
+        self.assertEqual(rev.attributes['metadata']['name'], 'foo')
+        self.assertEqual(rev.attributes['metadata']['description'], 'bar')

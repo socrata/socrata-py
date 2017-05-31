@@ -3,9 +3,9 @@ from socrata.authorization import Authorization
 from socrata.publish import Publish
 
 auth = Authorization(
-  "localhost",
-  os.environ['SOCRATA_LOCAL_USER'],
-  os.environ['SOCRATA_LOCAL_PASS']
+  os.environ['SOCRATA_DOMAIN'],
+  os.environ['SOCRATA_USERNAME'],
+  os.environ['SOCRATA_PASSWORD']
 )
 auth.live_dangerously()
 

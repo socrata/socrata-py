@@ -1,6 +1,5 @@
 import json
 import requests
-from socrata.transport.ws import connect
 from socrata.http import headers, respond
 from socrata.resource import Collection, Resource
 from socrata.uploads import Upload

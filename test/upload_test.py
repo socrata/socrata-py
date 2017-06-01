@@ -24,7 +24,7 @@ class TestUpload(unittest.TestCase):
             self.assertTrue(ok)
             self.assertEqual(input_schema.attributes['total_rows'], 4)
 
-            names = [ic['field_name'] for ic in input_schema.attributes['input_columns']]
+            names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
             self.assertEqual(['a', 'b', 'c'], names)
 
             assert 'show' in input_schema.list_operations()
@@ -48,7 +48,7 @@ class TestUpload(unittest.TestCase):
         with open('test/fixtures/simple.csv', 'rb') as f:
             (ok, input_schema) = upload.csv(f)
             self.assertTrue(ok, input_schema)
-            names = [ic['field_name'] for ic in input_schema.attributes['input_columns']]
+            names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
             self.assertEqual(['a', 'b', 'c'], names)
 
     def test_put_upload_in_revision(self):

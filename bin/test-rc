@@ -1,0 +1,8 @@
+#!/bin/bash
+
+virtualenv -p python3 venv
+. venv/bin/activate
+pip install -r requirements.txt
+python3 setup.py install
+
+PYTHONUNBUFFERED=1 SOCRATA_DOMAIN='cheetah.rc-socrata.com' SOCRATA_USERNAME='test-admin@socrata.com' SOCRATA_PASSWORD=$TEST_PASSWORD python3 -m unittest discover -s test -p '*_test.py'

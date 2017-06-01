@@ -57,8 +57,10 @@ those files.
 # This is our publishing object, using the auth variable from above
 publishing = Publish(auth)
 
+(ok, view) = publishing.new({'name': 'cool dataset'})
+assert ok, view
 # This is our view
-fourfour = "ij46-xpxe"
+fourfour = view['id']
 
 # Make a revision
 (ok, rev) = publishing.revisions.create(fourfour)

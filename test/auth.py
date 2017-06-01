@@ -7,7 +7,9 @@ auth = Authorization(
   os.environ['SOCRATA_USERNAME'],
   os.environ['SOCRATA_PASSWORD']
 )
-auth.live_dangerously()
+
+if auth.domain == 'localhost':
+    auth.live_dangerously()
 
 pub = Publish(auth)
 (ok, v) = pub.new({'name': 'test-view'})

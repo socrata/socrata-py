@@ -39,6 +39,7 @@ def respond(response, request_id = None):
 
 def post(path, auth = None, data = None, headers = {}):
     (headers, request_id) = prepare(headers)
+    log.info('POST %s %s', path, request_id)
     return respond(requests.post(
         path,
         headers = headers,

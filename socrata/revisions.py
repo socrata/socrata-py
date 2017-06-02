@@ -1,6 +1,6 @@
 import json
 import requests
-from socrata.http import headers, respond
+from socrata.http import post, put, delete
 from socrata.resource import Collection, Resource
 from socrata.uploads import Upload
 
@@ -12,41 +12,28 @@ class Revisions(Collection):
         )
 
     def create(self, fourfour):
-        (ok, revision) = result = self.subresource(Revision, respond(requests.post(
+        return self.subresource(Revision, post(
             self.path(fourfour),
-            headers = headers(),
-            auth = self.auth.basic,
-            verify = self.auth.verify
-        )))
-
-        return result
+            auth = self.auth
+        ))
 
 class Revision(Resource):
     def create_upload(self, uri, body):
-        return self.subresource(Upload, respond(requests.post(
+        return self.subresource(Upload, post(
             self.path(uri),
-            headers = headers(),
-            auth = self.auth.basic,
-            data = json.dumps(body),
-            verify = self.auth.verify
-        )))
+            auth = self.auth,
+            data = json.dumps(body)
+        ))
 
     def discard(self, uri):
-        return respond(requests.delete(
-            self.path(uri),
-            headers = headers(),
-            auth = self.auth.basic,
-            verify = self.auth.verify
-        ))
+        return delete(self.path(uri), auth = self.auth)
 
     def metadata(self, uri, meta):
-        (ok, res) = result = respond(requests.put(
+        (ok, res) = result = put(
             self.path(uri),
-            headers = headers(),
-            auth = self.auth.basic,
+            auth = self.auth,
             data = json.dumps({'metadata': meta}),
-            verify = self.auth.verify
-        ))
+        )
         if ok:
             self.on_response(res)
             return (ok, self)

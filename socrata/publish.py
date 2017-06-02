@@ -1,7 +1,7 @@
 from socrata.resource import Collection
 from socrata.revisions import Revisions
 from socrata.uploads import Uploads
-from socrata.http import headers, respond
+from socrata.http import gen_headers, post
 import json
 import requests
 
@@ -69,13 +69,11 @@ class Publish(Collection):
             proto = self.auth.proto,
             domain = self.auth.domain
         )
-        return respond(requests.post(
+        return post(
             path,
-            headers = headers(),
-            auth = self.auth.basic,
-            verify = self.auth.verify,
+            auth = self.auth,
             data = json.dumps(body)
-        ))
+        )
 
     def delete(self, id):
         path = '{proto}{domain}/api/views/{ff}'.format(
@@ -85,7 +83,7 @@ class Publish(Collection):
         )
         response = requests.delete(
             path,
-            headers = headers(),
+            headers = gen_headers(),
             auth = self.auth.basic,
             verify = self.auth.verify
         )

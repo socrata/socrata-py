@@ -1,25 +1,19 @@
 import json
 import requests
-from socrata.http import headers, respond, noop
+from socrata.http import noop, post, get
 from socrata.resource import Collection, Resource
 from socrata.output_schema import OutputSchema
 
 class InputSchema(Resource):
     def transform(self, uri, body):
-        result = respond(requests.post(
+        return self.subresource(OutputSchema, post(
             self.path(uri),
-            headers = headers(),
-            auth = self.auth.basic,
+            auth = self.auth,
             data = json.dumps(body),
-            verify = self.auth.verify
         ))
-        return self.subresource(OutputSchema, result)
 
     def latest_output(self, uri):
-        result = respond(requests.get(
+        return self.subresource(OutputSchema, get(
             self.path(uri),
-            headers = headers(),
-            auth = self.auth.basic,
-            verify = self.auth.verify
+            auth = self.auth,
         ))
-        return self.subresource(OutputSchema, result)

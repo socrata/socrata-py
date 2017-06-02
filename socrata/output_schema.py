@@ -1,9 +1,8 @@
 import time
-import requests
 import json
 from socrata.resource import Resource
 from socrata.upsert_job import UpsertJob
-from socrata.http import headers, respond, noop
+from socrata.http import noop, put, get
 
 class TimeoutException(Exception):
     pass
@@ -11,13 +10,11 @@ class TimeoutException(Exception):
 class OutputSchema(Resource):
     def apply(self):
         uri = self.parent.parent.parent.show_uri + '/apply'
-        return self.subresource(UpsertJob, respond(requests.put(
+        return self.subresource(UpsertJob, put(
             self.path(uri),
-            headers = headers(),
-            data = json.dumps({'output_schema_id': self.attributes['id']}),
-            auth = self.auth.basic,
-            verify = self.auth.verify
-        )))
+            auth = self.auth,
+            data = json.dumps({'output_schema_id': self.attributes['id']})
+        ))
 
     def any_failed(self):
         return any([column['transform']['failed_at'] for column in self.attributes['output_columns']])
@@ -44,13 +41,11 @@ class OutputSchema(Resource):
         return {k: v for k, v in zip(field_names, row)}
 
     def rows(self, uri, offset = 0, limit = 500):
-        ok, resp = respond(requests.get(
+        ok, resp = get(
             self.path(uri),
             params = {'limit': limit, 'offset': offset},
-            headers = headers(),
-            auth = self.auth.basic,
-            verify = self.auth.verify
-        ))
+            auth = self.auth
+        )
 
         if not ok:
             return ok, resp

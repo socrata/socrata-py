@@ -1,7 +1,7 @@
 import os
 from socrata.authorization import Authorization
 from socrata.publish import Publish
-
+import logging
 auth = Authorization(
   os.environ['SOCRATA_DOMAIN'],
   os.environ['SOCRATA_USERNAME'],
@@ -10,6 +10,18 @@ auth = Authorization(
 
 if auth.domain == 'localhost':
     auth.live_dangerously()
+
+import logging
+
+
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 
 pub = Publish(auth)
 (ok, v) = pub.new({'name': 'test-view'})

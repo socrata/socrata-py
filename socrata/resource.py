@@ -1,5 +1,5 @@
 import pprint
-from socrata.http import headers, respond, noop
+from socrata.http import noop, get
 import requests
 
 class Collection(object):
@@ -61,12 +61,10 @@ class Resource(object):
 
     # This is just the identity of this resource, so it's easy to abstract
     def show(self, uri):
-        (ok, res) = result = respond(requests.get(
+        (ok, res) = result = get(
             self.path(uri),
-            headers = headers(),
-            auth = self.auth.basic,
-            verify = self.auth.verify
-        ))
+            auth = self.auth
+        )
         if ok:
             self.on_response(res)
             return (ok, self)

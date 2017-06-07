@@ -46,7 +46,7 @@ def post(path, auth = None, data = None, headers = {}):
         auth = auth.basic,
         verify = auth.verify,
         data = data
-    ))
+    ), request_id = request_id)
 
 
 def put(path, auth = None, data = None, headers = {}):
@@ -58,7 +58,7 @@ def put(path, auth = None, data = None, headers = {}):
         auth = auth.basic,
         verify = auth.verify,
         data = data
-    ))
+    ), request_id = request_id)
 
 
 def patch(path, auth = None, data = None, headers = {}):
@@ -70,7 +70,7 @@ def patch(path, auth = None, data = None, headers = {}):
         auth = auth.basic,
         verify = auth.verify,
         data = data
-    ))
+    ), request_id = request_id)
 
 def get(path, auth = None, params = {}, headers = {}):
     (headers, request_id) = prepare(headers)
@@ -81,7 +81,7 @@ def get(path, auth = None, params = {}, headers = {}):
         headers = headers,
         auth = auth.basic,
         verify = auth.verify
-    ))
+    ), request_id = request_id)
 
 def delete(path, auth = None, headers = {}):
     (headers, request_id) = prepare(headers)
@@ -91,4 +91,4 @@ def delete(path, auth = None, headers = {}):
         headers = headers,
         auth = auth.basic,
         verify = auth.verify
-    ))
+    ), request_id = request_id)

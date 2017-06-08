@@ -3,14 +3,14 @@ import unittest
 from test.auth import create_output_schema
 
 class TestUpsertJob(unittest.TestCase):
-    def test_show_upsert_job_until_finished(self):
+    def test_show_job_until_finished(self):
         output_schema = create_output_schema()
-        (ok, upsert_job) = output_schema.apply()
-        assert ok, upsert_job
+        (ok, job) = output_schema.apply()
+        assert ok, job
         done = False
         attempts = 0
         while not done and attempts < 20:
-            (ok, job) = upsert_job.show()
+            (ok, job) = job.show()
             attempts += 1
             assert ok, job
 

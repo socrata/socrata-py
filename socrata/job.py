@@ -2,7 +2,7 @@ import time
 from socrata.http import noop
 from socrata.resource import Resource
 
-class UpsertJob(Resource):
+class Job(Resource):
     def is_complete(self):
         return not (self.attributes['status'] == 'in_progress')
 

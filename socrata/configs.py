@@ -3,6 +3,7 @@ import requests
 from socrata.http import get, post, patch, delete
 from socrata.resource import Collection, Resource
 
+
 class Configs(Collection):
     def path(self):
         return 'https://{domain}/api/publishing/v1/config'.format(
@@ -21,6 +22,13 @@ class Configs(Collection):
             })
         ))
 
+    # ~~ danger ~~ This URL is hardcoded
+    def lookup(self, name):
+        return self.subresource(Config, get(
+            self.path() + '/' + name,
+            auth = self.auth
+        ))
+
     def list(self):
         return self.subresources(Config, get(
             self.path(),
@@ -28,7 +36,6 @@ class Configs(Collection):
         ))
 
 class Config(Resource):
-
     def delete(self, uri):
         return delete(self.path(uri), auth = self.auth)
 
@@ -37,7 +44,7 @@ class Config(Resource):
         parse_options = parse_options or self.attributes['parse_options']
         columns = columns or self.attributes['columns']
 
-        return self.mutate(patch(
+        return self._mutate(patch(
             self.path(uri),
             auth = self.auth,
             data = json.dumps({
@@ -46,3 +53,15 @@ class Config(Resource):
                 'columns': columns
             })
         ))
+
+    def create_revision(self, uri, fourfour):
+        # Because of circular dependencies ;_;
+        from socrata.revisions import Revision
+
+        (ok, res) = result = post(
+            self.path(uri).format(fourfour = fourfour),
+            auth = self.auth
+        )
+        if not ok:
+            return result
+        return (ok, Revision(self.auth, res))

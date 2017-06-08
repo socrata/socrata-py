@@ -1,13 +1,15 @@
 # publish-py
 experimental sdk for the socrata publishing api
 
+## Documentation
+[Is available here](https://socrata.github.io/publish-py/docs)
+
 ## Example
 Try the command line example with
 ```bash
 python -m examples.create 'Police Reports' ~/Desktop/catalog.data.gov/Seattle_Real_Time_Fire_911_Calls.csv 'pete-test.test-socrata.com' --username $SOCRATA_USERNAME --password $SOCRATA_PASSWORD
 ```
 ## Using
-
 
 ### Boilerplate
 ```python
@@ -173,3 +175,19 @@ upsert_job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attri
 
 # So now if we go look at our original four-four, our data will be there
 ```
+
+
+# Testing
+Configuration is set in `test/auth.py` for tests. It reads the domain, username, and password from environment variables. If you want to run the tests, set those environment variables to something that will work.
+
+If I wanted to run the tests against my local instance, I would run:
+```bash
+SOCRATA_DOMAIN=localhost SOCRATA_USERNAME=$SOCRATA_LOCAL_USER SOCRATA_PASSWORD=$SOCRATA_LOCAL_PASS bin/test
+```
+
+# Docs
+make the docs by running
+```bash
+make docs
+```
+

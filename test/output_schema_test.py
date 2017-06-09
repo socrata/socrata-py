@@ -1,6 +1,7 @@
 import unittest
 from socrata.publish import Publish
 from test.auth import auth, fourfour, create_input_schema
+import uuid
 
 def create_bad_output_schema():
     input_schema = create_input_schema()
@@ -67,3 +68,19 @@ class TestOutputSchema(unittest.TestCase):
         self.assertEqual(rows, [
             {'b': {'ok': ' bfoo'}}
         ])
+
+    def test_build_config(self):
+        output_schema = create_good_output_schema()
+
+        (ok, config) = output_schema.build_config(
+            "my cool config %s" % str(uuid.uuid4()),
+            "replace"
+        )
+
+        self.assertTrue(ok, config)
+
+        [single_column] = config.attributes['columns']
+
+        self.assertEqual(single_column['field_name'], 'b')
+        self.assertEqual(single_column['display_name'], 'b')
+        self.assertEqual(single_column['transform_expr'], "`b` || 'foo'")

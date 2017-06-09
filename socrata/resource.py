@@ -6,6 +6,12 @@ class Collection(object):
     def __init__(self, auth):
         self.auth = auth
 
+    def subresources(self, klass, result):
+        (ok, resources) = result
+        if ok:
+            return (ok, [klass(self.auth, res, self) for res in resources])
+        return result
+
     def subresource(self, klass, result):
         (ok, res) = result
         if ok:
@@ -42,9 +48,10 @@ class Resource(object):
         for name, uri in links.items():
             setattr(self, name, self.dispatch(name, uri))
             setattr(self, '%s_uri' % name, uri)
-
         setattr(self, 'list_operations', lambda: list(links.keys()))
 
+    # Yes this is kind of terrifying and bad and magic but i can't
+    # think of a less obnoxious way to inject the uri
     def dispatch(self, name, uri):
         og_method_name = '_' + name
         if not hasattr(self, og_method_name):
@@ -59,14 +66,17 @@ class Resource(object):
     def noop(self, uri, *args, **kwargs):
         raise NotImplementedError("%s is not implemented" % uri)
 
-    # This is just the identity of this resource, so it's easy to abstract
-    def show(self, uri):
-        (ok, res) = result = get(
-            self.path(uri),
-            auth = self.auth
-        )
+    def mutate(self, result):
+        (ok, response) = result
         if ok:
-            self.on_response(res)
+            self.on_response(response)
             return (ok, self)
         return result
+
+    # This is just the identity of this resource, so it's easy to abstract
+    def show(self, uri):
+        return self.mutate(get(
+            self.path(uri),
+            auth = self.auth
+        ))
 

@@ -2,7 +2,8 @@ import time
 import json
 from socrata.resource import Resource
 from socrata.upsert_job import UpsertJob
-from socrata.http import noop, put, get
+from socrata.configs import Config
+from socrata.http import noop, put, get, post
 
 class TimeoutException(Exception):
     pass
@@ -15,6 +16,20 @@ class OutputSchema(Resource):
             auth = self.auth,
             data = json.dumps({'output_schema_id': self.attributes['id']})
         ))
+
+    def build_config(self, uri, name, data_action):
+        (ok, res) = result = post(
+            self.path(uri),
+            auth = self.auth,
+            data = json.dumps({
+                'name': name,
+                'data_action': data_action
+            })
+        )
+        if ok:
+            return (ok, Config(self.auth, res, None))
+        return result
+
 
     def any_failed(self):
         return any([column['transform']['failed_at'] for column in self.attributes['output_columns']])

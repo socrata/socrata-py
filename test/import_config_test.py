@@ -39,15 +39,17 @@ class ImportConfigTest(unittest.TestCase):
         self.assertTrue(ok, config)
         self.assertEqual(config.attributes['name'], name)
 
-    # Not yet implemented, this is the most important thing to make
-    # import configs work so don't mess it up
-    # def test_upload_to_config(self):
-    #     p = Publish(auth)
-    #     name = "some_config %s" % str(uuid.uuid4())
-    #     (ok, config) = p.configs.create(name, "replace")
-    #     self.assertTrue(ok, config)
+    def test_upload_to_config(self):
+        p = Publish(auth)
+        name = "some_config %s" % str(uuid.uuid4())
+        (ok, config) = p.configs.create(name, "replace")
+        self.assertTrue(ok, config)
 
-    #     p.using_config(name, fourfour)
+        p = Publish(auth)
+        with open('test/fixtures/simple.csv', 'rb') as my_file:
+            job = p.using_config(name, fourfour).csv(my_file)
+            print(job)
+            self.assertTrue(job.attributes['created_at'])
 
     def test_show_config(self):
         p = Publish(auth)

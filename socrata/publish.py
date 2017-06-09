@@ -82,6 +82,36 @@ class Create(Operation):
 
         return out
 
+class ConfiguredJob(Operation):
+    def run(self, file, put_bytes):
+        (ok, rev) = self.publish.revisions.create_using_config(
+            self.properties['fourfour'],
+            self.properties['config']
+        )
+        if not ok:
+            raise SocrataException("Failed to create the revision", rev)
+
+        (ok, upload) = rev.create_upload({'filename': file.name})
+        if not ok:
+            raise SocrataException("Failed to create the upload", upload)
+
+        (ok, inp) = put_bytes(upload)
+        if not ok:
+            raise SocrataException("Failed to upload the file", inp)
+
+        (ok, out) = inp.latest_output()
+        if not ok:
+            raise SocrataException("Failed to get the parsed dataset")
+
+        (ok, out) = out.wait_for_finish()
+        if not ok:
+            raise SocrataException("The dataset failed to validate")
+
+        (ok, job) = out.apply()
+        if not ok:
+            raise SocrataException("Failed to apply the change", job)
+        return job
+
 
 class Publish(Collection):
     """
@@ -137,19 +167,14 @@ class Publish(Collection):
         else:
             return (False, response)
 
-    def using_config(self, name, fourfour, file):
+    def using_config(self, name, fourfour):
         """
         Not sure yet
         """
         (ok, config) = result = self.configs.lookup(name)
         if not ok:
-            return result
-
-        (ok, rev) = config.create_revision(fourfour)
-        if not ok:
-            return rev
-
-        rev.create_upload()
+            raise SocrataException("Failed to lookup config %s" % name, result)
+        return ConfiguredJob(self, fourfour = fourfour, config = config)
 
 
     def create(self, **kwargs):

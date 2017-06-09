@@ -20,6 +20,19 @@ class Revisions(Collection):
             auth = self.auth
         ))
 
+    def create_using_config(self, fourfour, config):
+        """
+        Create a revision for the given dataset.
+        """
+        return self.subresource(Revision, post(
+            self.path(fourfour),
+            auth = self.auth,
+            data = json.dumps({
+                'config': config.attributes['name']
+            })
+        ))
+
+
 class Revision(Resource):
     """
     A revision is a change to a dataset

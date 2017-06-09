@@ -13,6 +13,44 @@ class ImportConfigTest(unittest.TestCase):
         self.assertEqual(config.attributes['name'], name)
 
 
+    def test_create_config_with_non_defaults(self):
+        name = "some_config %s" % str(uuid.uuid4())
+        p = Publish(auth)
+        (ok, config) = p.configs.create(
+            name,
+            "replace",
+            parse_options = {
+                "encoding": "utf8",
+                "header_count": 2,
+                "column_header": 2
+            },
+            columns = [
+                {
+                    "field_name": "foo",
+                    "display_name": "Foo is the display name",
+                    "transform_expr": "to_number(`foo`)"
+                }
+            ]
+        )
+        self.assertTrue(ok, config)
+        self.assertEqual(config.attributes['name'], name)
+
+        self.assertEqual(config.attributes['parse_options'], {
+            "encoding": "utf8",
+            "header_count": 2,
+            "column_header": 2,
+            "quote_char": "\\",
+            "column_separator": ","
+        })
+
+        self.assertEqual(config.attributes['columns'], [
+            {
+                "field_name": "foo",
+                "display_name": "Foo is the display name",
+                "transform_expr": "to_number(`foo`)"
+            }
+        ])
+
     def test_list_operations(self):
         p = Publish(auth)
         name = "some_config %s" % str(uuid.uuid4())

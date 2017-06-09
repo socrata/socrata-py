@@ -66,6 +66,29 @@ class ImportConfigTest(unittest.TestCase):
             for config in configs
         ]))
 
+    def test_lookup_config(self):
+        p = Publish(auth)
+        name = "some_config %s" % str(uuid.uuid4())
+        (ok, config) = p.configs.create(name, "replace")
+        self.assertTrue(ok, config)
+
+        (ok, config) = p.configs.lookup(name)
+
+        self.assertTrue(ok, config)
+        self.assertEqual(config.attributes['name'], name)
+
+    def test_upload_to_config(self):
+        p = Publish(auth)
+        name = "some_config %s" % str(uuid.uuid4())
+        (ok, config) = p.configs.create(name, "replace")
+        self.assertTrue(ok, config)
+
+        p = Publish(auth)
+        with open('test/fixtures/simple.csv', 'rb') as my_file:
+            job = p.using_config(name, fourfour).csv(my_file)
+            print(job)
+            self.assertTrue(job.attributes['created_at'])
+
     def test_show_config(self):
         p = Publish(auth)
         name = "some_config %s" % str(uuid.uuid4())

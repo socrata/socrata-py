@@ -1,7 +1,7 @@
 import time
 import json
 from socrata.resource import Resource
-from socrata.upsert_job import UpsertJob
+from socrata.job import Job
 from socrata.configs import Config
 from socrata.http import noop, put, get, post
 
@@ -10,8 +10,13 @@ class TimeoutException(Exception):
 
 class OutputSchema(Resource):
     def apply(self):
+        """
+        Apply the Revision that this OutputSchema is associated
+        with to the View. Returns a Job which will contain progress
+        information.
+        """
         uri = self.parent.parent.parent.show_uri + '/apply'
-        return self.subresource(UpsertJob, put(
+        return self.subresource(Job, put(
             self.path(uri),
             auth = self.auth,
             data = json.dumps({'output_schema_id': self.attributes['id']})

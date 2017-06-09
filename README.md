@@ -1,13 +1,25 @@
 # publish-py
 experimental sdk for the socrata publishing api
 
+## Installation
+This only supports python3.
+
+Installation is available through pip. Using a virtualenv is advised. Install
+the package by running
+
+```
+pip3 install socrata-publish-py
+```
+
+## Documentation
+[Is available here](https://socrata.github.io/publish-py/docs)
+
 ## Example
 Try the command line example with
 ```bash
 python -m examples.create 'Police Reports' ~/Desktop/catalog.data.gov/Seattle_Real_Time_Fire_911_Calls.csv 'pete-test.test-socrata.com' --username $SOCRATA_USERNAME --password $SOCRATA_PASSWORD
 ```
 ## Using
-
 
 ### Boilerplate
 ```python
@@ -173,3 +185,27 @@ upsert_job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attri
 
 # So now if we go look at our original four-four, our data will be there
 ```
+
+
+# Development
+
+## Testing
+Configuration is set in `test/auth.py` for tests. It reads the domain, username, and password from environment variables. If you want to run the tests, set those environment variables to something that will work.
+
+If I wanted to run the tests against my local instance, I would run:
+```bash
+SOCRATA_DOMAIN=localhost SOCRATA_USERNAME=$SOCRATA_LOCAL_USER SOCRATA_PASSWORD=$SOCRATA_LOCAL_PASS bin/test
+```
+
+## Generating docs
+make the docs by running
+```bash
+make docs
+```
+
+## Releasing
+release to pypi by bumping the version to something reasonable and running
+```
+python setup.py sdist upload -r pypi
+```
+Note you'll need your `.pypirc` file in your home directory. For help, read [this](http://peterdowns.com/posts/first-time-with-pypi.html)

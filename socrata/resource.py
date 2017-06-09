@@ -55,18 +55,18 @@ class Resource(object):
     def dispatch(self, name, uri):
         og_method_name = '_' + name
         if not hasattr(self, og_method_name):
-            og_method = getattr(self, name, self.noop)
+            og_method = getattr(self, name, self._noop)
             setattr(self, og_method_name, og_method)
 
-        old = getattr(self, og_method_name, self.noop)
+        old = getattr(self, og_method_name, self._noop)
         def f(*args, **kwargs):
             return old(uri, *args, **kwargs)
         return f
 
-    def noop(self, uri, *args, **kwargs):
+    def _noop(self, uri, *args, **kwargs):
         raise NotImplementedError("%s is not implemented" % uri)
 
-    def mutate(self, result):
+    def _mutate(self, result):
         (ok, response) = result
         if ok:
             self.on_response(response)
@@ -75,7 +75,7 @@ class Resource(object):
 
     # This is just the identity of this resource, so it's easy to abstract
     def show(self, uri):
-        return self.mutate(get(
+        return self._mutate(get(
             self.path(uri),
             auth = self.auth
         ))

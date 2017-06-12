@@ -4,6 +4,7 @@ from socrata.http import post, put, delete
 from socrata.resource import Collection, Resource
 from socrata.uploads import Upload
 from socrata.job import Job
+import webbrowser
 
 class Revisions(Collection):
     def path(self, fourfour):
@@ -81,4 +82,20 @@ class Revision(Resource):
                 'output_schema_id': output_schema.attributes['id']
             })
         ))
+
+    def ui_url(self):
+        """
+        This is the URL to the landing page in the UI for this revision
+        """
+        return "https://{domain}/d/{fourfour}/revisions/{seq}".format(
+            domain = self.auth.domain,
+            fourfour = self.attributes["fourfour"],
+            seq = self.attributes["revision_seq"]
+        )
+
+    def open_in_browser(self):
+        """
+        Open this revision in your browser, this will open a window
+        """
+        webbrowser.open(self.ui_url(), new=2)
 

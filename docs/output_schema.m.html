@@ -980,7 +980,6 @@ table {
   <ul>
     <li class="mono"><a href="#socrata.output_schema.OutputSchema.__init__">__init__</a></li>
     <li class="mono"><a href="#socrata.output_schema.OutputSchema.any_failed">any_failed</a></li>
-    <li class="mono"><a href="#socrata.output_schema.OutputSchema.apply">apply</a></li>
     <li class="mono"><a href="#socrata.output_schema.OutputSchema.build_config">build_config</a></li>
     <li class="mono"><a href="#socrata.output_schema.OutputSchema.define_operations">define_operations</a></li>
     <li class="mono"><a href="#socrata.output_schema.OutputSchema.dispatch">dispatch</a></li>
@@ -1020,7 +1019,6 @@ table {
     <pre><code>import time
 import json
 from socrata.resource import Resource
-from socrata.job import Job
 from socrata.configs import Config
 from socrata.http import noop, put, get, post
 
@@ -1028,19 +1026,6 @@ class TimeoutException(Exception):
     pass
 
 class OutputSchema(Resource):
-    def apply(self):
-        """
-        Apply the Revision that this OutputSchema is associated
-        with to the View. Returns a Job which will contain progress
-        information.
-        """
-        uri = self.parent.parent.parent.show_uri + '/apply'
-        return self.subresource(Job, put(
-            self.path(uri),
-            auth = self.auth,
-            data = json.dumps({'output_schema_id': self.attributes['id']})
-        ))
-
     def build_config(self, uri, name, data_action):
         (ok, res) = result = post(
             self.path(uri),
@@ -1110,19 +1095,6 @@ class OutputSchema(Resource):
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.output_schema.OutputSchema', this);">Show source &equiv;</a></p>
   <div id="source-socrata.output_schema.OutputSchema" class="source">
     <pre><code>class OutputSchema(Resource):
-    def apply(self):
-        """
-        Apply the Revision that this OutputSchema is associated
-        with to the View. Returns a Job which will contain progress
-        information.
-        """
-        uri = self.parent.parent.parent.show_uri + '/apply'
-        return self.subresource(Job, put(
-            self.path(uri),
-            auth = self.auth,
-            data = json.dumps({'output_schema_id': self.attributes['id']})
-        ))
-
     def build_config(self, uri, name, data_action):
         (ok, res) = result = post(
             self.path(uri),
@@ -1224,39 +1196,6 @@ class OutputSchema(Resource):
   <div id="source-socrata.output_schema.OutputSchema.any_failed" class="source">
     <pre><code>def any_failed(self):
     return any([column['transform']['failed_at'] for column in self.attributes['output_columns']])
-</code></pre>
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="socrata.output_schema.OutputSchema.apply">
-    <p>def <span class="ident">apply</span>(</p><p>self)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Apply the Revision that this OutputSchema is associated
-with to the View. Returns a Job which will contain progress
-information.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.output_schema.OutputSchema.apply', this);">Show source &equiv;</a></p>
-  <div id="source-socrata.output_schema.OutputSchema.apply" class="source">
-    <pre><code>def apply(self):
-    """
-    Apply the Revision that this OutputSchema is associated
-    with to the View. Returns a Job which will contain progress
-    information.
-    """
-    uri = self.parent.parent.parent.show_uri + '/apply'
-    return self.subresource(Job, put(
-        self.path(uri),
-        auth = self.auth,
-        data = json.dumps({'output_schema_id': self.attributes['id']})
-    ))
 </code></pre>
   </div>
 </div>
@@ -1488,7 +1427,7 @@ information.</p></div>
             
   <div class="item">
     <div class="name def" id="socrata.output_schema.OutputSchema.wait_for_finish">
-    <p>def <span class="ident">wait_for_finish</span>(</p><p>self, progress=&lt;function noop at 0x7fd62ce72048&gt;, timeout=None)</p>
+    <p>def <span class="ident">wait_for_finish</span>(</p><p>self, progress=&lt;function noop at 0x7fc42c68a048&gt;, timeout=None)</p>
     </div>
     
 

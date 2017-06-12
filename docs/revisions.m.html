@@ -979,6 +979,7 @@ table {
           
   <ul>
     <li class="mono"><a href="#socrata.revisions.Revision.__init__">__init__</a></li>
+    <li class="mono"><a href="#socrata.revisions.Revision.apply">apply</a></li>
     <li class="mono"><a href="#socrata.revisions.Revision.create_upload">create_upload</a></li>
     <li class="mono"><a href="#socrata.revisions.Revision.define_operations">define_operations</a></li>
     <li class="mono"><a href="#socrata.revisions.Revision.discard">discard</a></li>
@@ -998,6 +999,7 @@ table {
   <ul>
     <li class="mono"><a href="#socrata.revisions.Revisions.__init__">__init__</a></li>
     <li class="mono"><a href="#socrata.revisions.Revisions.create">create</a></li>
+    <li class="mono"><a href="#socrata.revisions.Revisions.create_using_config">create_using_config</a></li>
     <li class="mono"><a href="#socrata.revisions.Revisions.path">path</a></li>
     <li class="mono"><a href="#socrata.revisions.Revisions.subresource">subresource</a></li>
     <li class="mono"><a href="#socrata.revisions.Revisions.subresources">subresources</a></li>
@@ -1028,6 +1030,7 @@ import requests
 from socrata.http import post, put, delete
 from socrata.resource import Collection, Resource
 from socrata.uploads import Upload
+from socrata.job import Job
 
 class Revisions(Collection):
     def path(self, fourfour):
@@ -1044,6 +1047,19 @@ class Revisions(Collection):
             self.path(fourfour),
             auth = self.auth
         ))
+
+    def create_using_config(self, fourfour, config):
+        """
+        Create a revision for the given dataset.
+        """
+        return self.subresource(Revision, post(
+            self.path(fourfour),
+            auth = self.auth,
+            data = json.dumps({
+                'config': config.attributes['name']
+            })
+        ))
+
 
 class Revision(Resource):
     """
@@ -1076,6 +1092,18 @@ class Revision(Resource):
             self.path(uri),
             auth = self.auth,
             data = json.dumps({'metadata': meta}),
+        ))
+
+    def apply(self, uri, output_schema):
+        """
+        Apply the Revision to the view that it was opened on
+        """
+        return self.subresource(Job, put(
+            self.path(uri),
+            auth = self.auth,
+            data = json.dumps({
+                'output_schema_id': output_schema.attributes['id']
+            })
         ))
 
 </code></pre>
@@ -1128,6 +1156,18 @@ class Revision(Resource):
             auth = self.auth,
             data = json.dumps({'metadata': meta}),
         ))
+
+    def apply(self, uri, output_schema):
+        """
+        Apply the Revision to the view that it was opened on
+        """
+        return self.subresource(Job, put(
+            self.path(uri),
+            auth = self.auth,
+            data = json.dumps({
+                'output_schema_id': output_schema.attributes['id']
+            })
+        ))
 </code></pre>
   </div>
 </div>
@@ -1158,6 +1198,36 @@ class Revision(Resource):
     self.auth = auth
     self.on_response(response)
     self.parent = parent
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="socrata.revisions.Revision.apply">
+    <p>def <span class="ident">apply</span>(</p><p>self, uri, output_schema)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Apply the Revision to the view that it was opened on</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.revisions.Revision.apply', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.revisions.Revision.apply" class="source">
+    <pre><code>def apply(self, uri, output_schema):
+    """
+    Apply the Revision to the view that it was opened on
+    """
+    return self.subresource(Job, put(
+        self.path(uri),
+        auth = self.auth,
+        data = json.dumps({
+            'output_schema_id': output_schema.attributes['id']
+        })
+    ))
 </code></pre>
   </div>
 </div>
@@ -1412,6 +1482,18 @@ when this revision is applied</p></div>
             self.path(fourfour),
             auth = self.auth
         ))
+
+    def create_using_config(self, fourfour, config):
+        """
+        Create a revision for the given dataset.
+        """
+        return self.subresource(Revision, post(
+            self.path(fourfour),
+            auth = self.auth,
+            data = json.dumps({
+                'config': config.attributes['name']
+            })
+        ))
 </code></pre>
   </div>
 </div>
@@ -1466,6 +1548,36 @@ when this revision is applied</p></div>
     return self.subresource(Revision, post(
         self.path(fourfour),
         auth = self.auth
+    ))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="socrata.revisions.Revisions.create_using_config">
+    <p>def <span class="ident">create_using_config</span>(</p><p>self, fourfour, config)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Create a revision for the given dataset.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.revisions.Revisions.create_using_config', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.revisions.Revisions.create_using_config" class="source">
+    <pre><code>def create_using_config(self, fourfour, config):
+    """
+    Create a revision for the given dataset.
+    """
+    return self.subresource(Revision, post(
+        self.path(fourfour),
+        auth = self.auth,
+        data = json.dumps({
+            'config': config.attributes['name']
+        })
     ))
 </code></pre>
   </div>

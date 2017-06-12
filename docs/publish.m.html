@@ -974,6 +974,20 @@ table {
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
+        <span class="class_name"><a href="#socrata.publish.ConfiguredJob">ConfiguredJob</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#socrata.publish.ConfiguredJob.__init__">__init__</a></li>
+    <li class="mono"><a href="#socrata.publish.ConfiguredJob.csv">csv</a></li>
+    <li class="mono"><a href="#socrata.publish.ConfiguredJob.run">run</a></li>
+    <li class="mono"><a href="#socrata.publish.ConfiguredJob.tsv">tsv</a></li>
+    <li class="mono"><a href="#socrata.publish.ConfiguredJob.xls">xls</a></li>
+    <li class="mono"><a href="#socrata.publish.ConfiguredJob.xlsx">xlsx</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
         <span class="class_name"><a href="#socrata.publish.Create">Create</a></span>
         
           
@@ -1125,7 +1139,37 @@ class Create(Operation):
         if not ok:
             raise SocrataException("The dataset failed to validate")
 
-        return out
+        return (rev, out)
+
+class ConfiguredJob(Operation):
+    def run(self, file, put_bytes):
+        (ok, rev) = self.publish.revisions.create_using_config(
+            self.properties['fourfour'],
+            self.properties['config']
+        )
+        if not ok:
+            raise SocrataException("Failed to create the revision", rev)
+
+        (ok, upload) = rev.create_upload({'filename': file.name})
+        if not ok:
+            raise SocrataException("Failed to create the upload", upload)
+
+        (ok, inp) = put_bytes(upload)
+        if not ok:
+            raise SocrataException("Failed to upload the file", inp)
+
+        (ok, out) = inp.latest_output()
+        if not ok:
+            raise SocrataException("Failed to get the parsed dataset")
+
+        (ok, out) = out.wait_for_finish()
+        if not ok:
+            raise SocrataException("The dataset failed to validate")
+
+        (ok, job) = rev.apply(output_schema = out)
+        if not ok:
+            raise SocrataException("Failed to apply the change", job)
+        return job
 
 
 class Publish(Collection):
@@ -1182,19 +1226,14 @@ class Publish(Collection):
         else:
             return (False, response)
 
-    def using_config(self, name, fourfour, file):
+    def using_config(self, name, fourfour):
         """
         Not sure yet
         """
         (ok, config) = result = self.configs.lookup(name)
         if not ok:
-            return result
-
-        (ok, rev) = config.create_revision(fourfour)
-        if not ok:
-            return rev
-
-        rev.create_upload()
+            raise SocrataException("Failed to lookup config %s" % name, result)
+        return ConfiguredJob(self, fourfour = fourfour, config = config)
 
 
     def create(self, **kwargs):
@@ -1220,6 +1259,245 @@ class Publish(Collection):
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="socrata.publish.ConfiguredJob" class="name">class <span class="ident">ConfiguredJob</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.ConfiguredJob', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.publish.ConfiguredJob" class="source">
+    <pre><code>class ConfiguredJob(Operation):
+    def run(self, file, put_bytes):
+        (ok, rev) = self.publish.revisions.create_using_config(
+            self.properties['fourfour'],
+            self.properties['config']
+        )
+        if not ok:
+            raise SocrataException("Failed to create the revision", rev)
+
+        (ok, upload) = rev.create_upload({'filename': file.name})
+        if not ok:
+            raise SocrataException("Failed to create the upload", upload)
+
+        (ok, inp) = put_bytes(upload)
+        if not ok:
+            raise SocrataException("Failed to upload the file", inp)
+
+        (ok, out) = inp.latest_output()
+        if not ok:
+            raise SocrataException("Failed to get the parsed dataset")
+
+        (ok, out) = out.wait_for_finish()
+        if not ok:
+            raise SocrataException("The dataset failed to validate")
+
+        (ok, job) = rev.apply(output_schema = out)
+        if not ok:
+            raise SocrataException("Failed to apply the change", job)
+        return job
+</code></pre>
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#socrata.publish.ConfiguredJob">ConfiguredJob</a></li>
+          <li><a href="#socrata.publish.Operation">Operation</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="socrata.publish.ConfiguredJob.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, publish, **kwargs)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.ConfiguredJob.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.publish.ConfiguredJob.__init__" class="source">
+    <pre><code>def __init__(self, publish, **kwargs):
+    self.publish = publish
+    self.properties = kwargs
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="socrata.publish.ConfiguredJob.csv">
+    <p>def <span class="ident">csv</span>(</p><p>self, file)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Create a revision on that view, then upload a file of
+type CSV and wait for validation to complete. Returns
+an <code>OutputSchema</code> which, when applied, will by applied
+to the view.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.ConfiguredJob.csv', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.publish.ConfiguredJob.csv" class="source">
+    <pre><code>def csv(self, file):
+    """
+    Create a revision on that view, then upload a file of
+    type CSV and wait for validation to complete. Returns
+    an `OutputSchema` which, when applied, will by applied
+    to the view.
+    """
+    return self.run(file, lambda upload: upload.csv(file))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="socrata.publish.ConfiguredJob.run">
+    <p>def <span class="ident">run</span>(</p><p>self, file, put_bytes)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.ConfiguredJob.run', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.publish.ConfiguredJob.run" class="source">
+    <pre><code>def run(self, file, put_bytes):
+    (ok, rev) = self.publish.revisions.create_using_config(
+        self.properties['fourfour'],
+        self.properties['config']
+    )
+    if not ok:
+        raise SocrataException("Failed to create the revision", rev)
+    (ok, upload) = rev.create_upload({'filename': file.name})
+    if not ok:
+        raise SocrataException("Failed to create the upload", upload)
+    (ok, inp) = put_bytes(upload)
+    if not ok:
+        raise SocrataException("Failed to upload the file", inp)
+    (ok, out) = inp.latest_output()
+    if not ok:
+        raise SocrataException("Failed to get the parsed dataset")
+    (ok, out) = out.wait_for_finish()
+    if not ok:
+        raise SocrataException("The dataset failed to validate")
+    (ok, job) = rev.apply(output_schema = out)
+    if not ok:
+        raise SocrataException("Failed to apply the change", job)
+    return job
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="socrata.publish.ConfiguredJob.tsv">
+    <p>def <span class="ident">tsv</span>(</p><p>self, file)</p>
+    </div>
+    
+    <p class="inheritance">
+     <strong>Inheritance:</strong>
+       <code><a href="#socrata.publish.Operation">Operation</a></code>.<code><a href="#socrata.publish.Operation.tsv">tsv</a></code>
+    </p>
+
+    
+  
+    <div class="desc inherited"><p>Create a revision on that view, then upload a file of
+type TSV and wait for validation to complete. Returns
+an <code>OutputSchema</code> which, when applied, will by applied
+to the view.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.ConfiguredJob.tsv', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.publish.ConfiguredJob.tsv" class="source">
+    <pre><code>def tsv(self, file):
+    """
+    Create a revision on that view, then upload a file of
+    type TSV and wait for validation to complete. Returns
+    an `OutputSchema` which, when applied, will by applied
+    to the view.
+    """
+    return self.run(file, lambda upload: upload.tsv(file))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="socrata.publish.ConfiguredJob.xls">
+    <p>def <span class="ident">xls</span>(</p><p>self, file)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Create a revision on that view, then upload a file of
+type XLS and wait for validation to complete. Returns
+an <code>OutputSchema</code> which, when applied, will by applied
+to the view.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.ConfiguredJob.xls', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.publish.ConfiguredJob.xls" class="source">
+    <pre><code>def xls(self, file):
+    """
+    Create a revision on that view, then upload a file of
+    type XLS and wait for validation to complete. Returns
+    an `OutputSchema` which, when applied, will by applied
+    to the view.
+    """
+    return self.run(file, lambda upload: upload.xls(file))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="socrata.publish.ConfiguredJob.xlsx">
+    <p>def <span class="ident">xlsx</span>(</p><p>self, file)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Create a revision on that view, then upload a file of
+type XLSX and wait for validation to complete. Returns
+an <code>OutputSchema</code> which, when applied, will by applied
+to the view.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.ConfiguredJob.xlsx', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.publish.ConfiguredJob.xlsx" class="source">
+    <pre><code>def xlsx(self, file):
+    """
+    Create a revision on that view, then upload a file of
+    type XLSX and wait for validation to complete. Returns
+    an `OutputSchema` which, when applied, will by applied
+    to the view.
+    """
+    return self.run(file, lambda upload: upload.xlsx(file))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
       
       <div class="item">
       <p id="socrata.publish.Create" class="name">class <span class="ident">Create</span></p>
@@ -1254,7 +1532,7 @@ class Publish(Collection):
         if not ok:
             raise SocrataException("The dataset failed to validate")
 
-        return out
+        return (rev, out)
 </code></pre>
   </div>
 </div>
@@ -1351,7 +1629,7 @@ to the view.</p></div>
     (ok, out) = out.wait_for_finish()
     if not ok:
         raise SocrataException("The dataset failed to validate")
-    return out
+    return (rev, out)
 </code></pre>
   </div>
 </div>
@@ -1364,10 +1642,14 @@ to the view.</p></div>
     <p>def <span class="ident">tsv</span>(</p><p>self, file)</p>
     </div>
     
+    <p class="inheritance">
+     <strong>Inheritance:</strong>
+       <code><a href="#socrata.publish.Operation">Operation</a></code>.<code><a href="#socrata.publish.Operation.tsv">tsv</a></code>
+    </p>
 
     
   
-    <div class="desc"><p>Create a revision on that view, then upload a file of
+    <div class="desc inherited"><p>Create a revision on that view, then upload a file of
 type TSV and wait for validation to complete. Returns
 an <code>OutputSchema</code> which, when applied, will by applied
 to the view.</p></div>
@@ -1424,14 +1706,10 @@ to the view.</p></div>
     <p>def <span class="ident">xlsx</span>(</p><p>self, file)</p>
     </div>
     
-    <p class="inheritance">
-     <strong>Inheritance:</strong>
-       <code><a href="#socrata.publish.Operation">Operation</a></code>.<code><a href="#socrata.publish.Operation.xlsx">xlsx</a></code>
-    </p>
 
     
   
-    <div class="desc inherited"><p>Create a revision on that view, then upload a file of
+    <div class="desc"><p>Create a revision on that view, then upload a file of
 type XLSX and wait for validation to complete. Returns
 an <code>OutputSchema</code> which, when applied, will by applied
 to the view.</p></div>
@@ -1747,19 +2025,14 @@ In the event of a socket hangup, an exception is raised.</p></div>
         else:
             return (False, response)
 
-    def using_config(self, name, fourfour, file):
+    def using_config(self, name, fourfour):
         """
         Not sure yet
         """
         (ok, config) = result = self.configs.lookup(name)
         if not ok:
-            return result
-
-        (ok, rev) = config.create_revision(fourfour)
-        if not ok:
-            return rev
-
-        rev.create_upload()
+            raise SocrataException("Failed to lookup config %s" % name, result)
+        return ConfiguredJob(self, fourfour = fourfour, config = config)
 
 
     def create(self, **kwargs):
@@ -1956,7 +2229,7 @@ your file, and validate data quality in one step.</p></div>
             
   <div class="item">
     <div class="name def" id="socrata.publish.Publish.using_config">
-    <p>def <span class="ident">using_config</span>(</p><p>self, name, fourfour, file)</p>
+    <p>def <span class="ident">using_config</span>(</p><p>self, name, fourfour)</p>
     </div>
     
 
@@ -1966,17 +2239,14 @@ your file, and validate data quality in one step.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.publish.Publish.using_config', this);">Show source &equiv;</a></p>
   <div id="source-socrata.publish.Publish.using_config" class="source">
-    <pre><code>def using_config(self, name, fourfour, file):
+    <pre><code>def using_config(self, name, fourfour):
     """
     Not sure yet
     """
     (ok, config) = result = self.configs.lookup(name)
     if not ok:
-        return result
-    (ok, rev) = config.create_revision(fourfour)
-    if not ok:
-        return rev
-    rev.create_upload()
+        raise SocrataException("Failed to lookup config %s" % name, result)
+    return ConfiguredJob(self, fourfour = fourfour, config = config)
 </code></pre>
   </div>
 </div>

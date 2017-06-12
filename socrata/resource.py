@@ -6,13 +6,13 @@ class Collection(object):
     def __init__(self, auth):
         self.auth = auth
 
-    def subresources(self, klass, result):
+    def _subresources(self, klass, result):
         (ok, resources) = result
         if ok:
             return (ok, [klass(self.auth, res, self) for res in resources])
         return result
 
-    def subresource(self, klass, result):
+    def _subresource(self, klass, result):
         (ok, res) = result
         if ok:
             return (ok, klass(self.auth, res, self))
@@ -21,13 +21,13 @@ class Collection(object):
 class Resource(object):
     def __init__(self, auth, response, parent = None, *args, **kwargs):
         self.auth = auth
-        self.on_response(response)
+        self._on_response(response)
         self.parent = parent
 
-    def on_response(self, response):
+    def _on_response(self, response):
         self.attributes = response['resource']
         self.links = response['links']
-        self.define_operations(self.links)
+        self._define_operations(self.links)
 
     def path(self, uri):
         return 'https://{domain}{uri}'.format(
@@ -35,7 +35,7 @@ class Resource(object):
             uri = uri
         )
 
-    def subresource(self, klass, result, **kwargs):
+    def _subresource(self, klass, result, **kwargs):
         (ok, res) = result
         if ok:
             return (ok, klass(self.auth, res, self, **kwargs))
@@ -44,15 +44,23 @@ class Resource(object):
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, pprint.pformat(self.attributes))
 
-    def define_operations(self, links):
+    def _define_operations(self, links):
         for name, uri in links.items():
-            setattr(self, name, self.dispatch(name, uri))
+            setattr(self, name, self._dispatch(name, uri))
             setattr(self, '%s_uri' % name, uri)
-        setattr(self, 'list_operations', lambda: list(links.keys()))
+        setattr(self, 'available_operations', links.keys())
+
+    def list_operations(self):
+        """
+        Get a list of the operations that you can perform on this
+        object. These map directly onto what's returned from the API
+        in the `links` section of each resource
+        """
+        return getattr(self, 'available_operations', [])
 
     # Yes this is kind of terrifying and bad and magic but i can't
     # think of a less obnoxious way to inject the uri
-    def dispatch(self, name, uri):
+    def _dispatch(self, name, uri):
         og_method_name = '_' + name
         if not hasattr(self, og_method_name):
             og_method = getattr(self, name, self._noop)
@@ -69,7 +77,7 @@ class Resource(object):
     def _mutate(self, result):
         (ok, response) = result
         if ok:
-            self.on_response(response)
+            self._on_response(response)
             return (ok, self)
         return result
 

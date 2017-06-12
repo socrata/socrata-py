@@ -6,14 +6,25 @@ from socrata.output_schema import OutputSchema
 
 class InputSchema(Resource):
     def transform(self, uri, body):
-        return self.subresource(OutputSchema, post(
+        """
+        Transform this InputSchema into an Output. Returns the
+        new OutputSchema. Note that this call is async - the data
+        may still be transforming even though the OutputSchema is
+        returned. See OutputSchema.wait_for_finish to block until
+        the
+        """
+        return self._subresource(OutputSchema, post(
             self.path(uri),
             auth = self.auth,
             data = json.dumps(body),
         ))
 
     def latest_output(self, uri):
-        return self.subresource(OutputSchema, get(
+        """
+        Get the latest (most recently created) OutputSchema
+        which descends from this InputSchema
+        """
+        return self._subresource(OutputSchema, get(
             self.path(uri),
             auth = self.auth,
         ))

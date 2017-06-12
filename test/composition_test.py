@@ -1,13 +1,13 @@
 import unittest
 from socrata.publish import Publish
 from socrata.authorization import Authorization
-from test.auth import auth, fourfour
+from test.auth import auth, TestCase
 
-class CompositionTest(unittest.TestCase):
+class CompositionTest(TestCase):
 
     def test_create_new_csv(self):
         with open('test/fixtures/simple.csv', 'rb') as file:
-            output = Publish(auth).create(
+            (revision, output) = Publish(auth).create(
                 name = "cool dataset",
                 description = "a description"
             ).csv(file)
@@ -17,7 +17,7 @@ class CompositionTest(unittest.TestCase):
 
     def test_create_new_xls(self):
         with open('test/fixtures/simple.xls', 'rb') as file:
-            output = Publish(auth).create(
+            (revision, output) = Publish(auth).create(
                 name = "cool dataset",
                 description = "a description"
             ).xls(file)
@@ -28,7 +28,7 @@ class CompositionTest(unittest.TestCase):
 
     def test_create_new_xlsx(self):
         with open('test/fixtures/simple.xlsx', 'rb') as file:
-            output = Publish(auth).create(
+            (revision, output) = Publish(auth).create(
                 name = "cool dataset",
                 description = "a description"
             ).xlsx(file)
@@ -39,7 +39,7 @@ class CompositionTest(unittest.TestCase):
 
     def test_create_new_tsv(self):
         with open('test/fixtures/simple.tsv', 'rb') as file:
-            output = Publish(auth).create(
+            (revision, output) = Publish(auth).create(
                 name = "cool dataset",
                 description = "a description"
             ).tsv(file)

@@ -45,7 +45,7 @@ To create a dataset with as little code as possible, you can do this:
 ```python
 with open('path/to/my/file.csv', 'rb') as file:
     # Upload the data, validate it
-    output = Publish(auth).create(
+    (revision, output) = Publish(auth).create(
         name = "cool dataset",
         description = "a description"
     ).csv(file)
@@ -55,7 +55,7 @@ with open('path/to/my/file.csv', 'rb') as file:
 
     # Publish the dataset - this will make it public and available to make
     # visualizations from
-    output.apply()
+    revision.apply(output_schema = output)
 ```
 
 Similar to the `csv` method are the `xls`, `xlsx`, and `tsv` methods, which upload
@@ -165,14 +165,14 @@ self.assertEqual(rows, [
 ### Do the upsert!
 ```python
 # Now we have transformed our data into the shape we want, let's do an upsert
-(ok, upsert_job) = output_schema.apply()
+(ok, job) = rev.apply(output_schema = output_schema)
 
 # This will complete the upsert behind the scenes. If we want to
 # re-fetch the current state of the upsert job, we can do so
-(ok, upsert_job) = upsert_job.show()
+(ok, job) = job.show()
 
 # To get the progress
-print(upsert_job.attributes['log'])
+print(job.attributes['log'])
 [
     {'details': {'Errors': 0, 'Rows Created': 0, 'Rows Updated': 0, 'By RowIdentifier': 0, 'By SID': 0, 'Rows Deleted': 0}, 'time': '2017-02-28T20:20:59', 'stage': 'upsert_complete'},
     {'details': {'created': 1}, 'time': '2017-02-28T20:20:59', 'stage': 'columns_created'},
@@ -182,7 +182,7 @@ print(upsert_job.attributes['log'])
 
 
 # So maybe we just want to wait here, printing the progress, until the job is done
-upsert_job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attributes['log'][0]) + "\n"))
+job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attributes['log'][0]) + "\n"))
 
 # So now if we go look at our original four-four, our data will be there
 ```

@@ -1,11 +1,12 @@
 from time import sleep
-import unittest
-from test.auth import create_output_schema
+from test.auth import TestCase
 
-class TestUpsertJob(unittest.TestCase):
+class TestUpsertJob(TestCase):
     def test_show_job_until_finished(self):
-        output_schema = create_output_schema()
-        (ok, job) = output_schema.apply()
+        rev = self.create_rev()
+        input_schema = self.create_input_schema(rev = rev)
+        output_schema = self.create_output_schema(input_schema = input_schema)
+        (ok, job) = rev.apply(output_schema = output_schema)
         assert ok, job
         done = False
         attempts = 0

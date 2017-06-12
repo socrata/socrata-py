@@ -80,7 +80,7 @@ class Create(Operation):
         if not ok:
             raise SocrataException("The dataset failed to validate")
 
-        return out
+        return (rev, out)
 
 class ConfiguredJob(Operation):
     def run(self, file, put_bytes):
@@ -107,7 +107,7 @@ class ConfiguredJob(Operation):
         if not ok:
             raise SocrataException("The dataset failed to validate")
 
-        (ok, job) = out.apply()
+        (ok, job) = rev.apply(output_schema = out)
         if not ok:
             raise SocrataException("Failed to apply the change", job)
         return job

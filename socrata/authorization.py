@@ -24,6 +24,10 @@ class Authorization(object):
         self.basic = HTTPBasicAuth(self.username, self.password)
 
     def live_dangerously(self):
+        """
+        Disable SSL checking. Note that this should *only* be used while developing
+        against a local Socrata instance.
+        """
         import requests
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)

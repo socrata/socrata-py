@@ -1,10 +1,10 @@
 import unittest
 from socrata.publish import Publish
-from test.auth import create_input_schema
+from test.auth import TestCase
 
-class TestInputSchema(unittest.TestCase):
+class TestInputSchema(TestCase):
     def test_transform(self):
-        input_schema = create_input_schema()
+        input_schema = self.create_input_schema()
 
         (ok, res) = input_schema.transform({
             'output_columns': [
@@ -23,7 +23,7 @@ class TestInputSchema(unittest.TestCase):
         self.assertTrue(ok)
 
     def test_show_latest(self):
-        input_schema = create_input_schema()
+        input_schema = self.create_input_schema()
 
         (ok, output_schema) = input_schema.latest_output()
         self.assertTrue(ok)

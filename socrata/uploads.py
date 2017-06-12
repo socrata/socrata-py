@@ -12,7 +12,7 @@ class Uploads(Collection):
         path = 'https://{domain}/api/publishing/v1/upload'.format(
             domain = self.auth.domain
         )
-        return self.subresource(Upload, post(
+        return self._subresource(Upload, post(
             path,
             auth = self.auth,
             data = json.dumps(body)
@@ -26,7 +26,7 @@ class Upload(Resource):
     or tsv methods which will correctly set the content_type for you.
     """
     def bytes(self, uri, file_handle, content_type):
-        return self.subresource(InputSchema, post(
+        return self._subresource(InputSchema, post(
             self.path(uri),
             auth = self.auth,
             data = file_handle,
@@ -75,6 +75,6 @@ class Upload(Resource):
             })
         )
         if ok:
-            self.on_response(res)
+            self._on_response(res)
             return (ok, self)
         return result

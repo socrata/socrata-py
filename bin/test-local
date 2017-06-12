@@ -1,0 +1,1 @@
+SOCRATA_DOMAIN=localhost SOCRATA_USERNAME=$SOCRATA_LOCAL_USER SOCRATA_PASSWORD=$SOCRATA_LOCAL_PASS python3.5 -m unittest discover -s test -p '*_test.py'

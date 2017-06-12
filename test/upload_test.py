@@ -1,11 +1,10 @@
-import unittest
 from socrata.publish import Publish
 from socrata.authorization import Authorization
-from test.auth import create_rev, auth
+from test.auth import auth, TestCase
 
-class TestUpload(unittest.TestCase):
+class TestUpload(TestCase):
     def test_create_upload(self):
-        rev = create_rev()
+        rev = self.create_rev()
 
         (ok, upload) = rev.create_upload({'filename': "foo.csv"})
         self.assertTrue(ok)
@@ -15,7 +14,7 @@ class TestUpload(unittest.TestCase):
         assert 'bytes' in upload.list_operations()
 
     def test_upload_csv(self):
-        rev = create_rev()
+        rev = self.create_rev()
         (ok, upload) = rev.create_upload({'filename': "foo.csv"})
         assert ok
 
@@ -61,7 +60,7 @@ class TestUpload(unittest.TestCase):
             (ok, input_schema) = upload.csv(f)
             self.assertTrue(ok, input_schema)
 
-            rev = create_rev()
+            rev = self.create_rev()
 
             (ok, upload) = upload.add_to_revision(rev)
             self.assertTrue(ok, upload)

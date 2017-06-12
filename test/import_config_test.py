@@ -1,10 +1,10 @@
 import unittest
 from socrata.publish import Publish
 from socrata.authorization import Authorization
-from test.auth import auth, fourfour
+from test.auth import auth, TestCase
 import uuid
 
-class ImportConfigTest(unittest.TestCase):
+class ImportConfigTest(TestCase):
     def test_create_config(self):
         name = "some_config %s" % str(uuid.uuid4())
         p = Publish(auth)
@@ -85,8 +85,7 @@ class ImportConfigTest(unittest.TestCase):
 
         p = Publish(auth)
         with open('test/fixtures/simple.csv', 'rb') as my_file:
-            job = p.using_config(name, fourfour).csv(my_file)
-            print(job)
+            job = p.using_config(name, self.fourfour).csv(my_file)
             self.assertTrue(job.attributes['created_at'])
 
     def test_show_config(self):

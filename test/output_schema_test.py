@@ -1,11 +1,9 @@
 import unittest
 from socrata.publish import Publish
-from test.auth import auth, fourfour, create_input_schema
+from test.auth import auth, TestCase
 import uuid
 
-def create_bad_output_schema():
-    input_schema = create_input_schema()
-
+def create_bad_output_schema(input_schema):
     (ok, output_schema) = input_schema.transform({
         'output_columns': [
             {
@@ -22,9 +20,7 @@ def create_bad_output_schema():
     assert ok
     return output_schema
 
-def create_good_output_schema():
-    input_schema = create_input_schema()
-
+def create_good_output_schema(input_schema):
     (ok, output_schema) = input_schema.transform({
         'output_columns': [
             {
@@ -42,14 +38,9 @@ def create_good_output_schema():
     return output_schema
 
 
-class TestOutputSchema(unittest.TestCase):
-    def test_create_upsert_job(self):
-        output_schema = create_bad_output_schema()
-        (ok, upsert_job) = output_schema.apply()
-        self.assertTrue(ok, upsert_job)
-
+class TestOutputSchema(TestCase):
     def test_get_rows(self):
-        output_schema = create_good_output_schema()
+        output_schema = create_good_output_schema(self.create_input_schema())
         (ok, output_schema) = output_schema.wait_for_finish()
 
         (ok, rows) = output_schema.rows()
@@ -70,7 +61,7 @@ class TestOutputSchema(unittest.TestCase):
         ])
 
     def test_build_config(self):
-        output_schema = create_good_output_schema()
+        output_schema = create_good_output_schema(self.create_input_schema())
 
         (ok, config) = output_schema.build_config(
             "my cool config %s" % str(uuid.uuid4()),

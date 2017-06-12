@@ -3,6 +3,7 @@ import requests
 from socrata.http import post, put, delete
 from socrata.resource import Collection, Resource
 from socrata.uploads import Upload
+from socrata.job import Job
 
 class Revisions(Collection):
     def path(self, fourfour):
@@ -64,5 +65,17 @@ class Revision(Resource):
             self.path(uri),
             auth = self.auth,
             data = json.dumps({'metadata': meta}),
+        ))
+
+    def apply(self, uri, output_schema):
+        """
+        Apply the Revision to the view that it was opened on
+        """
+        return self.subresource(Job, put(
+            self.path(uri),
+            auth = self.auth,
+            data = json.dumps({
+                'output_schema_id': output_schema.attributes['id']
+            })
         ))
 

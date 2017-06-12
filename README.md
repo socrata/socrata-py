@@ -12,7 +12,8 @@ pip3 install socrata-publish-py
 ```
 
 ## Documentation
-[Is available here](https://socrata.github.io/publish-py/docs)
+[API Docs](http://docs.socratapublishing.apiary.io/#)
+[SDK Docs](https://socrata.github.io/publish-py/docs)
 
 ## Example
 Try the command line example with

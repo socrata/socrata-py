@@ -7,27 +7,48 @@ from socrata.job import Job
 import webbrowser
 
 class Revisions(Collection):
-    def path(self, fourfour):
+    def __init__(self, view):
+        self.auth = view.auth
+        self.view = view
+
+
+    def path(self):
+        fourfour = self.view.attributes['id']
         return 'https://{domain}/api/publishing/v1/revision/{fourfour}'.format(
             domain = self.auth.domain,
             fourfour = fourfour
         )
 
-    def create(self, fourfour):
+    def _create(self, action_type):
         """
         Create a revision for the given dataset.
         """
         return self._subresource(Revision, post(
-            self.path(fourfour),
-            auth = self.auth
+            self.path(),
+            auth = self.auth,
+            data = json.dumps({
+                'action': {
+                    'type': action_type
+                }
+            })
         ))
 
-    def create_using_config(self, fourfour, config):
+    def replace(self):
+        return self._create('replace')
+
+    def update(self):
+        return self._create('update')
+
+    def metadata(self):
+        return self._create('metadata')
+
+
+    def create_using_config(self, config):
         """
         Create a revision for the given dataset.
         """
         return self._subresource(Revision, post(
-            self.path(fourfour),
+            self.path(),
             auth = self.auth,
             data = json.dumps({
                 'config': config.attributes['name']
@@ -68,19 +89,36 @@ class Revision(Resource):
             data = json.dumps({'metadata': meta}),
         ))
 
-    def apply(self, uri, output_schema):
-        (ok, output_schema) = result = output_schema.wait_for_finish()
-        if not ok:
-            return result
+    def is_metadata_revision(self):
+        """
+        Whether or not this revision will only change the dataset's metadata
+        """
+        return self.attributes['action']['type'] == 'metadata'
+
+    def apply(self, uri, output_schema = None):
+        # We ignore any output schemas passed in if this revision only cares
+        # about metadata
+        if self.is_metadata_revision():
+            output_schema = None
+
+        if output_schema:
+            (ok, output_schema) = result = output_schema.wait_for_finish()
+            if not ok:
+                return result
+
+        body = {}
+
+        if output_schema:
+            body.update({
+                'output_schema_id': output_schema.attributes['id']
+            })
         """
         Apply the Revision to the view that it was opened on
         """
         return self._subresource(Job, put(
             self.path(uri),
             auth = self.auth,
-            data = json.dumps({
-                'output_schema_id': output_schema.attributes['id']
-            })
+            data = json.dumps(body)
         ))
 
     def ui_url(self):
@@ -97,5 +135,5 @@ class Revision(Resource):
         """
         Open this revision in your browser, this will open a window
         """
-        webbrowser.open(self.ui_url(), new=2)
+        webbrowser.open(self.ui_url(), new = 2)
 

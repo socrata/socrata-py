@@ -1,7 +1,7 @@
 from socrata.resource import Collection
-from socrata.revisions import Revisions
 from socrata.uploads import Uploads
 from socrata.configs import Configs
+from socrata.views import Views
 from socrata.http import gen_headers, post
 import json
 import requests
@@ -53,14 +53,13 @@ class Operation(object):
         """
         return self.run(file, lambda upload: upload.tsv(file))
 
-
 class Create(Operation):
     def run(self, file, put_bytes):
-        (ok, view) = view_create = self.publish.new(self.properties)
+        (ok, view) = self.publish.views.create(self.properties)
         if not ok:
             raise SocrataException("Failed to create the view", view)
 
-        (ok, rev) = self.publish.revisions.create(view['id'])
+        (ok, rev) = view.revisions.update()
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 
@@ -80,12 +79,16 @@ class Create(Operation):
         if not ok:
             raise SocrataException("The dataset failed to validate")
 
-        return (rev, out)
+        return (view, rev, out)
+
+class Update(Operation):
+    def run(self, file, put_bytes):
+        raise NotImplemented("nope!")
+
 
 class ConfiguredJob(Operation):
     def run(self, file, put_bytes):
-        (ok, rev) = self.publish.revisions.create_using_config(
-            self.properties['fourfour'],
+        (ok, rev) = self.properties['view'].revisions.create_using_config(
             self.properties['config']
         )
         if not ok:
@@ -110,7 +113,7 @@ class ConfiguredJob(Operation):
         (ok, job) = rev.apply(output_schema = out)
         if not ok:
             raise SocrataException("Failed to apply the change", job)
-        return job
+        return (rev, job)
 
 
 class Publish(Collection):
@@ -128,53 +131,18 @@ class Publish(Collection):
         See the `Authorization` class docs for info on how to construct an auth object.
         """
         super(Publish, self).__init__(auth)
-        self.revisions = Revisions(auth)
+        self.views = Views(auth)
         self.uploads = Uploads(auth)
         self.configs = Configs(auth)
 
-    def new(self, body):
-        """
-        Create a new Socrata view.
-        """
-        path = '{proto}{domain}/api/views'.format(
-            proto = self.auth.proto,
-            domain = self.auth.domain
-        )
-        return post(
-            path,
-            auth = self.auth,
-            data = json.dumps(body)
-        )
-
-    def delete(self, id):
-        """
-        Delete a Socrata view, given its view id
-        """
-        path = '{proto}{domain}/api/views/{ff}'.format(
-            proto = self.auth.proto,
-            domain = self.auth.domain,
-            ff = id
-        )
-        response = requests.delete(
-            path,
-            headers = gen_headers(),
-            auth = self.auth.basic,
-            verify = self.auth.verify
-        )
-
-        if response.status_code in [200, 201, 202]:
-            return (True, {})
-        else:
-            return (False, response)
-
-    def using_config(self, name, fourfour):
+    def using_config(self, config_name, view):
         """
         Not sure yet
         """
-        (ok, config) = result = self.configs.lookup(name)
+        (ok, config) = result = self.configs.lookup(config_name)
         if not ok:
-            raise SocrataException("Failed to lookup config %s" % name, result)
-        return ConfiguredJob(self, fourfour = fourfour, config = config)
+            raise SocrataException("Failed to lookup config %s" % config_name, result)
+        return ConfiguredJob(self, view = view, config = config)
 
 
     def create(self, **kwargs):
@@ -185,9 +153,8 @@ class Publish(Collection):
         """
         return Create(self, **kwargs)
 
-    # Eventually...
-    # def append(self, **kwargs):
-    #     return Append(self, **kwargs)
+    def update(self, **kwargs):
+        return Update(self, **kwargs)
 
     # def replace(self, **kwargs):
     #     return Replace(self, **kwargs)

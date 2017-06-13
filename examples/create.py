@@ -11,8 +11,8 @@ parser = argparse.ArgumentParser(description='Create a dataset.')
 parser.add_argument('name', type=str, help='Name of your dataset')
 parser.add_argument('csv', type=str, help='Path to the CSV')
 parser.add_argument('domain', type=str, help='Your Socrata domain')
-parser.add_argument('--username', type=str, help='Your Socrata username', default = os.environ['SOCRATA_USERNAME'])
-parser.add_argument('--password', type=str, help='Your Socrata password', default = os.environ['SOCRATA_PASSWORD'])
+parser.add_argument('--username', type=str, help='Your Socrata username', default = os.environ.get('SOCRATA_USERNAME', None))
+parser.add_argument('--password', type=str, help='Your Socrata password', default = os.environ.get('SOCRATA_PASSWORD', None))
 args = parser.parse_args()
 
 
@@ -36,15 +36,15 @@ def path_to_show(resource):
 def create(name, filepath):
     publishing = Publish(auth)
 
-    (ok, view) = publishing.new({'name': name})
+    (ok, view) = publishing.views.create({'name': name})
     print(ok)
     print(view)
     assert ok, view
 
-    # fourfour = view['id']
-    fourfour = 'jn6b-t8bv'
-    (ok, revision) = publishing.revisions.create(fourfour)
+    (ok, revision) = view.revisions.update()
     assert ok, revision
+
+    revision.open_in_browser()
 
     (ok, upload) = revision.create_upload({'filename': path.basename(filepath)})
     assert ok, upload
@@ -65,16 +65,13 @@ def create(name, filepath):
     print("Found {error_count} validation errors as the result of applying transforms".format(
         error_count = output_schema.attributes['error_count']
     ))
-    return
 
-    (ok, upsert_job) = output_schema.apply()
-    assert ok, upsert_job
-    print("Started upsert, job is viewable at" + path_to_show(upsert_job))
+    (ok, job) = revision.apply(output_schema = output_schema)
+    assert ok, job
+    print("Started upsert, job is viewable at" + path_to_show(job))
 
-    upsert_job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attributes['log'][0]) + "\n"))
+    job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attributes['log'][0]) + "\n"))
 
-    print("Your view is ready: {url}".format(
-        url = auth.proto + auth.domain + '/d/' + view['id']
-    ))
+    print("Your view is ready: {url}".format(url = view.ui_url()))
 
 create(args.name, args.csv)

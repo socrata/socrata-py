@@ -85,7 +85,8 @@ class ImportConfigTest(TestCase):
 
         p = Publish(auth)
         with open('test/fixtures/simple.csv', 'rb') as my_file:
-            job = p.using_config(name, self.fourfour).csv(my_file)
+            (rev, job) = p.using_config(name, self.view).csv(my_file)
+            self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
 
     def test_show_config(self):

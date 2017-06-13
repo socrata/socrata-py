@@ -40,12 +40,17 @@ auth = Authorization(
 ```
 
 ### Simple usage
+
+
+#### Create a new Dataset
 To create a dataset with as little code as possible, you can do this:
 
 ```python
-with open('path/to/my/file.csv', 'rb') as file:
-    # Upload the data, validate it
-    (revision, output) = Publish(auth).create(
+with open('cool_dataset.csv', 'rb') as file:
+    # view is the actual view in the Socrata catalog
+    # revision is the *change* to the view in the catalog, which has not yet been applied
+    # output is the OutputSchema, which is a change to data which can be applied via the revision
+    (view, revision, output) = Publish(auth).create(
         name = "cool dataset",
         description = "a description"
     ).csv(file)
@@ -55,11 +60,63 @@ with open('path/to/my/file.csv', 'rb') as file:
 
     # Publish the dataset - this will make it public and available to make
     # visualizations from
-    revision.apply(output_schema = output)
+    (ok, job) = revision.apply(output_schema = output)
+
+    # Publishing is async - this will block until all the data
+    # is in place and readable
+    job.wait_for_finish()
+
+    # This opens a browser window with your new view you just created
+    view.open_in_browser()
 ```
 
 Similar to the `csv` method are the `xls`, `xlsx`, and `tsv` methods, which upload
 those files.
+
+#### Updating a dataset
+A Socrata `update` is actually an upsert. Rows are updated or created based on the row identifier. If the row-identifer doesn't exist, all updates are just appends to the dataset.
+
+A `replace` truncates the whole dataset and then inserts the new data.
+
+##### Generating a config and using it to update
+```python
+# This is how we create our view initially
+(view, revision, output) = Publish(auth).create(
+    name = "cool dataset",
+    description = "a description"
+).csv(file)
+
+# This will build a configuration using the same settings (file parsing and
+# data transformation rules) that we used to get our output. The action
+# that we will take will be "update", though it could also be "replace"
+(ok, config) = output.build_config("cool-dataset-config", "update")
+
+# Now we need to save our configuration name and view id somewhere so we
+# can update the view using our config
+configuration_name = "cool-dataset-config"
+view_id = view.attributes['id']
+
+# Now later, if we want to lookup that config and use it to import a file,
+# we can do so
+(ok, view) = publishing.views.lookup(view_id) # View will be the view we are updating with the new data
+
+with open('updated-cool-dataset.csv', 'rb') as my_file:
+    (rev, job) = publishing.using_config(configuration_name, view).csv(my_file)
+    print(job) # Our update job is now running
+```
+
+##### Updating without a config
+This isn't advised. Doing an update without a config doesn't ensure that the same settings that your view was created with are used to parse and transform the updated file. This is why we have configs - they freeze settings that a view was once created with and allow them to be reused for updates and replaces.
+```python
+(ok, view) = publishing.views.lookup('tnir-bc4v')
+(ok, rev) = view.revisions.update()
+with open('cool_dataset.csv, 'rb') as file:
+    (ok, upload) = rev.create_upload({'filename': file.name})
+    (ok, input_schema) = upload.csv(file)
+    (ok, output_schema) = input_schema.latest_output()
+    rev.apply(output_schema = output_schema)
+```
+
 
 
 ### Advanced usage
@@ -70,13 +127,11 @@ those files.
 # This is our publishing object, using the auth variable from above
 publishing = Publish(auth)
 
-(ok, view) = publishing.new({'name': 'cool dataset'})
+(ok, view) = publishing.views.create({'name': 'cool dataset'})
 assert ok, view
-# This is our view
-fourfour = view['id']
 
-# Make a revision
-(ok, rev) = publishing.revisions.create(fourfour)
+# Make an `update` revision to that view
+(ok, rev) = view.revisions.update()
 assert ok
 
 # rev is a Revision object, we can print it

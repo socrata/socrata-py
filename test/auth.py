@@ -28,7 +28,7 @@ logger.setLevel(logging.INFO)
 class TestCase(unittest.TestCase):
     def create_rev(self):
         p = Publish(auth)
-        (ok, r) = p.revisions.create(self.fourfour)
+        (ok, r) = self.view.revisions.update()
         assert ok
         self.rev = r
         return r
@@ -65,13 +65,11 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.pub = Publish(auth)
-        (ok, v) = self.pub.new({'name': 'test-view'})
-        self.view = v
+        (ok, v) = self.pub.views.create({'name': 'test-view'})
         assert ok, v
-        self.fourfour = v['id']
+        self.view = v
 
     def tearDown(self):
         if getattr(self, 'rev', False):
             self.rev.discard()
-        self.pub.delete(self.fourfour)
-        pass
+        self.view.delete()

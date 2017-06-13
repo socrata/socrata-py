@@ -81,10 +81,11 @@ A `replace` truncates the whole dataset and then inserts the new data.
 ##### Generating a config and using it to update
 ```python
 # This is how we create our view initially
-(view, revision, output) = Publish(auth).create(
-    name = "cool dataset",
-    description = "a description"
-).csv(file)
+with open('cool_dataset.csv', 'rb') as file:
+    (view, revision, output) = Publish(auth).create(
+        name = "cool dataset",
+        description = "a description"
+    ).csv(file)
 
 # This will build a configuration using the same settings (file parsing and
 # data transformation rules) that we used to get our output. The action
@@ -96,8 +97,7 @@ A `replace` truncates the whole dataset and then inserts the new data.
 configuration_name = "cool-dataset-config"
 view_id = view.attributes['id']
 
-# Now later, if we want to lookup that config and use it to import a file,
-# we can do so
+# Now later, if we want to use that config to update our view, we just need the view and the configuration_name
 (ok, view) = publishing.views.lookup(view_id) # View will be the view we are updating with the new data
 
 with open('updated-cool-dataset.csv', 'rb') as my_file:

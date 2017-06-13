@@ -47,6 +47,8 @@ To create a dataset with as little code as possible, you can do this:
 
 ```python
 with open('cool_dataset.csv', 'rb') as file:
+    # Upload + Transform step
+
     # view is the actual view in the Socrata catalog
     # revision is the *change* to the view in the catalog, which has not yet been applied
     # output is the OutputSchema, which is a change to data which can be applied via the revision
@@ -55,8 +57,18 @@ with open('cool_dataset.csv', 'rb') as file:
         description = "a description"
     ).csv(file)
 
-    # It's wise to make sure you have no type errors, if that's what you expect
+
+    # Validation results step
+
+    # The data has been validated now, and we can access errors that happened during validation
     assert output.attributes['error_count'] == 0
+
+    # If you want, you can get a csv stream of all the errors
+    (ok, errors) = output_schema.schema_errors_csv()
+    for line in errors.iter_lines():
+        print(line)
+
+    # Update step
 
     # Publish the dataset - this will make it public and available to make
     # visualizations from

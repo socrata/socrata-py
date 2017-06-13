@@ -26,13 +26,22 @@ def prepare(headers):
     all_headers = gen_headers(headers)
     return all_headers, all_headers['x-socrata-requestid']
 
+def is_json(response):
+    return 'application/json' in response.headers['Content-Type']
+
 def respond(response, request_id = None):
     try:
         if response.status_code in [200, 201, 202]:
-            return (True, response.json())
+            if is_json(response):
+                return (True, response.json())
+            else:
+                return (True, response)
         else:
             log.warning("Request failed with %s, request_id was %s", response.status_code, request_id)
-            return (False, response.json())
+            if is_json(response):
+                return (False, response.json())
+            else:
+                return (False, response)
     except Exception: # json.decoder.JSONDecodeError isn't always a thing???? WHY PYTHON
         log.error("Request raised an exception, request_id was %s", request_id)
         return (False, {'error': 'json', 'content': response.content})
@@ -72,7 +81,7 @@ def patch(path, auth = None, data = None, headers = {}):
         data = data
     ), request_id = request_id)
 
-def get(path, auth = None, params = {}, headers = {}):
+def get(path, auth = None, params = {}, headers = {}, **kwargs):
     (headers, request_id) = prepare(headers)
     log.info('GET %s %s', path, request_id)
     return respond(requests.get(
@@ -80,7 +89,8 @@ def get(path, auth = None, params = {}, headers = {}):
         params = params,
         headers = headers,
         auth = auth.basic,
-        verify = auth.verify
+        verify = auth.verify,
+        **kwargs
     ), request_id = request_id)
 
 def delete(path, auth = None, headers = {}):

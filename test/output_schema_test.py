@@ -39,6 +39,24 @@ def create_good_output_schema(input_schema):
 
 
 class TestOutputSchema(TestCase):
+    def test_get_errors(self):
+        output_schema = create_bad_output_schema(self.create_input_schema())
+        (ok, output_schema) = output_schema.wait_for_finish()
+
+        (ok, errors) = output_schema.schema_errors()
+
+        for e in errors:
+            assert 'error' in e['b']
+
+    def test_get_errors_csv(self):
+        output_schema = create_bad_output_schema(self.create_input_schema())
+        (ok, output_schema) = output_schema.wait_for_finish()
+
+        (ok, errors) = output_schema.schema_errors_csv()
+        out_csv = '\n'.join([str(line) for line in errors.iter_lines()])
+
+        assert 'Failed to convert' in out_csv
+
     def test_get_rows(self):
         output_schema = create_good_output_schema(self.create_input_schema())
         (ok, output_schema) = output_schema.wait_for_finish()

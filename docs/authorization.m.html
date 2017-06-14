@@ -1028,6 +1028,10 @@ class Authorization(object):
         self.basic = HTTPBasicAuth(self.username, self.password)
 
     def live_dangerously(self):
+        """
+        Disable SSL checking. Note that this should *only* be used while developing
+        against a local Socrata instance.
+        """
         import requests
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -1084,6 +1088,10 @@ publishing = Publish(auth)
         self.basic = HTTPBasicAuth(self.username, self.password)
 
     def live_dangerously(self):
+        """
+        Disable SSL checking. Note that this should *only* be used while developing
+        against a local Socrata instance.
+        """
         import requests
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -1135,10 +1143,16 @@ publishing = Publish(auth)
 
     
   
+    <div class="desc"><p>Disable SSL checking. Note that this should <em>only</em> be used while developing
+against a local Socrata instance.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.authorization.Authorization.live_dangerously', this);">Show source &equiv;</a></p>
   <div id="source-socrata.authorization.Authorization.live_dangerously" class="source">
     <pre><code>def live_dangerously(self):
+    """
+    Disable SSL checking. Note that this should *only* be used while developing
+    against a local Socrata instance.
+    """
     import requests
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)

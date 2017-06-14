@@ -980,13 +980,10 @@ table {
   <ul>
     <li class="mono"><a href="#socrata.configs.Config.__init__">__init__</a></li>
     <li class="mono"><a href="#socrata.configs.Config.create_revision">create_revision</a></li>
-    <li class="mono"><a href="#socrata.configs.Config.define_operations">define_operations</a></li>
     <li class="mono"><a href="#socrata.configs.Config.delete">delete</a></li>
-    <li class="mono"><a href="#socrata.configs.Config.dispatch">dispatch</a></li>
-    <li class="mono"><a href="#socrata.configs.Config.on_response">on_response</a></li>
+    <li class="mono"><a href="#socrata.configs.Config.list_operations">list_operations</a></li>
     <li class="mono"><a href="#socrata.configs.Config.path">path</a></li>
     <li class="mono"><a href="#socrata.configs.Config.show">show</a></li>
-    <li class="mono"><a href="#socrata.configs.Config.subresource">subresource</a></li>
     <li class="mono"><a href="#socrata.configs.Config.update">update</a></li>
   </ul>
 
@@ -1001,8 +998,6 @@ table {
     <li class="mono"><a href="#socrata.configs.Configs.list">list</a></li>
     <li class="mono"><a href="#socrata.configs.Configs.lookup">lookup</a></li>
     <li class="mono"><a href="#socrata.configs.Configs.path">path</a></li>
-    <li class="mono"><a href="#socrata.configs.Configs.subresource">subresource</a></li>
-    <li class="mono"><a href="#socrata.configs.Configs.subresources">subresources</a></li>
   </ul>
 
         </li>
@@ -1038,7 +1033,12 @@ class Configs(Collection):
         )
 
     def create(self, name, data_action, parse_options = None, columns = None):
-        return self.subresource(Config, post(
+        """
+        Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
+        ImportConfig section for what is supported in `data_action`, `parse_options`,
+        and `columns`.
+        """
+        return self._subresource(Config, post(
             self.path(),
             auth = self.auth,
             data = json.dumps({
@@ -1051,22 +1051,35 @@ class Configs(Collection):
 
     # ~~ danger ~~ This URL is hardcoded
     def lookup(self, name):
-        return self.subresource(Config, get(
+        """
+        Obtain a single ImportConfig by name
+        """
+        return self._subresource(Config, get(
             self.path() + '/' + name,
             auth = self.auth
         ))
 
     def list(self):
-        return self.subresources(Config, get(
+        """
+        List all the ImportConfigs on this domain
+        """
+        return self._subresources(Config, get(
             self.path(),
             auth = self.auth
         ))
 
 class Config(Resource):
     def delete(self, uri):
+        """
+        Delete this ImportConfig. Note that this cannot be undone.
+        """
         return delete(self.path(uri), auth = self.auth)
 
     def update(self, uri, data_action = None, parse_options = None, columns = None):
+        """
+        Mutate this ImportConfig in place. Subsequent revisions opened against this
+        ImportConfig will take on its new value.
+        """
         data_action = data_action or self.attributes['data_action']
         parse_options = parse_options or self.attributes['parse_options']
         columns = columns or self.attributes['columns']
@@ -1082,6 +1095,11 @@ class Config(Resource):
         ))
 
     def create_revision(self, uri, fourfour):
+        """
+        Create a new Revision in the context of this ImportConfig.
+        Uploads that happen in this Revision will take on the values
+        in this Config.
+        """
         # Because of circular dependencies ;_;
         from socrata.revisions import Revision
 
@@ -1111,9 +1129,16 @@ class Config(Resource):
   <div id="source-socrata.configs.Config" class="source">
     <pre><code>class Config(Resource):
     def delete(self, uri):
+        """
+        Delete this ImportConfig. Note that this cannot be undone.
+        """
         return delete(self.path(uri), auth = self.auth)
 
     def update(self, uri, data_action = None, parse_options = None, columns = None):
+        """
+        Mutate this ImportConfig in place. Subsequent revisions opened against this
+        ImportConfig will take on its new value.
+        """
         data_action = data_action or self.attributes['data_action']
         parse_options = parse_options or self.attributes['parse_options']
         columns = columns or self.attributes['columns']
@@ -1129,6 +1154,11 @@ class Config(Resource):
         ))
 
     def create_revision(self, uri, fourfour):
+        """
+        Create a new Revision in the context of this ImportConfig.
+        Uploads that happen in this Revision will take on the values
+        in this Config.
+        """
         # Because of circular dependencies ;_;
         from socrata.revisions import Revision
 
@@ -1167,7 +1197,7 @@ class Config(Resource):
   <div id="source-socrata.configs.Config.__init__" class="source">
     <pre><code>def __init__(self, auth, response, parent = None, *args, **kwargs):
     self.auth = auth
-    self.on_response(response)
+    self._on_response(response)
     self.parent = parent
 </code></pre>
   </div>
@@ -1184,10 +1214,18 @@ class Config(Resource):
 
     
   
+    <div class="desc"><p>Create a new Revision in the context of this ImportConfig.
+Uploads that happen in this Revision will take on the values
+in this Config.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.create_revision', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.create_revision" class="source">
     <pre><code>def create_revision(self, uri, fourfour):
+    """
+    Create a new Revision in the context of this ImportConfig.
+    Uploads that happen in this Revision will take on the values
+    in this Config.
+    """
     # Because of circular dependencies ;_;
     from socrata.revisions import Revision
     (ok, res) = result = post(
@@ -1205,29 +1243,6 @@ class Config(Resource):
   
             
   <div class="item">
-    <div class="name def" id="socrata.configs.Config.define_operations">
-    <p>def <span class="ident">define_operations</span>(</p><p>self, links)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.define_operations', this);">Show source &equiv;</a></p>
-  <div id="source-socrata.configs.Config.define_operations" class="source">
-    <pre><code>def define_operations(self, links):
-    for name, uri in links.items():
-        setattr(self, name, self.dispatch(name, uri))
-        setattr(self, '%s_uri' % name, uri)
-    setattr(self, 'list_operations', lambda: list(links.keys()))
-</code></pre>
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
     <div class="name def" id="socrata.configs.Config.delete">
     <p>def <span class="ident">delete</span>(</p><p>self, uri)</p>
     </div>
@@ -1235,10 +1250,14 @@ class Config(Resource):
 
     
   
+    <div class="desc"><p>Delete this ImportConfig. Note that this cannot be undone.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.delete', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.delete" class="source">
     <pre><code>def delete(self, uri):
+    """
+    Delete this ImportConfig. Note that this cannot be undone.
+    """
     return delete(self.path(uri), auth = self.auth)
 </code></pre>
   </div>
@@ -1248,47 +1267,26 @@ class Config(Resource):
   
             
   <div class="item">
-    <div class="name def" id="socrata.configs.Config.dispatch">
-    <p>def <span class="ident">dispatch</span>(</p><p>self, name, uri)</p>
+    <div class="name def" id="socrata.configs.Config.list_operations">
+    <p>def <span class="ident">list_operations</span>(</p><p>self)</p>
     </div>
     
 
     
   
+    <div class="desc"><p>Get a list of the operations that you can perform on this
+object. These map directly onto what's returned from the API
+in the <code>links</code> section of each resource</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.dispatch', this);">Show source &equiv;</a></p>
-  <div id="source-socrata.configs.Config.dispatch" class="source">
-    <pre><code>def dispatch(self, name, uri):
-    og_method_name = '_' + name
-    if not hasattr(self, og_method_name):
-        og_method = getattr(self, name, self._noop)
-        setattr(self, og_method_name, og_method)
-    old = getattr(self, og_method_name, self._noop)
-    def f(*args, **kwargs):
-        return old(uri, *args, **kwargs)
-    return f
-</code></pre>
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="socrata.configs.Config.on_response">
-    <p>def <span class="ident">on_response</span>(</p><p>self, response)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.on_response', this);">Show source &equiv;</a></p>
-  <div id="source-socrata.configs.Config.on_response" class="source">
-    <pre><code>def on_response(self, response):
-    self.attributes = response['resource']
-    self.links = response['links']
-    self.define_operations(self.links)
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.list_operations', this);">Show source &equiv;</a></p>
+  <div id="source-socrata.configs.Config.list_operations" class="source">
+    <pre><code>def list_operations(self):
+    """
+    Get a list of the operations that you can perform on this
+    object. These map directly onto what's returned from the API
+    in the `links` section of each resource
+    """
+    return getattr(self, 'available_operations', [])
 </code></pre>
   </div>
 </div>
@@ -1343,29 +1341,6 @@ class Config(Resource):
   
             
   <div class="item">
-    <div class="name def" id="socrata.configs.Config.subresource">
-    <p>def <span class="ident">subresource</span>(</p><p>self, klass, result, **kwargs)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.subresource', this);">Show source &equiv;</a></p>
-  <div id="source-socrata.configs.Config.subresource" class="source">
-    <pre><code>def subresource(self, klass, result, **kwargs):
-    (ok, res) = result
-    if ok:
-        return (ok, klass(self.auth, res, self, **kwargs))
-    return result
-</code></pre>
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
     <div class="name def" id="socrata.configs.Config.update">
     <p>def <span class="ident">update</span>(</p><p>self, uri, data_action=None, parse_options=None, columns=None)</p>
     </div>
@@ -1373,10 +1348,16 @@ class Config(Resource):
 
     
   
+    <div class="desc"><p>Mutate this ImportConfig in place. Subsequent revisions opened against this
+ImportConfig will take on its new value.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.update', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.update" class="source">
     <pre><code>def update(self, uri, data_action = None, parse_options = None, columns = None):
+    """
+    Mutate this ImportConfig in place. Subsequent revisions opened against this
+    ImportConfig will take on its new value.
+    """
     data_action = data_action or self.attributes['data_action']
     parse_options = parse_options or self.attributes['parse_options']
     columns = columns or self.attributes['columns']
@@ -1412,7 +1393,12 @@ class Config(Resource):
         )
 
     def create(self, name, data_action, parse_options = None, columns = None):
-        return self.subresource(Config, post(
+        """
+        Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
+        ImportConfig section for what is supported in `data_action`, `parse_options`,
+        and `columns`.
+        """
+        return self._subresource(Config, post(
             self.path(),
             auth = self.auth,
             data = json.dumps({
@@ -1425,13 +1411,19 @@ class Config(Resource):
 
     # ~~ danger ~~ This URL is hardcoded
     def lookup(self, name):
-        return self.subresource(Config, get(
+        """
+        Obtain a single ImportConfig by name
+        """
+        return self._subresource(Config, get(
             self.path() + '/' + name,
             auth = self.auth
         ))
 
     def list(self):
-        return self.subresources(Config, get(
+        """
+        List all the ImportConfigs on this domain
+        """
+        return self._subresources(Config, get(
             self.path(),
             auth = self.auth
         ))
@@ -1478,11 +1470,19 @@ class Config(Resource):
 
     
   
+    <div class="desc"><p>Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
+ImportConfig section for what is supported in <code>data_action</code>, <code>parse_options</code>,
+and <code>columns</code>.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.create', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.create" class="source">
     <pre><code>def create(self, name, data_action, parse_options = None, columns = None):
-    return self.subresource(Config, post(
+    """
+    Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
+    ImportConfig section for what is supported in `data_action`, `parse_options`,
+    and `columns`.
+    """
+    return self._subresource(Config, post(
         self.path(),
         auth = self.auth,
         data = json.dumps({
@@ -1507,11 +1507,15 @@ class Config(Resource):
 
     
   
+    <div class="desc"><p>List all the ImportConfigs on this domain</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.list', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.list" class="source">
     <pre><code>def list(self):
-    return self.subresources(Config, get(
+    """
+    List all the ImportConfigs on this domain
+    """
+    return self._subresources(Config, get(
         self.path(),
         auth = self.auth
     ))
@@ -1530,11 +1534,15 @@ class Config(Resource):
 
     
   
+    <div class="desc"><p>Obtain a single ImportConfig by name</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.lookup', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.lookup" class="source">
     <pre><code>def lookup(self, name):
-    return self.subresource(Config, get(
+    """
+    Obtain a single ImportConfig by name
+    """
+    return self._subresource(Config, get(
         self.path() + '/' + name,
         auth = self.auth
     ))
@@ -1560,52 +1568,6 @@ class Config(Resource):
     return 'https://{domain}/api/publishing/v1/config'.format(
         domain = self.auth.domain
     )
-</code></pre>
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="socrata.configs.Configs.subresource">
-    <p>def <span class="ident">subresource</span>(</p><p>self, klass, result)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.subresource', this);">Show source &equiv;</a></p>
-  <div id="source-socrata.configs.Configs.subresource" class="source">
-    <pre><code>def subresource(self, klass, result):
-    (ok, res) = result
-    if ok:
-        return (ok, klass(self.auth, res, self))
-    return result
-</code></pre>
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="socrata.configs.Configs.subresources">
-    <p>def <span class="ident">subresources</span>(</p><p>self, klass, result)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.subresources', this);">Show source &equiv;</a></p>
-  <div id="source-socrata.configs.Configs.subresources" class="source">
-    <pre><code>def subresources(self, klass, result):
-    (ok, resources) = result
-    if ok:
-        return (ok, [klass(self.auth, res, self) for res in resources])
-    return result
 </code></pre>
   </div>
 </div>

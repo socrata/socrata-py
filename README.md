@@ -206,7 +206,6 @@ with open('test/fixtures/simple.csv', 'rb') as f:
             }
         }
     ]})
-)
 
 # Wait for the transformation to finish
 (ok, output_schema) = output_schema.wait_for_finish()

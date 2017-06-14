@@ -208,7 +208,7 @@ print(output_schema.attributes['error_count'])
 ### Validating rows
 ```python
 (ok, rows) = output_schema.rows(offset = 0, limit = 20)
-asssert ok,
+assert ok,
 
 self.assertEqual(rows, [
     {'b': {'ok': ' bfoo'}},

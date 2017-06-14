@@ -89,6 +89,25 @@ class ImportConfigTest(TestCase):
             self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
 
+    def test_upload_to_config(self):
+        p = Publish(auth)
+        name = "some_config %s" % str(uuid.uuid4())
+        (ok, config) = p.configs.create(name, "replace")
+        self.assertTrue(ok, config)
+
+        p = Publish(auth)
+        (rev, job) = p.using_config(name, self.view).csv(
+            """a,b,c
+                1,2,3
+                4,5,6
+                7,8,9
+            """,
+            filename = "abc.csv"
+        )
+        self.assertEqual(rev.attributes['action']['type'], 'replace')
+        self.assertTrue(job.attributes['created_at'])
+
+
     def test_show_config(self):
         p = Publish(auth)
         name = "some_config %s" % str(uuid.uuid4())

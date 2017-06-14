@@ -8,6 +8,7 @@ class TimeoutException(Exception):
     pass
 
 class OutputSchema(Resource):
+
     def build_config(self, uri, name, data_action):
         """
         Create a new ImportConfig from this OutputSchema. See the API
@@ -57,11 +58,8 @@ class OutputSchema(Resource):
         field_names = [oc['field_name'] for oc in columns]
         return {k: v for k, v in zip(field_names, row)}
 
-    def rows(self, uri, offset = 0, limit = 500):
-        """
-        Get the rows for this OutputSchema. Acceps `offset` and `limit` params
-        for paging through the data.
-        """
+
+    def _get_rows(self, uri, offset, limit):
         ok, resp = get(
             self.path(uri),
             params = {'limit': limit, 'offset': offset},
@@ -74,3 +72,34 @@ class OutputSchema(Resource):
         rows = resp[1:]
 
         return (ok, [self._munge_row(row) for row in rows])
+
+    def rows(self, uri, offset = 0, limit = 500):
+        """
+        Get the rows for this OutputSchema. Acceps `offset` and `limit` params
+        for paging through the data.
+        """
+        return self._get_rows(uri, offset, limit)
+
+
+    def schema_errors(self, uri, offset = 0, limit = 500):
+        """
+        Get the errors that resulted in transforming into this output schema.
+        Accepts `offset` and `limit` params
+        """
+        return self._get_rows(uri, offset, limit)
+
+    def schema_errors_csv(self):
+        """
+        Get the errors that results in transforming into this output schema
+        as a CSV stream.
+
+        Note that this returns an (ok, Reponse) tuple, where Reponse
+        is a python requests Reponse object
+        """
+        return get(
+            self.path(self.schema_errors_uri),
+            auth = self.auth,
+            headers = {'accept': 'text/csv', 'content-type': 'text/csv'},
+            stream = True
+        )
+

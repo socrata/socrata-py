@@ -17,44 +17,54 @@ class Operation(object):
         self.publish = publish
         self.properties = kwargs
 
-    def csv(self, file):
+    def csv(self, file, *args, **kwargs):
         """
         Create a revision on that view, then upload a file of
         type CSV and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.csv(file))
+        return self.run(file, lambda upload: upload.csv(file), *args, **kwargs)
 
-    def xls(self, file):
+    def xls(self, file, *args, **kwargs):
         """
         Create a revision on that view, then upload a file of
         type XLS and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.xls(file))
+        return self.run(file, lambda upload: upload.xls(file), *args, **kwargs)
 
-    def xlsx(self, file):
+    def xlsx(self, file, *args, **kwargs):
         """
         Create a revision on that view, then upload a file of
         type XLSX and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.xlsx(file))
+        return self.run(file, lambda upload: upload.xlsx(file), *args, **kwargs)
 
-    def tsv(self, file):
+    def tsv(self, file, *args, **kwargs):
         """
         Create a revision on that view, then upload a file of
         type TSV and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.tsv(file))
+        return self.run(file, lambda upload: upload.tsv(file), *args, **kwargs)
+
+def get_filename(data, filename):
+    if (filename is None) and getattr(data, 'name', False):
+        filename = data.name
+    elif filename is None:
+        raise SocrataException("When creating without a file handle, you must include the filename as the second argument")
+    return filename
+
 
 class Create(Operation):
-    def run(self, file, put_bytes):
+    def run(self, data, put_bytes, filename = None):
+        filename = get_filename(data, filename)
+
         (ok, view) = self.publish.views.create(self.properties)
         if not ok:
             raise SocrataException("Failed to create the view", view)
@@ -63,7 +73,7 @@ class Create(Operation):
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 
-        (ok, upload) = rev.create_upload({'filename': file.name})
+        (ok, upload) = rev.create_upload({'filename': filename})
         if not ok:
             raise SocrataException("Failed to create the upload", upload)
 
@@ -87,14 +97,16 @@ class Update(Operation):
 
 
 class ConfiguredJob(Operation):
-    def run(self, file, put_bytes):
+    def run(self, data, put_bytes, filename = None):
+        filename = get_filename(data, filename)
+
         (ok, rev) = self.properties['view'].revisions.create_using_config(
             self.properties['config']
         )
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 
-        (ok, upload) = rev.create_upload({'filename': file.name})
+        (ok, upload) = rev.create_upload({'filename': filename})
         if not ok:
             raise SocrataException("Failed to create the upload", upload)
 

@@ -132,6 +132,7 @@ assert ok, view
 
 # Make an `update` revision to that view
 (ok, rev) = view.revisions.update()
+# Alternatively if we wanted to replace the view, we would do `view.revisions.replace()`
 assert ok
 
 # rev is a Revision object, we can print it

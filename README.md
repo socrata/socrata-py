@@ -250,7 +250,7 @@ print(job.attributes['log'])
 
 
 # So maybe we just want to wait here, printing the progress, until the job is done
-job.wait_for_finish(progress = lambda job: sys.stdout.write(str(job.attributes['log'][0]) + "\n"))
+job.wait_for_finish(progress = lambda job: print(job.attributes['log']))
 
 # So now if we go look at our original four-four, our data will be there
 ```

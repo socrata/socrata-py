@@ -131,7 +131,7 @@ publishing = Publish(auth)
 assert ok, view
 
 # Make an `update` revision to that view
-(ok, rev) = view.revisions.update()
+(ok, rev) = view.revisions.create_update_revision()
 assert ok
 
 # rev is a Revision object, we can print it
@@ -201,6 +201,10 @@ assert ok, output_schema
 
 # Look at how many validation errors happened while trying to transform our dataset
 print(output_schema.attributes['error_count'])
+
+# Maybe we want to discard the revision if our file had errors in it. This will prevent the revision from ever being applied
+if output_schema.attributes['error_count'] > 0:
+    rev.discard()
 ```
 
 

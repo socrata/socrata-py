@@ -30,6 +30,8 @@ class Views(Collection):
         """
         Create a new Socrata view.
         """
+        body['displayType'] = 'draft'
+
         return self._subresource(View, post(
             self.path(),
             auth = self.auth,

@@ -33,6 +33,12 @@ class Revisions(Collection):
             })
         ))
 
+    def list(self):
+        return self._subresources(Revision, get(
+            self.path(),
+            auth = self.auth
+        ))
+
     def create_replace_revision(self):
         return self._create('replace')
 
@@ -104,14 +110,19 @@ class Revision(Resource):
             body.update({
                 'output_schema_id': output_schema.attributes['id']
             })
+
         """
         Apply the Revision to the view that it was opened on
         """
-        return self._subresource(Job, put(
+        result = self._subresource(Job, put(
             self.path(uri),
             auth = self.auth,
             data = json.dumps(body)
         ))
+
+        self.show() # To mutate ourself and get the job to show up in our attrs
+
+        return result
 
     def ui_url(self):
         """

@@ -15,6 +15,23 @@ class TestPublish(TestCase):
         self.assertTrue(ok, r)
         self.assertEqual(r.attributes['action']['type'], 'update')
 
+    def test_list_revisions(self):
+        (ok, r) = self.view.revisions.create_update_revision()
+        assert ok, r
+        (ok, r) = self.view.revisions.create_replace_revision()
+        assert ok, r
+
+        (ok, revs) = self.view.revisions.list()
+        self.assertEqual(len(revs), 2)
+
+    def test_lookup_revision(self):
+        (ok, r) = self.view.revisions.create_update_revision()
+        assert ok, r
+        (ok, l) = self.view.revisions.lookup(0)
+        assert ok, l
+        self.assertEqual(l.attributes, r.attributes)
+
+
     def test_list_operations(self):
         (ok, r) = self.view.revisions.create_replace_revision()
         assert 'show' in r.list_operations(), r

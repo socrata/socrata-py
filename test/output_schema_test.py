@@ -65,17 +65,17 @@ class TestOutputSchema(TestCase):
         self.assertTrue(ok, rows)
 
         self.assertEqual(rows, [
-            {'b': {'ok': ' bfoo'}},
-            {'b': {'ok': ' bfoo'}},
-            {'b': {'ok': ' bfoo'}},
-            {'b': {'ok': ' bfoo'}}
+            {'b': {'ok': 'bfoo'}},
+            {'b': {'ok': 'bfoo'}},
+            {'b': {'ok': 'bfoo'}},
+            {'b': {'ok': 'bfoo'}}
         ])
 
         (ok, rows) = output_schema.rows(offset = 2, limit = 1)
         self.assertTrue(ok, rows)
 
         self.assertEqual(rows, [
-            {'b': {'ok': ' bfoo'}}
+            {'b': {'ok': 'bfoo'}}
         ])
 
     def test_build_config(self):
@@ -93,3 +93,53 @@ class TestOutputSchema(TestCase):
         self.assertEqual(single_column['field_name'], 'b')
         self.assertEqual(single_column['display_name'], 'b')
         self.assertEqual(single_column['transform_expr'], "`b` || 'foo'")
+
+
+    def test_validate_row_id(self):
+        input_schema = self.create_input_schema()
+        (ok, output_schema) = input_schema.transform({
+            'output_columns': [
+                {
+                    "field_name": "a",
+                    "display_name": "a",
+                    "position": 0,
+                    "description": "a",
+                    "transform": {
+                        "transform_expr": "`a`"
+                    }
+                }
+            ]}
+        )
+
+        (ok, result) = output_schema.validate_row_id('a')
+
+        self.assertEqual(result, {'valid': True})
+
+        (ok, result) = output_schema.validate_row_id('nope')
+
+        self.assertEqual(result, {'reason': 'No column with field_name = nope'})
+
+    def test_set_row_id(self):
+        input_schema = self.create_input_schema()
+
+
+        (ok, output_schema) = input_schema.transform({
+            'output_columns': [
+                {
+                    "field_name": "a",
+                    "display_name": "a",
+                    "position": 0,
+                    "description": "a",
+                    "transform": {
+                        "transform_expr": "`a`"
+                    }
+                }
+            ]}
+        )
+        (ok, result) = output_schema.validate_row_id('a')
+        assert ok, result
+
+        (ok, output_schema) = output_schema.set_row_id('a')
+        assert ok, output_schema
+
+        self.assertEqual(output_schema.attributes['output_columns'][0]['is_primary_key'], True)

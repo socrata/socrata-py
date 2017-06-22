@@ -1,5 +1,6 @@
 import time
 import json
+from copy import deepcopy
 from socrata.resource import Resource
 from socrata.configs import Config
 from socrata.http import noop, put, get, post
@@ -102,4 +103,27 @@ class OutputSchema(Resource):
             headers = {'accept': 'text/csv', 'content-type': 'text/csv'},
             stream = True
         )
+
+    def validate_row_id(self, uri, field_name):
+        print(self.attributes)
+        output_column = [oc for oc in self.attributes['output_columns'] if oc['field_name'] == field_name]
+        if len(output_column):
+            [output_column] = output_column
+            transform_id = output_column['transform']['id']
+
+            return get(
+                self.path(uri.format(transform_id = transform_id)),
+                auth = self.auth
+            )
+        else:
+            return (False, {"reason": "No column with field_name = %s" % field_name})
+
+
+    def set_row_id(self, field_name = None):
+        desired_schema = deepcopy(self.attributes['output_columns'])
+
+        for oc in desired_schema:
+            oc['is_primary_key'] = (oc['field_name'] == field_name)
+
+        return self.parent.transform({'output_columns': desired_schema})
 

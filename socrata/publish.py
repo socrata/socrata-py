@@ -69,7 +69,7 @@ class Create(Operation):
         if not ok:
             raise SocrataException("Failed to create the view", view)
 
-        (ok, rev) = view.revisions.update()
+        (ok, rev) = view.revisions.create_update_revision()
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 

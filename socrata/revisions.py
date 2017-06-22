@@ -1,6 +1,6 @@
 import json
 import requests
-from socrata.http import post, put, delete
+from socrata.http import post, put, delete, get
 from socrata.resource import Collection, Resource
 from socrata.uploads import Upload
 from socrata.job import Job
@@ -33,14 +33,23 @@ class Revisions(Collection):
             })
         ))
 
-    def replace(self):
+    def list(self):
+        return self._subresources(Revision, get(
+            self.path(),
+            auth = self.auth
+        ))
+
+    def create_replace_revision(self):
         return self._create('replace')
 
-    def update(self):
+    def create_update_revision(self):
         return self._create('update')
 
-    def metadata(self):
-        return self._create('metadata')
+    def lookup(self, revision_seq):
+        return self._subresource(Revision, get(
+            self.path() + '/' + str(revision_seq),
+            auth = self.auth
+        ))
 
 
     def create_using_config(self, config):
@@ -78,7 +87,7 @@ class Revision(Resource):
         return delete(self.path(uri), auth = self.auth)
 
 
-    def metadata(self, uri, meta):
+    def update(self, uri, meta):
         """
         Set the metadata to be applied to the view
         when this revision is applied
@@ -89,18 +98,7 @@ class Revision(Resource):
             data = json.dumps({'metadata': meta}),
         ))
 
-    def is_metadata_revision(self):
-        """
-        Whether or not this revision will only change the dataset's metadata
-        """
-        return self.attributes['action']['type'] == 'metadata'
-
     def apply(self, uri, output_schema = None):
-        # We ignore any output schemas passed in if this revision only cares
-        # about metadata
-        if self.is_metadata_revision():
-            output_schema = None
-
         if output_schema:
             (ok, output_schema) = result = output_schema.wait_for_finish()
             if not ok:
@@ -112,14 +110,19 @@ class Revision(Resource):
             body.update({
                 'output_schema_id': output_schema.attributes['id']
             })
+
         """
         Apply the Revision to the view that it was opened on
         """
-        return self._subresource(Job, put(
+        result = self._subresource(Job, put(
             self.path(uri),
             auth = self.auth,
             data = json.dumps(body)
         ))
+
+        self.show() # To mutate ourself and get the job to show up in our attrs
+
+        return result
 
     def ui_url(self):
         """

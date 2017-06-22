@@ -15,8 +15,6 @@ parser.add_argument('--username', type=str, help='Your Socrata username', defaul
 parser.add_argument('--password', type=str, help='Your Socrata password', default = os.environ.get('SOCRATA_PASSWORD', None))
 args = parser.parse_args()
 
-
-domain = 'localhost'
 auth = Authorization(
   args.domain,
   args.username,

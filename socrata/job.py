@@ -7,7 +7,8 @@ class Job(Resource):
         """
         Has this job finished or failed
         """
-        return not (self.attributes['status'] == 'in_progress')
+        status = self.attributes['status']
+        return (status == 'failure' or status == 'successful')
 
     def wait_for_finish(self, progress = noop):
         """

@@ -28,7 +28,7 @@ logger.setLevel(logging.INFO)
 class TestCase(unittest.TestCase):
     def create_rev(self):
         p = Publish(auth)
-        (ok, r) = self.view.revisions.update()
+        (ok, r) = self.view.revisions.create_update_revision()
         assert ok
         self.rev = r
         return r

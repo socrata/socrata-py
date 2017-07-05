@@ -85,6 +85,42 @@ with open('cool_dataset.csv', 'rb') as file:
 Similar to the `csv` method are the `xls`, `xlsx`, and `tsv` methods, which upload
 those files.
 
+Datasets can also be created from Pandas DataFrames
+
+```python
+df = pd.read_csv('/Users/peter.moore/publish-py/test/fixtures/simple.csv')
+# Do various Pandas-y changes and modifications
+
+# Upload + Transform step
+
+# view is the actual view in the Socrata catalog
+# revision is the *change* to the view in the catalog, which has not yet been applied
+# output is the OutputSchema, which is a change to data which can be applied via the revision
+(view, revision, output) = Publish(auth).create(
+    name = "Pandas Dataset",
+    description = "Dataset made from a Pandas Dataframe"
+).df(df)
+
+
+# Validation results step
+
+# The data has been validated now, and we can access errors that happened during validation
+assert output.attributes['error_count'] == 0
+
+# Update step
+
+# Publish the dataset - this will make it public and available to make
+# visualizations from
+(ok, job) = revision.apply(output_schema = output)
+
+# Publishing is async - this will block until all the data
+# is in place and readable
+job.wait_for_finish()
+
+# This opens a browser window with your new view you just created
+view.open_in_browser()
+```
+
 #### Updating a dataset
 A Socrata `update` is actually an upsert. Rows are updated or created based on the row identifier. If the row-identifer doesn't exist, all updates are just appends to the dataset.
 

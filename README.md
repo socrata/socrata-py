@@ -88,7 +88,7 @@ those files.
 Datasets can also be created from Pandas DataFrames
 
 ```python
-df = pd.read_csv('/Users/peter.moore/publish-py/test/fixtures/simple.csv')
+df = pd.read_csv('publish-py/test/fixtures/simple.csv')
 # Do various Pandas-y changes and modifications
 
 # Upload + Transform step

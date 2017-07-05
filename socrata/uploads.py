@@ -1,4 +1,5 @@
 import json
+import io
 from socrata.http import post, patch
 from socrata.resource import Resource, Collection
 from socrata.input_schema import InputSchema
@@ -59,7 +60,13 @@ class Upload(Resource):
         """
         return self.bytes(file_handle, "text/tab-separated-values")
 
-
+    def df(self, dataframe):
+        """
+        Upload a pandas DataFrame, returns the new upload.
+        """
+        s = io.StringIO()
+        dataframe.to_csv(s, index=False)
+        return self.bytes(bytes(s.getvalue().encode()),"text/csv")
     def add_to_revision(self, uri, revision):
         """
         Associate this Upload with the given revision.

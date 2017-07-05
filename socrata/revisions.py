@@ -139,4 +139,3 @@ class Revision(Resource):
         Open this revision in your browser, this will open a window
         """
         webbrowser.open(self.ui_url(), new = 2)
-

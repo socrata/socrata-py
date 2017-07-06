@@ -45,7 +45,7 @@ auth = Authorization(
 ### Simple usage
 
 
-#### Create a new Dataset
+#### Create a new Dataset from a csv, tsv, xls or xlsx file
 To create a dataset with as little code as possible, you can do this:
 
 ```python
@@ -88,6 +88,7 @@ with open('cool_dataset.csv', 'rb') as file:
 Similar to the `csv` method are the `xls`, `xlsx`, and `tsv` methods, which upload
 those files.
 
+#### Create a new Dataset from Pandas
 Datasets can also be created from Pandas DataFrames
 ```python
 import pandas as pd

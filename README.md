@@ -141,7 +141,7 @@ This isn't advised. Doing an update without a config doesn't ensure that the sam
 (ok, view) = publishing.views.lookup('tnir-bc4v')
 (ok, rev) = view.revisions.update()
 with open('cool_dataset.csv, 'rb') as file:
-    (ok, upload) = rev.create_upload({'filename': file.name})
+    (ok, upload) = rev.create_upload(file.name)
     (ok, input_schema) = upload.csv(file)
     (ok, output_schema) = input_schema.latest_output()
     rev.apply(output_schema = output_schema)
@@ -184,16 +184,19 @@ print(rev.attributes['fourfour'])
 ### Make an upload, given a revision
 ```python
 # Using that revision, we can create an upload
-(ok, upload) = rev.create_upload({'filename': "foo.csv"})
+(ok, upload) = rev.create_upload('foo.csv')
 assert ok
 
 # And print it
 print(upload)
-Upload({'content_type': None,
+Source({'content_type': None,
  'created_by': {'display_name': 'rozap',
                 'email': 'chris.duranti@socrata.com',
                 'user_id': 'tugg-ikce'},
- 'filename': 'foo.csv',
+ 'source_type': {
+    'filename': 'foo.csv',
+    'type': 'upload'
+ },
  'finished_at': None,
  'id': 290,
  'inserted_at': '2017-02-27T23:07:18.309676',

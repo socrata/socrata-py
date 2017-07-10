@@ -75,7 +75,7 @@ class Config(Resource):
     def create_revision(self, uri, fourfour):
         """
         Create a new Revision in the context of this ImportConfig.
-        Uploads that happen in this Revision will take on the values
+        Sources that happen in this Revision will take on the values
         in this Config.
         """
         # Because of circular dependencies ;_;

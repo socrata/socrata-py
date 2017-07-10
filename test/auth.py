@@ -36,10 +36,10 @@ class TestCase(unittest.TestCase):
     def create_input_schema(self, rev = None):
         if not rev:
             rev = self.create_rev()
-        (ok, upload) = rev.create_upload({'filename': "foo.csv"})
+        (ok, source) = rev.create_upload('foo.csv')
         assert ok
         with open('test/fixtures/simple.csv', 'rb') as f:
-            (ok, input_schema) = upload.csv(f)
+            (ok, input_schema) = source.csv(f)
             assert ok
             return input_schema
 

@@ -7,23 +7,23 @@ except ImportError:
     print("Pandas is required for this test")
     exit()
 class TestPandas(TestCase):
-    def test_create_upload(self):
+    def test_create_source(self):
         rev = self.create_rev()
 
-        (ok, upload) = rev.create_upload({'filename': "foo.csv"})
+        (ok, source) = rev.create_upload('foo.csv')
         self.assertTrue(ok)
-        self.assertEqual(upload.attributes['filename'], 'foo.csv')
+        self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
 
-        assert 'show' in upload.list_operations()
-        assert 'bytes' in upload.list_operations()
+        assert 'show' in source.list_operations()
+        assert 'bytes' in source.list_operations()
 
-    def test_upload_csv(self):
+    def test_source_csv(self):
         rev = self.create_rev()
-        (ok, upload) = rev.create_upload({'filename': "foo.csv"})
+        (ok, source) = rev.create_upload('foo.csv')
         assert ok
 
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, input_schema) = upload.df(df)
+        (ok, input_schema) = source.df(df)
         self.assertTrue(ok)
         self.assertEqual(input_schema.attributes['total_rows'], 4)
 
@@ -32,38 +32,38 @@ class TestPandas(TestCase):
 
         assert 'show' in input_schema.list_operations()
 
-    def test_create_upload_outside_rev(self):
+    def test_create_source_outside_rev(self):
         pub = Publish(auth)
 
-        (ok, upload) = pub.uploads.create({'filename': 'foo.csv'})
-        self.assertTrue(ok, upload)
-        self.assertEqual(upload.attributes['filename'], 'foo.csv')
+        (ok, source) = pub.sources.create_upload('foo.csv')
+        self.assertTrue(ok, source)
+        self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
 
-        assert 'show' in upload.list_operations()
-        assert 'bytes' in upload.list_operations()
+        assert 'show' in source.list_operations()
+        assert 'bytes' in source.list_operations()
 
-    def test_upload_csv_outside_rev(self):
+    def test_source_csv_outside_rev(self):
         pub = Publish(auth)
 
-        (ok, upload) = pub.uploads.create({'filename': 'foo.csv'})
-        self.assertTrue(ok, upload)
+        (ok, source) = pub.sources.create_upload('foo.csv')
+        self.assertTrue(ok, source)
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, input_schema) = upload.df(df)
+        (ok, input_schema) = source.df(df)
         self.assertTrue(ok, input_schema)
         names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
         self.assertEqual(['a', 'b', 'c'], names)
 
-    def test_put_upload_in_revision(self):
+    def test_put_source_in_revision(self):
         pub = Publish(auth)
 
-        (ok, upload) = pub.uploads.create({'filename': 'foo.csv'})
-        self.assertTrue(ok, upload)
+        (ok, source) = pub.sources.create_upload('foo.csv')
+        self.assertTrue(ok, source)
 
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, input_schema) = upload.df(df)
+        (ok, input_schema) = source.df(df)
         self.assertTrue(ok, input_schema)
 
         rev = self.create_rev()
 
-        (ok, upload) = upload.add_to_revision(rev)
-        self.assertTrue(ok, upload)
+        (ok, source) = source.add_to_revision(rev)
+        self.assertTrue(ok, source)

@@ -77,7 +77,7 @@ class ImportConfigTest(TestCase):
         self.assertTrue(ok, config)
         self.assertEqual(config.attributes['name'], name)
 
-    def test_upload_to_config(self):
+    def test_source_to_config(self):
         p = Publish(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
@@ -89,7 +89,7 @@ class ImportConfigTest(TestCase):
             self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
 
-    def test_upload_to_config(self):
+    def test_source_to_config(self):
         p = Publish(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")

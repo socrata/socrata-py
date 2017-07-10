@@ -4,24 +4,29 @@ from socrata.http import post, patch
 from socrata.resource import Resource, Collection
 from socrata.input_schema import InputSchema
 
-class Uploads(Collection):
-    def create(self, body):
+class Sources(Collection):
+    def create_upload(self, filename):
         """
-        Create a new upload. Takes a `body` param, which must contain a `filename`
+        Create a new source. Takes a `body` param, which must contain a `filename`
         of the file.
         """
-        path = 'https://{domain}/api/publishing/v1/upload'.format(
+        path = 'https://{domain}/api/publishing/v1/source'.format(
             domain = self.auth.domain
         )
-        return self._subresource(Upload, post(
+        return self._subresource(Source, post(
             path,
             auth = self.auth,
-            data = json.dumps(body)
+            data = json.dumps({
+                'source_type' : {
+                    'type': 'upload',
+                    'filename': filename
+                }
+            })
         ))
 
-class Upload(Resource):
+class Source(Resource):
     """
-    Upload bytes into the upload. Requires content_type argument
+    Uploads bytes into the source. Requires content_type argument
     be set correctly for the file handle. It's advised you don't
     use this method directly, instead use one of the csv, xls, xlsx,
     or tsv methods which will correctly set the content_type for you.
@@ -38,38 +43,38 @@ class Upload(Resource):
 
     def csv(self, file_handle):
         """
-        Upload a CSV, returns the new upload.
+        Upload a CSV, returns the new source.
         """
         return self.bytes(file_handle, "text/csv")
 
     def xls(self, file_handle):
         """
-        Upload an XLS, returns the new upload.
+        Upload an XLS, returns the new source.
         """
         return self.bytes(file_handle, "application/vnd.ms-excel")
 
     def xlsx(self, file_handle):
         """
-        Upload an XLSX, returns the new upload.
+        Upload an XLSX, returns the new source.
         """
         return self.bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     def tsv(self, file_handle):
         """
-        Upload a TSV, returns the new upload.
+        Upload a TSV, returns the new source.
         """
         return self.bytes(file_handle, "text/tab-separated-values")
 
     def df(self, dataframe):
         """
-        Upload a pandas DataFrame, returns the new upload.
+        Upload a pandas DataFrame, returns the new source.
         """
         s = io.StringIO()
         dataframe.to_csv(s, index=False)
         return self.bytes(bytes(s.getvalue().encode()),"text/csv")
     def add_to_revision(self, uri, revision):
         """
-        Associate this Upload with the given revision.
+        Associate this Source with the given revision.
         """
         (ok, res) = result = patch(
             self.path(uri),

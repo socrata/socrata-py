@@ -53,6 +53,7 @@ class TestOutputSchema(TestCase):
         (ok, output_schema) = output_schema.wait_for_finish()
 
         (ok, errors) = output_schema.schema_errors_csv()
+        assert ok, errors
         out_csv = '\n'.join([str(line) for line in errors.iter_lines()])
 
         assert 'Failed to convert' in out_csv

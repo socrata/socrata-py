@@ -35,7 +35,7 @@ class TestPublish(TestCase):
     def test_list_operations(self):
         (ok, r) = self.view.revisions.create_replace_revision()
         assert 'show' in r.list_operations(), r
-        assert 'create_upload' in r.list_operations(), r
+        assert 'create_source' in r.list_operations(), r
 
     def test_show_revision(self):
         (ok, r) = self.view.revisions.create_replace_revision()
@@ -44,9 +44,9 @@ class TestPublish(TestCase):
         (ok, rev) = r.show()
         self.assertTrue(ok, rev)
 
-    def test_create_upload(self):
+    def test_create_source(self):
         (ok, r) = self.view.revisions.create_replace_revision()
         self.assertTrue(ok)
 
-        (ok, upload) = r.create_upload({'filename': 'foo.csv'})
-        self.assertTrue(ok, upload)
+        (ok, source) = r.create_upload('foo.csv')
+        self.assertTrue(ok, source)

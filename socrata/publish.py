@@ -1,5 +1,5 @@
 from socrata.resource import Collection
-from socrata.uploads import Uploads
+from socrata.sources import Sources
 from socrata.configs import Configs
 from socrata.views import Views
 from socrata.http import gen_headers, post
@@ -82,11 +82,11 @@ class Create(Operation):
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 
-        (ok, upload) = rev.create_upload({'filename': filename})
+        (ok, source) = rev.create_upload(filename)
         if not ok:
-            raise SocrataException("Failed to create the upload", upload)
+            raise SocrataException("Failed to create the upload", source)
 
-        (ok, inp) = put_bytes(upload)
+        (ok, inp) = put_bytes(source)
         if not ok:
             raise SocrataException("Failed to upload the file", inp)
 
@@ -115,11 +115,11 @@ class ConfiguredJob(Operation):
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 
-        (ok, upload) = rev.create_upload({'filename': filename})
+        (ok, source) = rev.create_upload(filename)
         if not ok:
-            raise SocrataException("Failed to create the upload", upload)
+            raise SocrataException("Failed to create the upload", source)
 
-        (ok, inp) = put_bytes(upload)
+        (ok, inp) = put_bytes(source)
         if not ok:
             raise SocrataException("Failed to upload the file", inp)
 
@@ -153,7 +153,7 @@ class Publish(Collection):
         """
         super(Publish, self).__init__(auth)
         self.views = Views(auth)
-        self.uploads = Uploads(auth)
+        self.sources = Sources(auth)
         self.configs = Configs(auth)
 
     def using_config(self, config_name, view):
@@ -169,7 +169,7 @@ class Publish(Collection):
     def create(self, **kwargs):
         """
         Shortcut to create a dataset. Returns a `Create` object,
-        which contains functions which will create a view, upload
+        which contains functions which will create a view, source
         your file, and validate data quality in one step.
         """
         return Create(self, **kwargs)

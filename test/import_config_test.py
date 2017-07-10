@@ -39,7 +39,7 @@ class ImportConfigTest(TestCase):
             "encoding": "utf8",
             "header_count": 2,
             "column_header": 2,
-            "quote_char": "\\",
+            "quote_char": '"',
             "column_separator": ","
         })
 

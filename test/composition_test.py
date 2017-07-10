@@ -71,5 +71,3 @@ class CompositionTest(TestCase):
 
             self.assertEqual(output.attributes['error_count'], 0)
             self.assertIsNotNone(output.attributes['completed_at'])
-
-            revision.open_in_browser()

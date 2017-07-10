@@ -43,31 +43,31 @@ class Source(Resource):
 
     def csv(self, file_handle):
         """
-        Source a CSV, returns the new source.
+        Upload a CSV, returns the new source.
         """
         return self.bytes(file_handle, "text/csv")
 
     def xls(self, file_handle):
         """
-        Source an XLS, returns the new source.
+        Upload an XLS, returns the new source.
         """
         return self.bytes(file_handle, "application/vnd.ms-excel")
 
     def xlsx(self, file_handle):
         """
-        Source an XLSX, returns the new source.
+        Upload an XLSX, returns the new source.
         """
         return self.bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     def tsv(self, file_handle):
         """
-        Source a TSV, returns the new source.
+        Upload a TSV, returns the new source.
         """
         return self.bytes(file_handle, "text/tab-separated-values")
 
     def df(self, dataframe):
         """
-        Source a pandas DataFrame, returns the new source.
+        Upload a pandas DataFrame, returns the new source.
         """
         s = io.StringIO()
         dataframe.to_csv(s, index=False)

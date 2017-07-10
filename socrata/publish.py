@@ -19,48 +19,48 @@ class Operation(object):
 
     def csv(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then source a file of
+        Create a revision on that view, then upload a file of
         type CSV and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda source: source.csv(file), *args, **kwargs)
+        return self.run(file, lambda upload: upload.csv(file), *args, **kwargs)
 
     def xls(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then source a file of
+        Create a revision on that view, then upload a file of
         type XLS and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda source: source.xls(file), *args, **kwargs)
+        return self.run(file, lambda upload: upload.xls(file), *args, **kwargs)
 
     def xlsx(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then source a file of
+        Create a revision on that view, then upload a file of
         type XLSX and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda source: source.xlsx(file), *args, **kwargs)
+        return self.run(file, lambda upload: upload.xlsx(file), *args, **kwargs)
 
     def tsv(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then source a file of
+        Create a revision on that view, then upload a file of
         type TSV and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda source: source.tsv(file), *args, **kwargs)
+        return self.run(file, lambda upload: upload.tsv(file), *args, **kwargs)
 
     def df(self, dataframe, filename="Dataframe", *args, **kwargs):
         """
-        Create a revision on that view, then source the contents
+        Create a revision on that view, then upload the contents
         of a pandas dataframe and wait for validation to complete.
         Returns an `OutputSchema` which, when applied, will by
         applied to the view.
         """
-        return self.run(dataframe, lambda source: source.df(dataframe), filename, *args, **kwargs)
+        return self.run(dataframe, lambda upload: upload.df(dataframe), filename, *args, **kwargs)
 
 def get_filename(data, filename):
     if (filename is None) and getattr(data, 'name', False):
@@ -84,11 +84,11 @@ class Create(Operation):
 
         (ok, source) = rev.create_upload(filename)
         if not ok:
-            raise SocrataException("Failed to create the source", source)
+            raise SocrataException("Failed to create the upload", source)
 
         (ok, inp) = put_bytes(source)
         if not ok:
-            raise SocrataException("Failed to source the file", inp)
+            raise SocrataException("Failed to upload the file", inp)
 
         (ok, out) = inp.latest_output()
         if not ok:
@@ -117,11 +117,11 @@ class ConfiguredJob(Operation):
 
         (ok, source) = rev.create_upload(filename)
         if not ok:
-            raise SocrataException("Failed to create the source", source)
+            raise SocrataException("Failed to create the upload", source)
 
         (ok, inp) = put_bytes(source)
         if not ok:
-            raise SocrataException("Failed to source the file", inp)
+            raise SocrataException("Failed to upload the file", inp)
 
         (ok, out) = inp.latest_output()
         if not ok:

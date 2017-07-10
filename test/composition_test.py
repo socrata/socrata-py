@@ -61,3 +61,15 @@ class CompositionTest(TestCase):
             self.assertEqual(output.attributes['error_count'], 0)
             self.assertIsNotNone(output.attributes['completed_at'])
 
+
+    def test_create_new_shapefile(self):
+        with open('test/fixtures/zillow.zip', 'rb') as file:
+            (view, revision, output) = Publish(auth).create(
+                name = "zillow",
+                description = "a description"
+            ).shapefile(file)
+
+            self.assertEqual(output.attributes['error_count'], 0)
+            self.assertIsNotNone(output.attributes['completed_at'])
+
+            revision.open_in_browser()

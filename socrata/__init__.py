@@ -5,6 +5,6 @@ __all__ = [
   "output_schema",
   "publish",
   "revisions",
-  "uploads",
+  "sources",
   "upsert_job"
 ]

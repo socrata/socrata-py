@@ -2,7 +2,7 @@ import json
 import requests
 from socrata.http import post, put, delete, get
 from socrata.resource import Collection, Resource
-from socrata.uploads import Upload
+from socrata.sources import Source
 from socrata.job import Job
 from socrata.revisions import Revisions
 import webbrowser

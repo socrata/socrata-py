@@ -1,5 +1,5 @@
 from socrata.resource import Collection
-from socrata.uploads import Uploads
+from socrata.sources import Sources
 from socrata.configs import Configs
 from socrata.views import Views
 from socrata.http import gen_headers, post
@@ -19,48 +19,48 @@ class Operation(object):
 
     def csv(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then upload a file of
+        Create a revision on that view, then source a file of
         type CSV and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.csv(file), *args, **kwargs)
+        return self.run(file, lambda source: source.csv(file), *args, **kwargs)
 
     def xls(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then upload a file of
+        Create a revision on that view, then source a file of
         type XLS and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.xls(file), *args, **kwargs)
+        return self.run(file, lambda source: source.xls(file), *args, **kwargs)
 
     def xlsx(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then upload a file of
+        Create a revision on that view, then source a file of
         type XLSX and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.xlsx(file), *args, **kwargs)
+        return self.run(file, lambda source: source.xlsx(file), *args, **kwargs)
 
     def tsv(self, file, *args, **kwargs):
         """
-        Create a revision on that view, then upload a file of
+        Create a revision on that view, then source a file of
         type TSV and wait for validation to complete. Returns
         an `OutputSchema` which, when applied, will by applied
         to the view.
         """
-        return self.run(file, lambda upload: upload.tsv(file), *args, **kwargs)
+        return self.run(file, lambda source: source.tsv(file), *args, **kwargs)
 
     def df(self, dataframe, filename="Dataframe", *args, **kwargs):
         """
-        Create a revision on that view, then upload the contents
+        Create a revision on that view, then source the contents
         of a pandas dataframe and wait for validation to complete.
         Returns an `OutputSchema` which, when applied, will by
         applied to the view.
         """
-        return self.run(dataframe, lambda upload: upload.df(dataframe), filename, *args, **kwargs)
+        return self.run(dataframe, lambda source: source.df(dataframe), filename, *args, **kwargs)
 
 def get_filename(data, filename):
     if (filename is None) and getattr(data, 'name', False):
@@ -82,13 +82,13 @@ class Create(Operation):
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 
-        (ok, upload) = rev.create_upload({'filename': filename})
+        (ok, source) = rev.create_upload(filename)
         if not ok:
-            raise SocrataException("Failed to create the upload", upload)
+            raise SocrataException("Failed to create the source", source)
 
-        (ok, inp) = put_bytes(upload)
+        (ok, inp) = put_bytes(source)
         if not ok:
-            raise SocrataException("Failed to upload the file", inp)
+            raise SocrataException("Failed to source the file", inp)
 
         (ok, out) = inp.latest_output()
         if not ok:
@@ -115,13 +115,13 @@ class ConfiguredJob(Operation):
         if not ok:
             raise SocrataException("Failed to create the revision", rev)
 
-        (ok, upload) = rev.create_upload({'filename': filename})
+        (ok, source) = rev.create_upload(filename)
         if not ok:
-            raise SocrataException("Failed to create the upload", upload)
+            raise SocrataException("Failed to create the source", source)
 
-        (ok, inp) = put_bytes(upload)
+        (ok, inp) = put_bytes(source)
         if not ok:
-            raise SocrataException("Failed to upload the file", inp)
+            raise SocrataException("Failed to source the file", inp)
 
         (ok, out) = inp.latest_output()
         if not ok:
@@ -153,7 +153,7 @@ class Publish(Collection):
         """
         super(Publish, self).__init__(auth)
         self.views = Views(auth)
-        self.uploads = Uploads(auth)
+        self.sources = Sources(auth)
         self.configs = Configs(auth)
 
     def using_config(self, config_name, view):
@@ -169,7 +169,7 @@ class Publish(Collection):
     def create(self, **kwargs):
         """
         Shortcut to create a dataset. Returns a `Create` object,
-        which contains functions which will create a view, upload
+        which contains functions which will create a view, source
         your file, and validate data quality in one step.
         """
         return Create(self, **kwargs)

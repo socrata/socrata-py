@@ -2,7 +2,7 @@ import json
 import requests
 from socrata.http import post, put, delete, get
 from socrata.resource import Collection, Resource
-from socrata.uploads import Upload
+from socrata.sources import Source
 from socrata.job import Job
 import webbrowser
 
@@ -70,14 +70,22 @@ class Revision(Resource):
     A revision is a change to a dataset
     """
 
-    def create_upload(self, uri, body):
+    def create_upload(self, filename):
         """
-        Create an upload within this revision
+        Create an source within this revision
         """
-        return self._subresource(Upload, post(
+        return self.create_source({
+            'type': 'upload',
+            'filename': filename
+        })
+
+    def create_source(self, uri, source_type):
+        return self._subresource(Source, post(
             self.path(uri),
             auth = self.auth,
-            data = json.dumps(body)
+            data = json.dumps({
+                'source_type' : source_type
+            })
         ))
 
     def discard(self, uri):

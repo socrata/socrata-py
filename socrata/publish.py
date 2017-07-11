@@ -62,6 +62,18 @@ class Operation(object):
         """
         return self.run(dataframe, lambda upload: upload.df(dataframe), filename, *args, **kwargs)
 
+
+    def shapefile(self, file, *args, **kwargs):
+        """
+        Create a revision on that view, then upload the contents
+        of the shapefile and wait for validation to complete.
+        Returns an `OutputSchema` which, when applied, will by
+        applied to the view.
+        """
+        return self.run(file, lambda upload: upload.shapefile(file), *args, **kwargs)
+
+
+
 def get_filename(data, filename):
     if (filename is None) and getattr(data, 'name', False):
         filename = data.name

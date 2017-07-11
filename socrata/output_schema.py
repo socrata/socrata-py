@@ -8,7 +8,43 @@ from socrata.http import noop, put, get, post
 class TimeoutException(Exception):
     pass
 
+class ColumnChange(object):
+    def __init__(self, field_name, attribute, output_schema):
+        self._field_name = field_name
+        self._attribute = attribute
+        self._output_schema = output_schema
+
+    def to(self, value):
+        def change_fun(col):
+            col[self._attribute] = value
+            return col
+
+        self._output_schema.column_changes.append((self._field_name, change_fun))
+
+        return self._output_schema
+
+class TransformChange(object):
+    def __init__(self, field_name, output_schema):
+        self._field_name = field_name
+        self._output_schema = output_schema
+
+    def to(self, value):
+        def change_fun(col):
+            col['transform']['transform_expr'] = value
+            return col
+
+        self._output_schema.column_changes.append((self._field_name, change_fun))
+
+        return self._output_schema
+
+
 class OutputSchema(Resource):
+
+    def __init__(self, *args, **kwargs):
+        super(OutputSchema, self).__init__(*args, **kwargs)
+        self.column_changes = []
+        self.column_additions = []
+        self.column_deletions = []
 
     def build_config(self, uri, name, data_action):
         """
@@ -26,7 +62,6 @@ class OutputSchema(Resource):
         if ok:
             return (ok, Config(self.auth, res, None))
         return result
-
 
     def any_failed(self):
         """
@@ -118,7 +153,6 @@ class OutputSchema(Resource):
         else:
             return (False, {"reason": "No column with field_name = %s" % field_name})
 
-
     def set_row_id(self, field_name = None):
         desired_schema = deepcopy(self.attributes['output_columns'])
 
@@ -127,3 +161,59 @@ class OutputSchema(Resource):
 
         return self.parent.transform({'output_columns': desired_schema})
 
+
+    def add_column(self, field_name, display_name, transform_expr, description = None):
+        position = len(self.attributes['output_columns']) + len(self.column_additions) - len(self.column_deletions)
+        self.column_additions.append({
+            'field_name': field_name,
+            'display_name': display_name,
+            'description': description,
+            'position': position,
+            'transform': {
+                'transform_expr': transform_expr
+            }
+        })
+        return self
+
+    def drop_column(self, field_name):
+        self.column_deletions.append(field_name)
+        return self
+
+    def change_column_metadata(self, field_name, attribute):
+        return ColumnChange(field_name, attribute, self)
+
+    def change_column_transform(self, field_name):
+        """
+        Change the column transform. This returns a TransformChange,
+        which implements a `.to` function, which takes a transform expression.
+        """
+        return TransformChange(field_name, self)
+
+    def _merge_column_change(self, column):
+        changes = [
+            change_fun
+            for (to_change, change_fun) in self.column_changes
+            if to_change == column['field_name']
+        ]
+
+        new_column = {}
+        new_column.update(column)
+
+        for change_fun in changes:
+            new_column = change_fun(new_column)
+
+        return new_column
+
+
+    def run(self):
+        desired_output_columns = [c for c in ([
+            self._merge_column_change(column)
+            for column in self.attributes['output_columns']
+        ] + self.column_additions) if not (c['field_name'] in self.column_deletions)]
+
+
+
+        desired_schema = {
+            'output_columns': desired_output_columns
+        }
+        return self.parent.transform(desired_schema)

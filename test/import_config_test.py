@@ -1,5 +1,5 @@
 import unittest
-from socrata.publish import Publish
+from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 import uuid
@@ -7,7 +7,7 @@ import uuid
 class ImportConfigTest(TestCase):
     def test_create_config(self):
         name = "some_config %s" % str(uuid.uuid4())
-        p = Publish(auth)
+        p = Socrata(auth)
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)
         self.assertEqual(config.attributes['name'], name)
@@ -15,7 +15,7 @@ class ImportConfigTest(TestCase):
 
     def test_create_config_with_non_defaults(self):
         name = "some_config %s" % str(uuid.uuid4())
-        p = Publish(auth)
+        p = Socrata(auth)
         (ok, config) = p.configs.create(
             name,
             "replace",
@@ -52,7 +52,7 @@ class ImportConfigTest(TestCase):
         ])
 
     def test_list_operations(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)
@@ -67,7 +67,7 @@ class ImportConfigTest(TestCase):
         ]))
 
     def test_lookup_config(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)
@@ -78,24 +78,24 @@ class ImportConfigTest(TestCase):
         self.assertEqual(config.attributes['name'], name)
 
     def test_source_to_config(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)
 
-        p = Publish(auth)
+        p = Socrata(auth)
         with open('test/fixtures/simple.csv', 'rb') as my_file:
             (rev, job) = p.using_config(name, self.view).csv(my_file)
             self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
 
     def test_source_to_config(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)
 
-        p = Publish(auth)
+        p = Socrata(auth)
         (rev, job) = p.using_config(name, self.view).csv(
             """a,b,c
                 1,2,3
@@ -109,7 +109,7 @@ class ImportConfigTest(TestCase):
 
 
     def test_show_config(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)
@@ -118,7 +118,7 @@ class ImportConfigTest(TestCase):
         self.assertTrue(ok, config)
 
     def test_delete_config(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)
@@ -130,7 +130,7 @@ class ImportConfigTest(TestCase):
         self.assertFalse(ok)
 
     def test_update_config(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")
         self.assertTrue(ok, config)

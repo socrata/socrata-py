@@ -1,5 +1,5 @@
 import unittest
-from socrata.publish import Publish
+from socrata import Socrata
 from test.auth import auth, TestCase
 import uuid
 
@@ -56,7 +56,7 @@ class TestOutputSchema(TestCase):
         assert ok, errors
         out_csv = '\n'.join([str(line) for line in errors.iter_lines()])
 
-        assert 'Failed to convert' in out_csv
+        assert 'Unable to convert' in out_csv
 
     def test_get_rows(self):
         output_schema = create_good_output_schema(self.create_input_schema())

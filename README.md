@@ -1,5 +1,5 @@
-# publish-py
-experimental sdk for the socrata publishing api
+# socrata-py
+experimental sdk for the socrata data-pipeline api
 
 ## Installation
 This only supports python3.
@@ -8,15 +8,14 @@ Installation is available through pip. Using a virtualenv is advised. Install
 the package by running
 
 ```
-pip3 install socrata-publish-py
+pip3 install socrata-py
 ```
 
 The only hard dependency is `requests` which will be installed via pip. Pandas is not required, but creating a dataset from a Pandas dataframe is supported. See below.
 
 
 ## Documentation
-* [API Docs](http://docs.socratapublishing.apiary.io/#)
-* [SDK Docs](https://socrata.github.io/publish-py/docs)
+* [SDK Docs](https://socrata.github.io/socrata-py/docs)
 
 ## Example
 Try the command line example with
@@ -29,7 +28,7 @@ python -m examples.create 'Police Reports' ~/Desktop/catalog.data.gov/Seattle_Re
 ```python
 # Import some stuff
 from socrata.authorization import Authorization
-from socrata.publish import Publish
+from socrata import Socrata
 import os
 
 # Boilerplate...
@@ -55,7 +54,7 @@ with open('cool_dataset.csv', 'rb') as file:
     # view is the actual view in the Socrata catalog
     # revision is the *change* to the view in the catalog, which has not yet been applied
     # output is the OutputSchema, which is a change to data which can be applied via the revision
-    (view, revision, output) = Publish(auth).create(
+    (view, revision, output) = Socrata(auth).create(
         name = "cool dataset",
         description = "a description"
     ).csv(file)
@@ -83,11 +82,11 @@ with open('cool_dataset.csv', 'rb') as file:
 
     # Update step
 
-    # Publish the dataset - this will make it public and available to make
+    # Apply the revision - this will make it public and available to make
     # visualizations from
     (ok, job) = revision.apply(output_schema = output)
 
-    # Publishing is async - this will block until all the data
+    # Application is async - this will block until all the data
     # is in place and readable
     job.wait_for_finish()
 
@@ -102,9 +101,9 @@ those files.
 Datasets can also be created from Pandas DataFrames
 ```python
 import pandas as pd
-df = pd.read_csv('publish-py/test/fixtures/simple.csv')
+df = pd.read_csv('socrata-py/test/fixtures/simple.csv')
 # Do various Pandas-y changes and modifications, then...
-(view, revision, output) = Publish(auth).create(
+(view, revision, output) = Socrata(auth).create(
     name = "Pandas Dataset",
     description = "Dataset made from a Pandas Dataframe"
 ).df(df)
@@ -122,7 +121,7 @@ A `replace` truncates the whole dataset and then inserts the new data.
 ```python
 # This is how we create our view initially
 with open('cool_dataset.csv', 'rb') as file:
-    (view, revision, output) = Publish(auth).create(
+    (view, revision, output) = Socrata(auth).create(
         name = "cool dataset",
         description = "a description"
     ).csv(file)
@@ -140,17 +139,17 @@ configuration_name = "cool-dataset-config"
 view_id = view.attributes['id']
 
 # Now later, if we want to use that config to update our view, we just need the view and the configuration_name
-(ok, view) = publishing.views.lookup(view_id) # View will be the view we are updating with the new data
+(ok, view) = socrata.views.lookup(view_id) # View will be the view we are updating with the new data
 
 with open('updated-cool-dataset.csv', 'rb') as my_file:
-    (rev, job) = publishing.using_config(configuration_name, view).csv(my_file)
+    (rev, job) = socrata.using_config(configuration_name, view).csv(my_file)
     print(job) # Our update job is now running
 ```
 
 ##### Updating without a config
 This isn't advised. Doing an update without a config doesn't ensure that the same settings that your view was created with are used to parse and transform the updated file. This is why we have configs - they freeze settings that a view was once created with and allow them to be reused for updates and replaces.
 ```python
-(ok, view) = publishing.views.lookup('tnir-bc4v')
+(ok, view) = socrata.views.lookup('tnir-bc4v')
 (ok, rev) = view.revisions.update()
 with open('cool_dataset.csv, 'rb') as file:
     (ok, upload) = rev.create_upload(file.name)
@@ -166,10 +165,10 @@ with open('cool_dataset.csv, 'rb') as file:
 #### Create a revision
 
 ```python
-# This is our publishing object, using the auth variable from above
-publishing = Publish(auth)
+# This is our socrata object, using the auth variable from above
+socrata = Socrata(auth)
 
-(ok, view) = publishing.views.create({'name': 'cool dataset'})
+(ok, view) = socrata.views.create({'name': 'cool dataset'})
 assert ok, view
 
 # Make an `update` revision to that view

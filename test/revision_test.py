@@ -1,10 +1,10 @@
 import unittest
-from socrata.publish import Publish
+from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 
 
-class TestPublish(TestCase):
+class TestSocrata(TestCase):
     def test_replace_revision(self):
         (ok, r) = self.view.revisions.create_replace_revision()
         self.assertTrue(ok, r)

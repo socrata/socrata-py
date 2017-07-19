@@ -6,12 +6,12 @@ here = path.abspath(path.dirname(__file__))
 
 
 setup(
-    name='socrata-publish-py',
+    name='socrata-py',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.15',
+    version='0.2.0',
 
     description="SDK For publishing to Socrata",
     long_description="""
@@ -20,7 +20,7 @@ setup(
     """,
 
     # The project's main homepage.
-    url='https://github.com/socrata/publish-py',
+    url='https://github.com/socrata/socrata-py',
 
     # Author details
     author='Chris Duranti',
@@ -39,7 +39,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='socrata open-data publishing',
+    keywords='socrata open-data not-publishing',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().

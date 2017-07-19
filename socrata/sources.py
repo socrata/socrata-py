@@ -65,6 +65,12 @@ class Source(Resource):
         """
         return self.bytes(file_handle, "text/tab-separated-values")
 
+    def shapefile(self, file_handle):
+        """
+        Upload a Shapefile, returns the new source.
+        """
+        return self.bytes(file_handle, "application/zip")
+
     def df(self, dataframe):
         """
         Upload a pandas DataFrame, returns the new source.
@@ -72,6 +78,7 @@ class Source(Resource):
         s = io.StringIO()
         dataframe.to_csv(s, index=False)
         return self.bytes(bytes(s.getvalue().encode()),"text/csv")
+
     def add_to_revision(self, uri, revision):
         """
         Associate this Source with the given revision.

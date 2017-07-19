@@ -13,7 +13,7 @@ class TestSource(TestCase):
         assert 'show' in source.list_operations()
         assert 'bytes' in source.list_operations()
 
-    def test_source_csv(self):
+    def test_upload_csv(self):
         rev = self.create_rev()
         (ok, source) = rev.create_upload('foo.csv')
         assert ok

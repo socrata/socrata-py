@@ -1,4 +1,4 @@
-from socrata.publish import Publish
+from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 
@@ -29,7 +29,7 @@ class TestSource(TestCase):
             assert 'show' in input_schema.list_operations()
 
     def test_create_source_outside_rev(self):
-        pub = Publish(auth)
+        pub = Socrata(auth)
 
         (ok, source) = pub.sources.create_upload('foo.csv')
         self.assertTrue(ok, source)
@@ -38,8 +38,8 @@ class TestSource(TestCase):
         assert 'show' in source.list_operations()
         assert 'bytes' in source.list_operations()
 
-    def test_source_csv_outside_rev(self):
-        pub = Publish(auth)
+    def test_upload_csv_outside_rev(self):
+        pub = Socrata(auth)
 
         (ok, source) = pub.sources.create_upload('foo.csv')
         self.assertTrue(ok, source)
@@ -51,7 +51,7 @@ class TestSource(TestCase):
             self.assertEqual(['a', 'b', 'c'], names)
 
     def test_put_source_in_revision(self):
-        pub = Publish(auth)
+        pub = Socrata(auth)
 
         (ok, source) = pub.sources.create_upload('foo.csv')
         self.assertTrue(ok, source)

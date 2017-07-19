@@ -1,5 +1,5 @@
 import unittest
-from socrata.publish import Publish
+from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 

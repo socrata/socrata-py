@@ -3,7 +3,7 @@ from requests.auth import HTTPBasicAuth
 class Authorization(object):
     """
     Manages basic authorization for accessing the socrata API.
-    This is passed into the `Publish` object once, which is the entry
+    This is passed into the `Socrata` object once, which is the entry
     point for all operations.
 
         auth = Authorization(
@@ -11,7 +11,7 @@ class Authorization(object):
             os.environ['SOCRATA_USERNAME'],
             os.environ['SOCRATA_PASSWORD']
         )
-        publishing = Publish(auth)
+        publishing = Socrata(auth)
     """
     def __init__(self, domain, username, password):
         self.domain = domain

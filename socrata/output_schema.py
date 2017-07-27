@@ -189,27 +189,34 @@ class OutputSchema(Resource):
         """
         return TransformChange(field_name, self)
 
-    def _merge_column_change(self, column):
-        changes = [
-            change_fun
-            for (to_change, change_fun) in self.column_changes
-            if to_change == column['field_name']
-        ]
-
-        new_column = {}
-        new_column.update(column)
-
-        for change_fun in changes:
-            new_column = change_fun(new_column)
-
-        return new_column
-
-
     def run(self):
-        desired_output_columns = [c for c in ([
-            self._merge_column_change(column)
-            for column in self.attributes['output_columns']
-        ] + self.column_additions) if not (c['field_name'] in self.column_deletions)]
+        columns = deepcopy(self.attributes['output_columns'])
+
+        for (to_change, change_fun) in self.column_changes:
+            column = [
+                column
+                for column in columns
+                if to_change == column['field_name']
+            ]
+            if not column:
+                raise ValueError('Column `%s` does not exist' % to_change)
+            else:
+                [column] = column
+
+            new_column = change_fun(column)
+
+            def replace_with(c):
+                if c == column:
+                    return new_column
+                return c
+
+            columns = [replace_with(c) for c in columns]
+
+
+
+        desired_output_columns = [c for c in (
+            columns + self.column_additions
+        ) if not (c['field_name'] in self.column_deletions)]
 
 
 

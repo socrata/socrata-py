@@ -1,5 +1,5 @@
 import unittest
-from socrata.publish import Publish
+from socrata import Socrata
 from test.auth import TestCase
 
 class TestInputSchema(TestCase):

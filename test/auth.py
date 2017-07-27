@@ -1,6 +1,6 @@
 import os
 from socrata.authorization import Authorization
-from socrata.publish import Publish
+from socrata import Socrata
 import logging
 import unittest
 
@@ -27,7 +27,7 @@ logger.setLevel(logging.INFO)
 
 class TestCase(unittest.TestCase):
     def create_rev(self):
-        p = Publish(auth)
+        p = Socrata(auth)
         (ok, r) = self.view.revisions.create_update_revision()
         assert ok
         self.rev = r
@@ -64,7 +64,7 @@ class TestCase(unittest.TestCase):
         return output_schema
 
     def setUp(self):
-        self.pub = Publish(auth)
+        self.pub = Socrata(auth)
         (ok, v) = self.pub.views.create({'name': 'test-view'})
         assert ok, v
         self.view = v

@@ -1,7 +1,7 @@
 import os
 from os import path
 from socrata.authorization import Authorization
-from socrata.publish import Publish
+from socrata import Socrata
 from time import sleep
 import sys
 import time
@@ -32,7 +32,7 @@ def path_to_show(resource):
     )
 
 def create(name, filepath):
-    publishing = Publish(auth)
+    publishing = Socrata(auth)
 
     (ok, view) = publishing.views.create({'name': name})
     print(ok)

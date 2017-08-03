@@ -19,7 +19,7 @@ class Revisions(Collection):
             fourfour = fourfour
         )
 
-    def _create(self, action_type):
+    def _create(self, action_type, permission):
         """
         Create a revision for the given dataset.
         """
@@ -28,7 +28,8 @@ class Revisions(Collection):
             auth = self.auth,
             data = json.dumps({
                 'action': {
-                    'type': action_type
+                    'type': action_type,
+                    'permission': permission
                 }
             })
         ))
@@ -39,11 +40,11 @@ class Revisions(Collection):
             auth = self.auth
         ))
 
-    def create_replace_revision(self):
-        return self._create('replace')
+    def create_replace_revision(self, permission = 'public'):
+        return self._create('replace', permission)
 
-    def create_update_revision(self):
-        return self._create('update')
+    def create_update_revision(self, permission = 'public'):
+        return self._create('update', permission)
 
     def lookup(self, revision_seq):
         return self._subresource(Revision, get(
@@ -72,11 +73,19 @@ class Revision(Resource):
 
     def create_upload(self, filename):
         """
-        Create an source within this revision
+        Create an upload source within this revision
         """
         return self.create_source({
             'type': 'upload',
             'filename': filename
+        })
+
+    def create_dataset(self):
+        """
+        Create a dataset source within this revision
+        """
+        return self.create_source({
+            'type': 'view'
         })
 
     def create_source(self, uri, source_type):

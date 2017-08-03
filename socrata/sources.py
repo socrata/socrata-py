@@ -1,6 +1,6 @@
 import json
 import io
-from socrata.http import post, patch
+from socrata.http import post, patch, get
 from socrata.resource import Resource, Collection
 from socrata.input_schema import InputSchema
 
@@ -40,6 +40,10 @@ class Source(Resource):
                 'content-type': content_type
             }
         ))
+
+    def latest_input(self):
+        sid = max(map(lambda schema: schema['id'], self.attributes['schemas']))
+        return self._subresource(InputSchema, get(self.path(self.links['show'] + '/schema/' + str(sid)), auth = self.auth))
 
     def csv(self, file_handle):
         """

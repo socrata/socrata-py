@@ -45,7 +45,7 @@ auth = Authorization(
 
 
 #### Create a new Dataset from a csv, tsv, xls or xlsx file
-To create a dataset with as little code as possible, you can do this:
+To create a dataset, you can do this:
 
 ```python
 with open('cool_dataset.csv', 'rb') as file:
@@ -59,10 +59,20 @@ with open('cool_dataset.csv', 'rb') as file:
         description = "a description"
     ).csv(file)
 
+    # Transformation step
+    # We want to add some metadata to our column, drop another column, and add a new column which will
+    # be filled with values from another column and then transformed
+    (ok, output) = output\
+        .change_column_metadata('a_column', 'display_name').to('A Column!')\
+        .change_column_metadata('a_column', 'description').to('Here is a description of my A Column')\
+        .drop_column('b_column')\
+        .add_column('a_column_squared', 'A Column, but times itself', 'to_number(`a_column`) * to_number(`a_column`)', 'this is a column squared')\
+        .run()
+
 
     # Validation results step
-
-    # The data has been validated now, and we can access errors that happened during validation
+    (ok, output) = output.wait_for_finish()
+    # The data has been validated now, and we can access errors that happened during validation. For example, if one of the cells in `a_column` couldn't be converted to a number in the call to `to_number`, that error would be reflected in this error_count
     assert output.attributes['error_count'] == 0
 
     # If you want, you can get a csv stream of all the errors
@@ -115,6 +125,8 @@ with open('cool_dataset.csv', 'rb') as file:
         name = "cool dataset",
         description = "a description"
     ).csv(file)
+
+    revision.apply(output_schema = output)
 
 # This will build a configuration using the same settings (file parsing and
 # data transformation rules) that we used to get our output. The action

@@ -140,7 +140,6 @@ class OutputSchema(Resource):
         )
 
     def validate_row_id(self, uri, field_name):
-        print(self.attributes)
         output_column = [oc for oc in self.attributes['output_columns'] if oc['field_name'] == field_name]
         if len(output_column):
             [output_column] = output_column
@@ -190,7 +189,10 @@ class OutputSchema(Resource):
         return TransformChange(field_name, self)
 
     def run(self):
-        columns = deepcopy(self.attributes['output_columns'])
+        columns = [
+            c for c in deepcopy(self.attributes['output_columns'])
+            if not (c['field_name'] in self.column_deletions)
+        ] + self.column_additions
 
         for (to_change, change_fun) in self.column_changes:
             column = [
@@ -212,15 +214,12 @@ class OutputSchema(Resource):
 
             columns = [replace_with(c) for c in columns]
 
+        columns = sorted(columns, key = lambda x: x['position'])
 
-
-        desired_output_columns = [c for c in (
-            columns + self.column_additions
-        ) if not (c['field_name'] in self.column_deletions)]
-
-
+        for p, c in enumerate(columns):
+            c['position'] = p + 1
 
         desired_schema = {
-            'output_columns': desired_output_columns
+            'output_columns': columns
         }
         return self.parent.transform(desired_schema)

@@ -851,6 +851,73 @@ table {
 
   </style>
 
+  <style type="text/css">
+  .codehilite .hll { background-color: #ffffcc }
+.codehilite  { background: #f8f8f8; }
+.codehilite .c { color: #408080; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #FF0000 } /* Error */
+.codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666666 } /* Operator */
+.codehilite .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
+.codehilite .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .gr { color: #FF0000 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888888 } /* Generic.Output */
+.codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #0044DD } /* Generic.Traceback */
+.codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+.codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #B00040 } /* Keyword.Type */
+.codehilite .m { color: #666666 } /* Literal.Number */
+.codehilite .s { color: #BA2121 } /* Literal.String */
+.codehilite .na { color: #7D9029 } /* Name.Attribute */
+.codehilite .nb { color: #008000 } /* Name.Builtin */
+.codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #880000 } /* Name.Constant */
+.codehilite .nd { color: #AA22FF } /* Name.Decorator */
+.codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #0000FF } /* Name.Function */
+.codehilite .nl { color: #A0A000 } /* Name.Label */
+.codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #19177C } /* Name.Variable */
+.codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+.codehilite .mb { color: #666666 } /* Literal.Number.Bin */
+.codehilite .mf { color: #666666 } /* Literal.Number.Float */
+.codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+.codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+.codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+.codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+.codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+.codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+.codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.codehilite .sx { color: #008000 } /* Literal.String.Other */
+.codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
+.codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+.codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+.codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.codehilite .vc { color: #19177C } /* Name.Variable.Class */
+.codehilite .vg { color: #19177C } /* Name.Variable.Global */
+.codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+.codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+  </style>
 
   <style type="text/css">
   
@@ -1020,97 +1087,98 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs" class="source">
-    <pre><code>import json
-import requests
-from socrata.http import get, post, patch, delete
-from socrata.resource import Collection, Resource
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">socrata.http</span> <span class="kn">import</span> <span class="n">get</span><span class="p">,</span> <span class="n">post</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">delete</span>
+<span class="kn">from</span> <span class="nn">socrata.resource</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Resource</span>
 
 
-class Configs(Collection):
-    def path(self):
-        return 'https://{domain}/api/publishing/v1/config'.format(
-            domain = self.auth.domain
-        )
+<span class="k">class</span> <span class="nc">Configs</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;https://{domain}/api/publishing/v1/config&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">domain</span>
+        <span class="p">)</span>
 
-    def create(self, name, data_action, parse_options = None, columns = None):
-        """
-        Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
-        ImportConfig section for what is supported in `data_action`, `parse_options`,
-        and `columns`.
-        """
-        return self._subresource(Config, post(
-            self.path(),
-            auth = self.auth,
-            data = json.dumps({
-                'name': name,
-                'data_action': data_action,
-                'parse_options': parse_options,
-                'columns': columns
-            })
-        ))
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data_action</span><span class="p">,</span> <span class="n">parse_options</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/</span>
+<span class="sd">        ImportConfig section for what is supported in `data_action`, `parse_options`,</span>
+<span class="sd">        and `columns`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;data_action&#39;</span><span class="p">:</span> <span class="n">data_action</span><span class="p">,</span>
+                <span class="s1">&#39;parse_options&#39;</span><span class="p">:</span> <span class="n">parse_options</span><span class="p">,</span>
+                <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span>
+            <span class="p">})</span>
+        <span class="p">))</span>
 
-    # ~~ danger ~~ This URL is hardcoded
-    def lookup(self, name):
-        """
-        Obtain a single ImportConfig by name
-        """
-        return self._subresource(Config, get(
-            self.path() + '/' + name,
-            auth = self.auth
-        ))
+    <span class="c1"># ~~ danger ~~ This URL is hardcoded</span>
+    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a single ImportConfig by name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+        <span class="p">))</span>
 
-    def list(self):
-        """
-        List all the ImportConfigs on this domain
-        """
-        return self._subresources(Config, get(
-            self.path(),
-            auth = self.auth
-        ))
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List all the ImportConfigs on this domain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresources</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+        <span class="p">))</span>
 
-class Config(Resource):
-    def delete(self, uri):
-        """
-        Delete this ImportConfig. Note that this cannot be undone.
-        """
-        return delete(self.path(uri), auth = self.auth)
+<span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete this ImportConfig. Note that this cannot be undone.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span> <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
 
-    def update(self, uri, data_action = None, parse_options = None, columns = None):
-        """
-        Mutate this ImportConfig in place. Subsequent revisions opened against this
-        ImportConfig will take on its new value.
-        """
-        data_action = data_action or self.attributes['data_action']
-        parse_options = parse_options or self.attributes['parse_options']
-        columns = columns or self.attributes['columns']
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data_action</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parse_options</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mutate this ImportConfig in place. Subsequent revisions opened against this</span>
+<span class="sd">        ImportConfig will take on its new value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_action</span> <span class="o">=</span> <span class="n">data_action</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;data_action&#39;</span><span class="p">]</span>
+        <span class="n">parse_options</span> <span class="o">=</span> <span class="n">parse_options</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;parse_options&#39;</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span>
 
-        return self._mutate(patch(
-            self.path(uri),
-            auth = self.auth,
-            data = json.dumps({
-                'data_action': data_action,
-                'parse_options': parse_options,
-                'columns': columns
-            })
-        ))
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutate</span><span class="p">(</span><span class="n">patch</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+                <span class="s1">&#39;data_action&#39;</span><span class="p">:</span> <span class="n">data_action</span><span class="p">,</span>
+                <span class="s1">&#39;parse_options&#39;</span><span class="p">:</span> <span class="n">parse_options</span><span class="p">,</span>
+                <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span>
+            <span class="p">})</span>
+        <span class="p">))</span>
 
-    def create_revision(self, uri, fourfour):
-        """
-        Create a new Revision in the context of this ImportConfig.
-        Uploads that happen in this Revision will take on the values
-        in this Config.
-        """
-        # Because of circular dependencies ;_;
-        from socrata.revisions import Revision
+    <span class="k">def</span> <span class="nf">create_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">fourfour</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Revision in the context of this ImportConfig.</span>
+<span class="sd">        Uploads that happen in this Revision will take on the values</span>
+<span class="sd">        in this Config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Because of circular dependencies ;_;</span>
+        <span class="kn">from</span> <span class="nn">socrata.revisions</span> <span class="kn">import</span> <span class="n">Revision</span>
 
-        (ok, res) = result = post(
-            self.path(uri).format(fourfour = fourfour),
-            auth = self.auth
-        )
-        if not ok:
-            return result
-        return (ok, Revision(self.auth, res))
-</code></pre>
+        <span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span> <span class="o">=</span> <span class="n">result</span> <span class="o">=</span> <span class="n">post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fourfour</span> <span class="o">=</span> <span class="n">fourfour</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">Revision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span> <span class="n">res</span><span class="p">))</span>
+</pre></div>
+
   </div>
 
   </header>
@@ -1127,49 +1195,50 @@ class Config(Resource):
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config" class="source">
-    <pre><code>class Config(Resource):
-    def delete(self, uri):
-        """
-        Delete this ImportConfig. Note that this cannot be undone.
-        """
-        return delete(self.path(uri), auth = self.auth)
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete this ImportConfig. Note that this cannot be undone.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span> <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
 
-    def update(self, uri, data_action = None, parse_options = None, columns = None):
-        """
-        Mutate this ImportConfig in place. Subsequent revisions opened against this
-        ImportConfig will take on its new value.
-        """
-        data_action = data_action or self.attributes['data_action']
-        parse_options = parse_options or self.attributes['parse_options']
-        columns = columns or self.attributes['columns']
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data_action</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parse_options</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mutate this ImportConfig in place. Subsequent revisions opened against this</span>
+<span class="sd">        ImportConfig will take on its new value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_action</span> <span class="o">=</span> <span class="n">data_action</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;data_action&#39;</span><span class="p">]</span>
+        <span class="n">parse_options</span> <span class="o">=</span> <span class="n">parse_options</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;parse_options&#39;</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span>
 
-        return self._mutate(patch(
-            self.path(uri),
-            auth = self.auth,
-            data = json.dumps({
-                'data_action': data_action,
-                'parse_options': parse_options,
-                'columns': columns
-            })
-        ))
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutate</span><span class="p">(</span><span class="n">patch</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+                <span class="s1">&#39;data_action&#39;</span><span class="p">:</span> <span class="n">data_action</span><span class="p">,</span>
+                <span class="s1">&#39;parse_options&#39;</span><span class="p">:</span> <span class="n">parse_options</span><span class="p">,</span>
+                <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span>
+            <span class="p">})</span>
+        <span class="p">))</span>
 
-    def create_revision(self, uri, fourfour):
-        """
-        Create a new Revision in the context of this ImportConfig.
-        Uploads that happen in this Revision will take on the values
-        in this Config.
-        """
-        # Because of circular dependencies ;_;
-        from socrata.revisions import Revision
+    <span class="k">def</span> <span class="nf">create_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">fourfour</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Revision in the context of this ImportConfig.</span>
+<span class="sd">        Uploads that happen in this Revision will take on the values</span>
+<span class="sd">        in this Config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Because of circular dependencies ;_;</span>
+        <span class="kn">from</span> <span class="nn">socrata.revisions</span> <span class="kn">import</span> <span class="n">Revision</span>
 
-        (ok, res) = result = post(
-            self.path(uri).format(fourfour = fourfour),
-            auth = self.auth
-        )
-        if not ok:
-            return result
-        return (ok, Revision(self.auth, res))
-</code></pre>
+        <span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span> <span class="o">=</span> <span class="n">result</span> <span class="o">=</span> <span class="n">post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fourfour</span> <span class="o">=</span> <span class="n">fourfour</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">Revision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span> <span class="n">res</span><span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1179,9 +1248,9 @@ class Config(Resource):
           <ul class="class_list">
           <li><a href="#socrata.configs.Config">Config</a></li>
           <li>socrata.resource.Resource</li>
-          <li>builtins.object</li>
+          <li>__builtin__.object</li>
           </ul>
-          <h3>Static methods</h3>
+          <h3>Methods</h3>
             
   <div class="item">
     <div class="name def" id="socrata.configs.Config.__init__">
@@ -1191,15 +1260,15 @@ class Config(Resource):
 
     
   
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.__init__', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.__init__" class="source">
-    <pre><code>def __init__(self, auth, response, parent = None, *args, **kwargs):
-    self.auth = auth
-    self._on_response(response)
-    self.parent = parent
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">auth</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_on_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1220,22 +1289,23 @@ in this Config.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.create_revision', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.create_revision" class="source">
-    <pre><code>def create_revision(self, uri, fourfour):
-    """
-    Create a new Revision in the context of this ImportConfig.
-    Uploads that happen in this Revision will take on the values
-    in this Config.
-    """
-    # Because of circular dependencies ;_;
-    from socrata.revisions import Revision
-    (ok, res) = result = post(
-        self.path(uri).format(fourfour = fourfour),
-        auth = self.auth
-    )
-    if not ok:
-        return result
-    return (ok, Revision(self.auth, res))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">fourfour</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new Revision in the context of this ImportConfig.</span>
+<span class="sd">    Uploads that happen in this Revision will take on the values</span>
+<span class="sd">    in this Config.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Because of circular dependencies ;_;</span>
+    <span class="kn">from</span> <span class="nn">socrata.revisions</span> <span class="kn">import</span> <span class="n">Revision</span>
+    <span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span> <span class="o">=</span> <span class="n">result</span> <span class="o">=</span> <span class="n">post</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fourfour</span> <span class="o">=</span> <span class="n">fourfour</span><span class="p">),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">Revision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span> <span class="n">res</span><span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1254,12 +1324,13 @@ in this Config.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.delete', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.delete" class="source">
-    <pre><code>def delete(self, uri):
-    """
-    Delete this ImportConfig. Note that this cannot be undone.
-    """
-    return delete(self.path(uri), auth = self.auth)
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Delete this ImportConfig. Note that this cannot be undone.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span> <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">)</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1280,14 +1351,15 @@ in the <code>links</code> section of each resource</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.list_operations', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.list_operations" class="source">
-    <pre><code>def list_operations(self):
-    """
-    Get a list of the operations that you can perform on this
-    object. These map directly onto what's returned from the API
-    in the `links` section of each resource
-    """
-    return getattr(self, 'available_operations', [])
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a list of the operations that you can perform on this</span>
+<span class="sd">    object. These map directly onto what&#39;s returned from the API</span>
+<span class="sd">    in the `links` section of each resource</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;available_operations&#39;</span><span class="p">,</span> <span class="p">[])</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1305,12 +1377,13 @@ in the <code>links</code> section of each resource</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.path', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.path" class="source">
-    <pre><code>def path(self, uri):
-    return 'https://{domain}{uri}'.format(
-        domain = self.auth.domain,
-        uri = uri
-    )
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;https://{domain}{uri}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+    <span class="p">)</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1328,12 +1401,13 @@ in the <code>links</code> section of each resource</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.show', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.show" class="source">
-    <pre><code>def show(self, uri):
-    return self._mutate(get(
-        self.path(uri),
-        auth = self.auth
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutate</span><span class="p">(</span><span class="n">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1353,24 +1427,25 @@ ImportConfig will take on its new value.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Config.update', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Config.update" class="source">
-    <pre><code>def update(self, uri, data_action = None, parse_options = None, columns = None):
-    """
-    Mutate this ImportConfig in place. Subsequent revisions opened against this
-    ImportConfig will take on its new value.
-    """
-    data_action = data_action or self.attributes['data_action']
-    parse_options = parse_options or self.attributes['parse_options']
-    columns = columns or self.attributes['columns']
-    return self._mutate(patch(
-        self.path(uri),
-        auth = self.auth,
-        data = json.dumps({
-            'data_action': data_action,
-            'parse_options': parse_options,
-            'columns': columns
-        })
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">data_action</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">parse_options</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mutate this ImportConfig in place. Subsequent revisions opened against this</span>
+<span class="sd">    ImportConfig will take on its new value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_action</span> <span class="o">=</span> <span class="n">data_action</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;data_action&#39;</span><span class="p">]</span>
+    <span class="n">parse_options</span> <span class="o">=</span> <span class="n">parse_options</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;parse_options&#39;</span><span class="p">]</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutate</span><span class="p">(</span><span class="n">patch</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+            <span class="s1">&#39;data_action&#39;</span><span class="p">:</span> <span class="n">data_action</span><span class="p">,</span>
+            <span class="s1">&#39;parse_options&#39;</span><span class="p">:</span> <span class="n">parse_options</span><span class="p">,</span>
+            <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span>
+        <span class="p">})</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1386,48 +1461,49 @@ ImportConfig will take on its new value.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs" class="source">
-    <pre><code>class Configs(Collection):
-    def path(self):
-        return 'https://{domain}/api/publishing/v1/config'.format(
-            domain = self.auth.domain
-        )
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Configs</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;https://{domain}/api/publishing/v1/config&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">domain</span>
+        <span class="p">)</span>
 
-    def create(self, name, data_action, parse_options = None, columns = None):
-        """
-        Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
-        ImportConfig section for what is supported in `data_action`, `parse_options`,
-        and `columns`.
-        """
-        return self._subresource(Config, post(
-            self.path(),
-            auth = self.auth,
-            data = json.dumps({
-                'name': name,
-                'data_action': data_action,
-                'parse_options': parse_options,
-                'columns': columns
-            })
-        ))
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data_action</span><span class="p">,</span> <span class="n">parse_options</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/</span>
+<span class="sd">        ImportConfig section for what is supported in `data_action`, `parse_options`,</span>
+<span class="sd">        and `columns`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;data_action&#39;</span><span class="p">:</span> <span class="n">data_action</span><span class="p">,</span>
+                <span class="s1">&#39;parse_options&#39;</span><span class="p">:</span> <span class="n">parse_options</span><span class="p">,</span>
+                <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span>
+            <span class="p">})</span>
+        <span class="p">))</span>
 
-    # ~~ danger ~~ This URL is hardcoded
-    def lookup(self, name):
-        """
-        Obtain a single ImportConfig by name
-        """
-        return self._subresource(Config, get(
-            self.path() + '/' + name,
-            auth = self.auth
-        ))
+    <span class="c1"># ~~ danger ~~ This URL is hardcoded</span>
+    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a single ImportConfig by name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+        <span class="p">))</span>
 
-    def list(self):
-        """
-        List all the ImportConfigs on this domain
-        """
-        return self._subresources(Config, get(
-            self.path(),
-            auth = self.auth
-        ))
-</code></pre>
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List all the ImportConfigs on this domain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresources</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+        <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1437,9 +1513,9 @@ ImportConfig will take on its new value.</p></div>
           <ul class="class_list">
           <li><a href="#socrata.configs.Configs">Configs</a></li>
           <li>socrata.resource.Collection</li>
-          <li>builtins.object</li>
+          <li>__builtin__.object</li>
           </ul>
-          <h3>Static methods</h3>
+          <h3>Methods</h3>
             
   <div class="item">
     <div class="name def" id="socrata.configs.Configs.__init__">
@@ -1449,13 +1525,13 @@ ImportConfig will take on its new value.</p></div>
 
     
   
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.__init__', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.__init__" class="source">
-    <pre><code>def __init__(self, auth):
-    self.auth = auth
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">auth</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1476,23 +1552,24 @@ and <code>columns</code>.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.create', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.create" class="source">
-    <pre><code>def create(self, name, data_action, parse_options = None, columns = None):
-    """
-    Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
-    ImportConfig section for what is supported in `data_action`, `parse_options`,
-    and `columns`.
-    """
-    return self._subresource(Config, post(
-        self.path(),
-        auth = self.auth,
-        data = json.dumps({
-            'name': name,
-            'data_action': data_action,
-            'parse_options': parse_options,
-            'columns': columns
-        })
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data_action</span><span class="p">,</span> <span class="n">parse_options</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/</span>
+<span class="sd">    ImportConfig section for what is supported in `data_action`, `parse_options`,</span>
+<span class="sd">    and `columns`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">post</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;data_action&#39;</span><span class="p">:</span> <span class="n">data_action</span><span class="p">,</span>
+            <span class="s1">&#39;parse_options&#39;</span><span class="p">:</span> <span class="n">parse_options</span><span class="p">,</span>
+            <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span>
+        <span class="p">})</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1511,15 +1588,16 @@ and <code>columns</code>.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.list', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.list" class="source">
-    <pre><code>def list(self):
-    """
-    List all the ImportConfigs on this domain
-    """
-    return self._subresources(Config, get(
-        self.path(),
-        auth = self.auth
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List all the ImportConfigs on this domain</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresources</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1538,15 +1616,16 @@ and <code>columns</code>.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.lookup', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.lookup" class="source">
-    <pre><code>def lookup(self, name):
-    """
-    Obtain a single ImportConfig by name
-    """
-    return self._subresource(Config, get(
-        self.path() + '/' + name,
-        auth = self.auth
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain a single ImportConfig by name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1564,11 +1643,12 @@ and <code>columns</code>.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.configs.Configs.path', this);">Show source &equiv;</a></p>
   <div id="source-socrata.configs.Configs.path" class="source">
-    <pre><code>def path(self):
-    return 'https://{domain}/api/publishing/v1/config'.format(
-        domain = self.auth.domain
-    )
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;https://{domain}/api/publishing/v1/config&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">domain</span>
+    <span class="p">)</span>
+</pre></div>
+
   </div>
 </div>
 

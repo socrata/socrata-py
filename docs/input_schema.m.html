@@ -851,6 +851,73 @@ table {
 
   </style>
 
+  <style type="text/css">
+  .codehilite .hll { background-color: #ffffcc }
+.codehilite  { background: #f8f8f8; }
+.codehilite .c { color: #408080; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #FF0000 } /* Error */
+.codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666666 } /* Operator */
+.codehilite .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
+.codehilite .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .gr { color: #FF0000 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888888 } /* Generic.Output */
+.codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #0044DD } /* Generic.Traceback */
+.codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+.codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #B00040 } /* Keyword.Type */
+.codehilite .m { color: #666666 } /* Literal.Number */
+.codehilite .s { color: #BA2121 } /* Literal.String */
+.codehilite .na { color: #7D9029 } /* Name.Attribute */
+.codehilite .nb { color: #008000 } /* Name.Builtin */
+.codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #880000 } /* Name.Constant */
+.codehilite .nd { color: #AA22FF } /* Name.Decorator */
+.codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #0000FF } /* Name.Function */
+.codehilite .nl { color: #A0A000 } /* Name.Label */
+.codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #19177C } /* Name.Variable */
+.codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+.codehilite .mb { color: #666666 } /* Literal.Number.Bin */
+.codehilite .mf { color: #666666 } /* Literal.Number.Float */
+.codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+.codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+.codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+.codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+.codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+.codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+.codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.codehilite .sx { color: #008000 } /* Literal.String.Other */
+.codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
+.codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+.codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+.codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.codehilite .vc { color: #19177C } /* Name.Variable.Class */
+.codehilite .vg { color: #19177C } /* Name.Variable.Global */
+.codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+.codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+  </style>
 
   <style type="text/css">
   
@@ -1006,37 +1073,38 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema" class="source">
-    <pre><code>import json
-import requests
-from socrata.http import noop, post, get
-from socrata.resource import Collection, Resource
-from socrata.output_schema import OutputSchema
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">socrata.http</span> <span class="kn">import</span> <span class="n">noop</span><span class="p">,</span> <span class="n">post</span><span class="p">,</span> <span class="n">get</span>
+<span class="kn">from</span> <span class="nn">socrata.resource</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Resource</span>
+<span class="kn">from</span> <span class="nn">socrata.output_schema</span> <span class="kn">import</span> <span class="n">OutputSchema</span>
 
-class InputSchema(Resource):
-    def transform(self, uri, body):
-        """
-        Transform this InputSchema into an Output. Returns the
-        new OutputSchema. Note that this call is async - the data
-        may still be transforming even though the OutputSchema is
-        returned. See OutputSchema.wait_for_finish to block until
-        the
-        """
-        return self._subresource(OutputSchema, post(
-            self.path(uri),
-            auth = self.auth,
-            data = json.dumps(body),
-        ))
+<span class="k">class</span> <span class="nc">InputSchema</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform this InputSchema into an Output. Returns the</span>
+<span class="sd">        new OutputSchema. Note that this call is async - the data</span>
+<span class="sd">        may still be transforming even though the OutputSchema is</span>
+<span class="sd">        returned. See OutputSchema.wait_for_finish to block until</span>
+<span class="sd">        the</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">OutputSchema</span><span class="p">,</span> <span class="n">post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">body</span><span class="p">),</span>
+        <span class="p">))</span>
 
-    def latest_output(self, uri):
-        """
-        Get the latest (most recently created) OutputSchema
-        which descends from this InputSchema
-        """
-        return self._subresource(OutputSchema, get(
-            self.path(uri),
-            auth = self.auth,
-        ))
-</code></pre>
+    <span class="k">def</span> <span class="nf">latest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the latest (most recently created) OutputSchema</span>
+<span class="sd">        which descends from this InputSchema</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">OutputSchema</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+        <span class="p">))</span>
+</pre></div>
+
   </div>
 
   </header>
@@ -1053,31 +1121,32 @@ class InputSchema(Resource):
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema.InputSchema', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema.InputSchema" class="source">
-    <pre><code>class InputSchema(Resource):
-    def transform(self, uri, body):
-        """
-        Transform this InputSchema into an Output. Returns the
-        new OutputSchema. Note that this call is async - the data
-        may still be transforming even though the OutputSchema is
-        returned. See OutputSchema.wait_for_finish to block until
-        the
-        """
-        return self._subresource(OutputSchema, post(
-            self.path(uri),
-            auth = self.auth,
-            data = json.dumps(body),
-        ))
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InputSchema</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform this InputSchema into an Output. Returns the</span>
+<span class="sd">        new OutputSchema. Note that this call is async - the data</span>
+<span class="sd">        may still be transforming even though the OutputSchema is</span>
+<span class="sd">        returned. See OutputSchema.wait_for_finish to block until</span>
+<span class="sd">        the</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">OutputSchema</span><span class="p">,</span> <span class="n">post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">body</span><span class="p">),</span>
+        <span class="p">))</span>
 
-    def latest_output(self, uri):
-        """
-        Get the latest (most recently created) OutputSchema
-        which descends from this InputSchema
-        """
-        return self._subresource(OutputSchema, get(
-            self.path(uri),
-            auth = self.auth,
-        ))
-</code></pre>
+    <span class="k">def</span> <span class="nf">latest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the latest (most recently created) OutputSchema</span>
+<span class="sd">        which descends from this InputSchema</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">OutputSchema</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+        <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1087,9 +1156,9 @@ class InputSchema(Resource):
           <ul class="class_list">
           <li><a href="#socrata.input_schema.InputSchema">InputSchema</a></li>
           <li>socrata.resource.Resource</li>
-          <li>builtins.object</li>
+          <li>__builtin__.object</li>
           </ul>
-          <h3>Static methods</h3>
+          <h3>Methods</h3>
             
   <div class="item">
     <div class="name def" id="socrata.input_schema.InputSchema.__init__">
@@ -1099,15 +1168,15 @@ class InputSchema(Resource):
 
     
   
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema.InputSchema.__init__', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema.InputSchema.__init__" class="source">
-    <pre><code>def __init__(self, auth, response, parent = None, *args, **kwargs):
-    self.auth = auth
-    self._on_response(response)
-    self.parent = parent
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">auth</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_on_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1127,16 +1196,17 @@ which descends from this InputSchema</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema.InputSchema.latest_output', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema.InputSchema.latest_output" class="source">
-    <pre><code>def latest_output(self, uri):
-    """
-    Get the latest (most recently created) OutputSchema
-    which descends from this InputSchema
-    """
-    return self._subresource(OutputSchema, get(
-        self.path(uri),
-        auth = self.auth,
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">latest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the latest (most recently created) OutputSchema</span>
+<span class="sd">    which descends from this InputSchema</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">OutputSchema</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1157,14 +1227,15 @@ in the <code>links</code> section of each resource</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema.InputSchema.list_operations', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema.InputSchema.list_operations" class="source">
-    <pre><code>def list_operations(self):
-    """
-    Get a list of the operations that you can perform on this
-    object. These map directly onto what's returned from the API
-    in the `links` section of each resource
-    """
-    return getattr(self, 'available_operations', [])
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a list of the operations that you can perform on this</span>
+<span class="sd">    object. These map directly onto what&#39;s returned from the API</span>
+<span class="sd">    in the `links` section of each resource</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;available_operations&#39;</span><span class="p">,</span> <span class="p">[])</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1182,12 +1253,13 @@ in the <code>links</code> section of each resource</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema.InputSchema.path', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema.InputSchema.path" class="source">
-    <pre><code>def path(self, uri):
-    return 'https://{domain}{uri}'.format(
-        domain = self.auth.domain,
-        uri = uri
-    )
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;https://{domain}{uri}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+    <span class="p">)</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1205,12 +1277,13 @@ in the <code>links</code> section of each resource</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema.InputSchema.show', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema.InputSchema.show" class="source">
-    <pre><code>def show(self, uri):
-    return self._mutate(get(
-        self.path(uri),
-        auth = self.auth
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutate</span><span class="p">(</span><span class="n">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 
@@ -1233,20 +1306,21 @@ the</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-socrata.input_schema.InputSchema.transform', this);">Show source &equiv;</a></p>
   <div id="source-socrata.input_schema.InputSchema.transform" class="source">
-    <pre><code>def transform(self, uri, body):
-    """
-    Transform this InputSchema into an Output. Returns the
-    new OutputSchema. Note that this call is async - the data
-    may still be transforming even though the OutputSchema is
-    returned. See OutputSchema.wait_for_finish to block until
-    the
-    """
-    return self._subresource(OutputSchema, post(
-        self.path(uri),
-        auth = self.auth,
-        data = json.dumps(body),
-    ))
-</code></pre>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform this InputSchema into an Output. Returns the</span>
+<span class="sd">    new OutputSchema. Note that this call is async - the data</span>
+<span class="sd">    may still be transforming even though the OutputSchema is</span>
+<span class="sd">    returned. See OutputSchema.wait_for_finish to block until</span>
+<span class="sd">    the</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subresource</span><span class="p">(</span><span class="n">OutputSchema</span><span class="p">,</span> <span class="n">post</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">uri</span><span class="p">),</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">body</span><span class="p">),</span>
+    <span class="p">))</span>
+</pre></div>
+
   </div>
 </div>
 

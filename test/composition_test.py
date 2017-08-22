@@ -61,7 +61,6 @@ class CompositionTest(TestCase):
             self.assertEqual(output.attributes['error_count'], 0)
             self.assertIsNotNone(output.attributes['completed_at'])
 
-
     def test_create_new_shapefile(self):
         with open('test/fixtures/zillow.zip', 'rb') as file:
             (view, revision, output) = Socrata(auth).create(

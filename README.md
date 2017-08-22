@@ -292,7 +292,14 @@ We can now make changes to the schema, like so
     .run()
 ```
 
+`change_column_metadata(column_name, column_attribute)` takes the field name used to
+identify the column and the column attribute to change (`field_name`, `display_name`, `description`, `position`)
+
+`add_column(field_name, display_name, transform_expression, description)` will create a new column
+
 We can also call `drop_column(celsius)` which will drop the column.
+
+`.run()` will then make a request and return the new output_schema, or an error if something is invalid.
 
 Transforms can be complex SoQL expressions. Available functions are listed [here](http://docs.socratapublishing.apiary.io/#reference/0/inputschema). You can do lots of stuff with them;
 

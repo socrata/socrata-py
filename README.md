@@ -284,17 +284,17 @@ We can now make changes to the schema, like so
     # Change the display name of the celsius column
     .change_column_metadata('celsius', 'display_name').to('Degrees (Celsius)')\
     # Change the transform of the_date column to to_fixed_timestamp(`date`)
-    .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')
+    .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')\
     # Make the celsius column all numbers
-    .change_column_transform('celsius').to('to_number(`celsius`)')
+    .change_column_transform('celsius').to('to_number(`celsius`)')\
     # Add a new column, which is computed from the `celsius` column
-    .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
+    .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')\
     .run()
 ```
 
 We can also call `drop_column(celsius)` which will drop the column.
 
-Transforms can be complex SoQL expressions. Available functions are listed [http://docs.socratapublishing.apiary.io/#reference/0/inputschema](here). You can do lots of stuff with them;
+Transforms can be complex SoQL expressions. Available functions are listed [here](http://docs.socratapublishing.apiary.io/#reference/0/inputschema). You can do lots of stuff with them;
 
 
 For example, you could change all `null` values into errors (which won't be imported) by doing

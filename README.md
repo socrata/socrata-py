@@ -4,7 +4,6 @@ experimental sdk for the socrata data-pipeline api
 <!-- toc -->
 
   * [Installation](#installation)
-  * [Documentation](#documentation)
   * [Example](#example)
   * [Using](#using)
     + [Boilerplate](#boilerplate)
@@ -26,6 +25,85 @@ experimental sdk for the socrata data-pipeline api
   * [Testing](#testing)
   * [Generating docs](#generating-docs)
   * [Releasing](#releasing)
+- [Library Docs](#library-docs)
+  * [Socrata](#socrata)
+    + [create](#create)
+    + [using_config](#using_config)
+  * [Authorization](#authorization)
+    + [live_dangerously](#live_dangerously)
+  * [Revisions](#revisions)
+    + [create_replace_revision](#create_replace_revision)
+    + [create_update_revision](#create_update_revision)
+    + [create_using_config](#create_using_config)
+    + [list](#list)
+    + [lookup](#lookup)
+    + [path](#path)
+  * [Revision](#revision)
+    + [apply](#apply)
+    + [create_source](#create_source)
+    + [create_upload](#create_upload)
+    + [discard](#discard)
+    + [list_operations](#list_operations)
+    + [open_in_browser](#open_in_browser)
+    + [path](#path-1)
+    + [show](#show)
+    + [ui_url](#ui_url)
+    + [update](#update)
+  * [Sources](#sources)
+    + [create_upload](#create_upload-1)
+  * [Source](#source)
+    + [add_to_revision](#add_to_revision)
+    + [bytes](#bytes)
+    + [csv](#csv)
+    + [df](#df)
+    + [list_operations](#list_operations-1)
+    + [path](#path-2)
+    + [shapefile](#shapefile)
+    + [show](#show-1)
+    + [tsv](#tsv)
+    + [xls](#xls)
+    + [xlsx](#xlsx)
+  * [Configs](#configs)
+    + [create](#create-1)
+    + [list](#list-1)
+    + [lookup](#lookup-1)
+    + [path](#path-3)
+  * [Config](#config)
+    + [create_revision](#create_revision)
+    + [delete](#delete)
+    + [list_operations](#list_operations-2)
+    + [path](#path-4)
+    + [show](#show-2)
+    + [update](#update-1)
+  * [InputSchema](#inputschema)
+    + [latest_output](#latest_output)
+    + [list_operations](#list_operations-3)
+    + [path](#path-5)
+    + [show](#show-3)
+    + [transform](#transform)
+  * [OutputSchema](#outputschema)
+    + [add_column](#add_column)
+    + [any_failed](#any_failed)
+    + [build_config](#build_config)
+    + [change_column_metadata](#change_column_metadata)
+    + [change_column_transform](#change_column_transform)
+    + [drop_column](#drop_column)
+    + [list_operations](#list_operations-4)
+    + [path](#path-6)
+    + [rows](#rows)
+    + [run](#run)
+    + [schema_errors](#schema_errors)
+    + [schema_errors_csv](#schema_errors_csv)
+    + [set_row_id](#set_row_id)
+    + [show](#show-4)
+    + [validate_row_id](#validate_row_id)
+    + [wait_for_finish](#wait_for_finish)
+  * [Job](#job)
+    + [is_complete](#is_complete)
+    + [list_operations](#list_operations-5)
+    + [path](#path-7)
+    + [show](#show-5)
+    + [wait_for_finish](#wait_for_finish-1)
 
 <!-- tocstop -->
 
@@ -41,9 +119,6 @@ pip3 install socrata-py
 
 The only hard dependency is `requests` which will be installed via pip. Pandas is not required, but creating a dataset from a Pandas dataframe is supported. See below.
 
-
-## Documentation
-* [SDK Docs](https://socrata.github.io/socrata-py/docs)
 
 ## Example
 Try the command line example with
@@ -430,3 +505,455 @@ release to pypi by bumping the version to something reasonable and running
 python setup.py sdist upload -r pypi
 ```
 Note you'll need your `.pypirc` file in your home directory. For help, read [this](http://peterdowns.com/posts/first-time-with-pypi.html)
+
+<!-- doc -->
+# Library Docs
+
+## Socrata
+`ArgSpec(args=['self', 'auth'], varargs=None, keywords=None, defaults=None)`
+
+Top level publishing object.
+
+All functions making HTTP calls return a result tuple, where the first element in the
+tuple is whether or not the call succeeded, and the second element is the returned
+object if it was a success, or a dictionary containing the error response if the call
+failed. 2xx responses are considered successes. 4xx and 5xx responses are considered failures.
+In the event of a socket hangup, an exception is raised.
+
+### create
+`ArgSpec(args=['self'], varargs=None, keywords='kwargs', defaults=None)`
+
+Shortcut to create a dataset. Returns a `Create` object,
+which contains functions which will create a view, source
+your file, and validate data quality in one step.
+
+### using_config
+`ArgSpec(args=['self', 'config_name', 'view'], varargs=None, keywords=None, defaults=None)`
+
+Update a dataset, using the configuration that you previously
+created, and saved the name of. Takes the `config_name` parameter
+which uniquely identifies the config, and the `View` object, which can
+be obtained from `socrata.views.lookup('view-id42')`
+
+## Authorization
+`ArgSpec(args=['self', 'domain', 'username', 'password'], varargs=None, keywords=None, defaults=None)`
+
+Manages basic authorization for accessing the socrata API.
+This is passed into the `Socrata` object once, which is the entry
+point for all operations.
+
+    auth = Authorization(
+        "data.seattle.gov",
+        os.environ['SOCRATA_USERNAME'],
+        os.environ['SOCRATA_PASSWORD']
+    )
+    publishing = Socrata(auth)
+
+### live_dangerously
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Disable SSL checking. Note that this should *only* be used while developing
+against a local Socrata instance.
+
+## Revisions
+`ArgSpec(args=['self', 'view'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### create_replace_revision
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### create_update_revision
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### create_using_config
+`ArgSpec(args=['self', 'config'], varargs=None, keywords=None, defaults=None)`
+
+Create a revision for the given dataset.
+
+### list
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### lookup
+`ArgSpec(args=['self', 'revision_seq'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### path
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+## Revision
+`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
+
+A revision is a change to a dataset
+
+### apply
+`ArgSpec(args=['self', 'uri', 'output_schema'], varargs=None, keywords=None, defaults=(None,))`
+
+DocumentThis!
+
+### create_source
+`ArgSpec(args=['self', 'uri', 'source_type'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### create_upload
+`ArgSpec(args=['self', 'filename'], varargs=None, keywords=None, defaults=None)`
+
+Create an source within this revision
+
+### discard
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+Discard this open revision.
+
+### list_operations
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Get a list of the operations that you can perform on this
+object. These map directly onto what's returned from the API
+in the `links` section of each resource
+
+### open_in_browser
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Open this revision in your browser, this will open a window
+
+### path
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### show
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### ui_url
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+This is the URL to the landing page in the UI for this revision
+
+### update
+`ArgSpec(args=['self', 'uri', 'meta'], varargs=None, keywords=None, defaults=None)`
+
+Set the metadata to be applied to the view
+when this revision is applied
+
+## Sources
+`ArgSpec(args=['self', 'auth'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### create_upload
+`ArgSpec(args=['self', 'filename'], varargs=None, keywords=None, defaults=None)`
+
+Create a new source. Takes a `body` param, which must contain a `filename`
+of the file.
+
+## Source
+`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
+
+Uploads bytes into the source. Requires content_type argument
+be set correctly for the file handle. It's advised you don't
+use this method directly, instead use one of the csv, xls, xlsx,
+or tsv methods which will correctly set the content_type for you.
+
+### add_to_revision
+`ArgSpec(args=['self', 'uri', 'revision'], varargs=None, keywords=None, defaults=None)`
+
+Associate this Source with the given revision.
+
+### bytes
+`ArgSpec(args=['self', 'uri', 'file_handle', 'content_type'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### csv
+`ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
+
+Upload a CSV, returns the new source.
+
+### df
+`ArgSpec(args=['self', 'dataframe'], varargs=None, keywords=None, defaults=None)`
+
+Upload a pandas DataFrame, returns the new source.
+
+### list_operations
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Get a list of the operations that you can perform on this
+object. These map directly onto what's returned from the API
+in the `links` section of each resource
+
+### path
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### shapefile
+`ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
+
+Upload a Shapefile, returns the new source.
+
+### show
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### tsv
+`ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
+
+Upload a TSV, returns the new source.
+
+### xls
+`ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
+
+Upload an XLS, returns the new source.
+
+### xlsx
+`ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
+
+Upload an XLSX, returns the new source.
+
+## Configs
+`ArgSpec(args=['self', 'auth'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### create
+`ArgSpec(args=['self', 'name', 'data_action', 'parse_options', 'columns'], varargs=None, keywords=None, defaults=(None, None))`
+
+Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
+ImportConfig section for what is supported in `data_action`, `parse_options`,
+and `columns`.
+
+### list
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+List all the ImportConfigs on this domain
+
+### lookup
+`ArgSpec(args=['self', 'name'], varargs=None, keywords=None, defaults=None)`
+
+Obtain a single ImportConfig by name
+
+### path
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+## Config
+`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
+
+DocumentThis!
+
+### create_revision
+`ArgSpec(args=['self', 'uri', 'fourfour'], varargs=None, keywords=None, defaults=None)`
+
+Create a new Revision in the context of this ImportConfig.
+Sources that happen in this Revision will take on the values
+in this Config.
+
+### delete
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+Delete this ImportConfig. Note that this cannot be undone.
+
+### list_operations
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Get a list of the operations that you can perform on this
+object. These map directly onto what's returned from the API
+in the `links` section of each resource
+
+### path
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### show
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### update
+`ArgSpec(args=['self', 'uri', 'data_action', 'parse_options', 'columns'], varargs=None, keywords=None, defaults=(None, None, None))`
+
+Mutate this ImportConfig in place. Subsequent revisions opened against this
+ImportConfig will take on its new value.
+
+## InputSchema
+`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
+
+DocumentThis!
+
+### latest_output
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+Get the latest (most recently created) OutputSchema
+which descends from this InputSchema
+
+### list_operations
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Get a list of the operations that you can perform on this
+object. These map directly onto what's returned from the API
+in the `links` section of each resource
+
+### path
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### show
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### transform
+`ArgSpec(args=['self', 'uri', 'body'], varargs=None, keywords=None, defaults=None)`
+
+Transform this InputSchema into an Output. Returns the
+new OutputSchema. Note that this call is async - the data
+may still be transforming even though the OutputSchema is
+returned. See OutputSchema.wait_for_finish to block until
+the
+
+## OutputSchema
+`ArgSpec(args=['self'], varargs='args', keywords='kwargs', defaults=None)`
+
+DocumentThis!
+
+### add_column
+`ArgSpec(args=['self', 'field_name', 'display_name', 'transform_expr', 'description'], varargs=None, keywords=None, defaults=(None,))`
+
+DocumentThis!
+
+### any_failed
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Whether or not any transform in this output schema has failed
+
+### build_config
+`ArgSpec(args=['self', 'uri', 'name', 'data_action'], varargs=None, keywords=None, defaults=None)`
+
+Create a new ImportConfig from this OutputSchema. See the API
+docs for what an ImportConfig is and why they're useful
+
+### change_column_metadata
+`ArgSpec(args=['self', 'field_name', 'attribute'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### change_column_transform
+`ArgSpec(args=['self', 'field_name'], varargs=None, keywords=None, defaults=None)`
+
+Change the column transform. This returns a TransformChange,
+which implements a `.to` function, which takes a transform expression.
+
+### drop_column
+`ArgSpec(args=['self', 'field_name'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### list_operations
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Get a list of the operations that you can perform on this
+object. These map directly onto what's returned from the API
+in the `links` section of each resource
+
+### path
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### rows
+`ArgSpec(args=['self', 'uri', 'offset', 'limit'], varargs=None, keywords=None, defaults=(0, 500))`
+
+Get the rows for this OutputSchema. Acceps `offset` and `limit` params
+for paging through the data.
+
+### run
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### schema_errors
+`ArgSpec(args=['self', 'uri', 'offset', 'limit'], varargs=None, keywords=None, defaults=(0, 500))`
+
+Get the errors that resulted in transforming into this output schema.
+Accepts `offset` and `limit` params
+
+### schema_errors_csv
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Get the errors that results in transforming into this output schema
+as a CSV stream.
+
+Note that this returns an (ok, Reponse) tuple, where Reponse
+is a python requests Reponse object
+
+### set_row_id
+`ArgSpec(args=['self', 'field_name'], varargs=None, keywords=None, defaults=(None,))`
+
+DocumentThis!
+
+### show
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### validate_row_id
+`ArgSpec(args=['self', 'uri', 'field_name'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### wait_for_finish
+`ArgSpec(args=['self', 'progress', 'timeout'], varargs=None, keywords=None, defaults=(<function noop at 0x7f42ae66b158>, None))`
+
+Wait for this dataset to finish transforming and validating. Accepts a progress function
+and a timeout.
+
+## Job
+`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
+
+DocumentThis!
+
+### is_complete
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Has this job finished or failed
+
+### list_operations
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Get a list of the operations that you can perform on this
+object. These map directly onto what's returned from the API
+in the `links` section of each resource
+
+### path
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### show
+`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
+
+DocumentThis!
+
+### wait_for_finish
+`ArgSpec(args=['self', 'progress'], varargs=None, keywords=None, defaults=(<function noop at 0x7f42ae66b158>,))`
+
+Wait for this job to finish applying to the underlying
+dataset
+<!-- docstop -->

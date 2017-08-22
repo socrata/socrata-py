@@ -253,3 +253,39 @@ class TestOutputSchema(TestCase):
             '6',
             '8'
         ])
+
+
+    def test_geocode_column(self):
+        input_schema = self.create_input_schema(filename = 'geo.csv')
+        (ok, output) = input_schema.latest_output()
+        assert ok, output
+
+        (ok, output) = output\
+            .add_column('geocoded', 'Geocoded', 'geocode(`address`, `city`, `state`, `zip`)', 'geocoded column')\
+            .drop_column('address')\
+            .drop_column('city')\
+            .drop_column('state')\
+            .drop_column('zip')\
+            .run()
+
+        assert ok, output
+
+        (ok, output) = output.wait_for_finish()
+        assert ok, output
+
+        (ok, rows) = output.rows(offset = 0, limit = 4)
+        assert ok, rows
+
+        [p0, p1, p2] = [r['geocoded']['ok'] for r in rows]
+
+        self.assertEqual(p0['type'], 'Point')
+        self.assertAlmostEqual(p0['coordinates'][0], -122.29939)
+        self.assertAlmostEqual(p0['coordinates'][1], 47.702105)
+
+        self.assertEqual(p1['type'], 'Point')
+        self.assertAlmostEqual(p1['coordinates'][0], -77.037458,)
+        self.assertAlmostEqual(p1['coordinates'][1], 38.898771)
+
+        self.assertEqual(p2['type'], 'Point')
+        self.assertAlmostEqual(p2['coordinates'][0], -122.398373)
+        self.assertAlmostEqual(p2['coordinates'][1], 47.6762)

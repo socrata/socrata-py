@@ -312,6 +312,28 @@ Or you could add a new column that says if the day was hot or not
     .run()
 ```
 
+Or you could geocode a column, given the following CSV
+```
+address,city,zip,state
+10028 Ravenna Ave NE, Seattle, 98128, WA
+1600 Pennsylvania Avenue, Washington DC, 20500, DC
+6511 32nd Ave NW, Seattle, 98155, WA
+```
+
+We could transform our first `output_schema` into a single column dataset, where that
+single column is a `Point` of the address
+
+```python
+(ok, output) = output\
+    .add_column('location', 'Incident Location', 'geocode(`address`, `city`, `state`, `zip`)', 'very cool geocoded column')\
+    .drop_column('address')\
+    .drop_column('city')\
+    .drop_column('state')\
+    .drop_column('zip')\
+    .run()
+```
+
+
 Composing these SoQL functions into expressions will allow you to validate, shape, clean and extend your data to make it more useful to the consumer.
 
 ### Wait for the transformation to finish

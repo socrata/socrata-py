@@ -1,6 +1,34 @@
 # socrata-py
 experimental sdk for the socrata data-pipeline api
 
+<!-- toc -->
+
+  * [Installation](#installation)
+  * [Documentation](#documentation)
+  * [Example](#example)
+  * [Using](#using)
+    + [Boilerplate](#boilerplate)
+    + [Simple usage](#simple-usage)
+      - [Create a new Dataset from a csv, tsv, xls or xlsx file](#create-a-new-dataset-from-a-csv-tsv-xls-or-xlsx-file)
+      - [Create a new Dataset from Pandas](#create-a-new-dataset-from-pandas)
+      - [Updating a dataset](#updating-a-dataset)
+      - [Generating a config and using it to update](#generating-a-config-and-using-it-to-update)
+  * [Advanced usage](#advanced-usage)
+    + [Create a revision](#create-a-revision)
+    + [Create an upload](#create-an-upload)
+    + [Upload a file](#upload-a-file)
+    + [Transforming your data](#transforming-your-data)
+    + [Wait for the transformation to finish](#wait-for-the-transformation-to-finish)
+    + [Errors in a transformation](#errors-in-a-transformation)
+    + [Validating rows](#validating-rows)
+    + [Do the upsert!](#do-the-upsert)
+- [Development](#development)
+  * [Testing](#testing)
+  * [Generating docs](#generating-docs)
+  * [Releasing](#releasing)
+
+<!-- tocstop -->
+
 ## Installation
 This only supports python3.
 
@@ -70,7 +98,7 @@ with open('cool_dataset.csv', 'rb') as file:
         .run()
 
 
-    # Validation results step
+    # Validation of the results step
     (ok, output) = output.wait_for_finish()
     # The data has been validated now, and we can access errors that happened during validation. For example, if one of the cells in `a_column` couldn't be converted to a number in the call to `to_number`, that error would be reflected in this error_count
     assert output.attributes['error_count'] == 0
@@ -117,7 +145,7 @@ A Socrata `update` is actually an upsert. Rows are updated or created based on t
 
 A `replace` truncates the whole dataset and then inserts the new data.
 
-##### Generating a config and using it to update
+#### Generating a config and using it to update
 ```python
 # This is how we create our view initially
 with open('cool_dataset.csv', 'rb') as file:
@@ -146,23 +174,9 @@ with open('updated-cool-dataset.csv', 'rb') as my_file:
     print(job) # Our update job is now running
 ```
 
-##### Updating without a config
-This isn't advised. Doing an update without a config doesn't ensure that the same settings that your view was created with are used to parse and transform the updated file. This is why we have configs - they freeze settings that a view was once created with and allow them to be reused for updates and replaces.
-```python
-(ok, view) = socrata.views.lookup('tnir-bc4v')
-(ok, rev) = view.revisions.update()
-with open('cool_dataset.csv, 'rb') as file:
-    (ok, upload) = rev.create_upload(file.name)
-    (ok, input_schema) = upload.csv(file)
-    (ok, output_schema) = input_schema.latest_output()
-    rev.apply(output_schema = output_schema)
-```
+## Advanced usage
 
-
-
-### Advanced usage
-
-#### Create a revision
+### Create a revision
 
 ```python
 # This is our socrata object, using the auth variable from above
@@ -192,7 +206,7 @@ print(rev.attributes['fourfour'])
 'ij46-xpxe'
 ```
 
-### Make an upload, given a revision
+### Create an upload
 ```python
 # Using that revision, we can create an upload
 (ok, upload) = rev.create_upload('foo.csv')
@@ -213,45 +227,117 @@ Source({'content_type': None,
  'inserted_at': '2017-02-27T23:07:18.309676',
  'schemas': []})
 ```
-### Upload a csv, given an upload
+### Upload a file
 ```python
 # And using that upload we just created, we can put bytes into it
 with open('test/fixtures/simple.csv', 'rb') as f:
     (ok, input_schema) = upload.csv(f)
     assert ok
 ```
+### Transforming your data
+Transforming data consists of going from input data (data exactly as it appeared in the source)
+to output data (data as you want it to appear).
 
-### Transform a file, given an input schema
-```python
-# Putting bytes into an upload gives us an input schema. We can call `transform` on the
-# input schema to get a new output schema with our transforms applied.
-(ok, output_schema) = input_schema.transform({
-    'output_columns': [
-        {
-            "field_name": "b",
-            "display_name": "b, but as a number",
-            "position": 0,
-            "description": "b but with a bunch of errors",
-            "transform": {
-                "transform_expr": "to_number(b)"
-            }
-        }
-    ]})
+Transformation from input data to output data often has problems. You might, for example, have a column
+full of numbers, but one row in that column is actually the value "???" which cannot be transformed into
+a number. Rather than failing at each datum which is dirty or wrong, transforming your data allows you to
+reconcile these issues.
 
-# Wait for the transformation to finish
-(ok, output_schema) = output_schema.wait_for_finish()
-assert ok, output_schema
-
-# Look at how many validation errors happened while trying to transform our dataset
-print(output_schema.attributes['error_count'])
-
-# Maybe we want to discard the revision if our file had errors in it. This will prevent the revision from ever being applied
-if output_schema.attributes['error_count'] > 0:
-    rev.discard()
+We might have a dataset called `temps.csv` that looks like
+```
+date, celsius
+8-24-2017, 22
+8-25-2017, 20
+8-26-2017, 23
+8-27-2017, hehe!
+8-28-2017,
+8-29-2017, 21
 ```
 
+Suppose we uploaded it in our previous step, like this:
+
+```
+with open('temps.csv', 'rb') as f:
+    (ok, input_schema) = upload.csv(f)
+    assert ok
+```
+
+Our `input_schema` is the input data exactly as it appeared in the CSV, with all values of type `string`.
+
+Our `output_schema` is the output data as it was *guessed* by Socrata. Guessing may not always be correct, which is why we have import configs to "lock in" a schema for automation. We can get the `output_schema`
+like so:
+
+```
+(ok, output_schema) = input_schema.latest_output()
+assert ok
+```
+
+We can now make changes to the schema, like so
+
+```
+(ok, new_output_schema) = output
+    # Change the field_name of date to the_date
+    .change_column_metadata('date', 'field_name').to('the_date')\
+    # Change the description of the celsius column
+    .change_column_metadata('celsius', 'description').to('the temperature in celsius')\
+    # Change the display name of the celsius column
+    .change_column_metadata('celsius', 'display_name').to('Degrees (Celsius)')\
+    # Change the transform of the_date column to to_fixed_timestamp(`date`)
+    .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')
+    # Make the celsius column all numbers
+    .change_column_transform('celsius').to('to_number(`celsius`)')
+    # Add a new column, which is computed from the `celsius` column
+    .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
+    .run()
+```
+
+We can also call `drop_column(celsius)` which will drop the column.
+
+Transforms can be complex SoQL expressions. Available functions are listed [http://docs.socratapublishing.apiary.io/#reference/0/inputschema](here). You can do lots of stuff with them;
+
+
+For example, you could change all `null` values into errors (which won't be imported) by doing
+something like
+```
+(ok, new_output_schema) = output
+    .change_column_transform('celsius').to('coalesce(to_number(`celsius`), error("Celsius was null!"))')
+    .run()
+```
+
+Or you could add a new column that says if the day was hot or not
+```
+(ok, new_output_schema) = output
+    .add_column('is_hot', 'Was the day hot?', 'to_number(`celsius`) >= 23', '')
+    .run()
+```
+
+Composing these SoQL functions into expressions will allow you to validate, shape, clean and extend your data to make it more useful to the consumer.
+
+### Wait for the transformation to finish
+Transformations are async, so if you want to wait for it to finish, you can do so
+```python
+(ok, output_schema) = new_output_schema.wait_for_finish()
+assert ok, output_schema
+```
+
+### Errors in a transformation
+Transformations may have had errors, like in the previous example, we can't convert `hehe!` to a number. We can see the count of them like this:
+```python
+print(output_schema.attributes['error_count'])
+```
+
+We can view the detailed errors like this:
+```python
+(ok, errors) = output_schema.schema_errors()
+```
+
+We can get a CSV of the errors like this:
+```python
+(ok, csv_stream) = output_schema.schema_errors_csv()
+```
 
 ### Validating rows
+We can look at the rows of our schema as well
 ```python
 (ok, rows) = output_schema.rows(offset = 0, limit = 20)
 assert ok,

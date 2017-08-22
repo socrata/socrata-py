@@ -144,3 +144,112 @@ class TestOutputSchema(TestCase):
         assert ok, output_schema
 
         self.assertEqual(output_schema.attributes['output_columns'][0]['is_primary_key'], True)
+
+    def test_change_columns(self):
+        input_schema = self.create_input_schema()
+        (ok, output) = input_schema.latest_output()
+        assert ok, output
+
+        (ok, output) = output\
+            .change_column_metadata('a', 'field_name').to('aa')\
+            .change_column_metadata('b', 'description').to('the description of b')\
+            .change_column_metadata('c', 'display_name').to('Column C!')\
+            .change_column_transform('c').to('to_number(`c`) + 7')\
+            .run()
+
+        assert ok, output
+
+        [aa, b, c] = output.attributes['output_columns']
+
+        self.assertEqual(aa['field_name'], 'aa')
+        self.assertEqual(b['description'], 'the description of b')
+        self.assertEqual(c['display_name'], 'Column C!')
+        self.assertEqual(c['transform']['transform_expr'], 'to_number(`c`) + 7')
+
+    def test_change_column_and_reference(self):
+        input_schema = self.create_input_schema()
+        (ok, output) = input_schema.latest_output()
+        assert ok, output
+
+        (ok, output) = output\
+            .change_column_metadata('a', 'field_name').to('aa')\
+            .change_column_metadata('aa', 'description').to('the description of aa')\
+            .change_column_metadata('aa', 'display_name').to('COLUMN AA!')\
+            .run()
+
+        assert ok, output
+
+        [aa, _b, _c] = output.attributes['output_columns']
+
+        self.assertEqual(aa['field_name'], 'aa')
+        self.assertEqual(aa['description'], 'the description of aa')
+        self.assertEqual(aa['display_name'], 'COLUMN AA!')
+
+    def test_add_after_delete(self):
+        input_schema = self.create_input_schema()
+        (ok, output) = input_schema.latest_output()
+        assert ok, output
+
+        (ok, output) = output\
+            .drop_column('c')\
+            .drop_column('b')\
+            .drop_column('a')\
+            .add_column('a', 'AA+AA', 'to_number(`a`) + to_number(`a`)', 'this is column a plus a')\
+            .change_column_metadata('a', 'display_name').to('COLUMN AA!')\
+            .run()
+
+        assert ok, output
+
+        [a] = output.attributes['output_columns']
+
+        self.assertEqual(a['field_name'], 'a')
+        self.assertEqual(a['description'], 'this is column a plus a')
+        self.assertEqual(a['display_name'], 'COLUMN AA!')
+
+    def test_drop_column(self):
+        input_schema = self.create_input_schema()
+        (ok, output) = input_schema.latest_output()
+        assert ok, output
+
+        (ok, output) = output\
+            .change_column_metadata('a', 'field_name').to('aa')\
+            .drop_column('b')\
+            .drop_column('c')\
+            .run()
+
+        assert ok, output
+
+        [aa] = output.attributes['output_columns']
+        self.assertEqual(len(output.attributes['output_columns']), 1)
+        self.assertEqual(aa['field_name'], 'aa')
+
+    def test_create_column(self):
+        input_schema = self.create_input_schema()
+        (ok, output) = input_schema.latest_output()
+        assert ok, output
+
+        (ok, output) = output\
+            .change_column_metadata('a', 'field_name').to('aa')\
+            .drop_column('b')\
+            .drop_column('c')\
+            .add_column('aa_aa', 'AA+AA', 'to_number(`a`) + to_number(`a`)', 'this is column a plus a')\
+            .run()
+
+        assert ok, output
+
+        (ok, output) = output.wait_for_finish()
+
+        [aa, a_plus_a] = output.attributes['output_columns']
+        self.assertEqual(len(output.attributes['output_columns']), 2)
+        self.assertEqual(aa['field_name'], 'aa')
+        self.assertEqual(a_plus_a['field_name'], 'aa_aa')
+
+        (ok, rows) = output.rows(offset = 0, limit = 4)
+        cells = [row.get('aa_aa')['ok'] for row in rows]
+
+        self.assertEqual(cells, [
+            '2',
+            '4',
+            '6',
+            '8'
+        ])

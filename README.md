@@ -240,7 +240,7 @@ Transforming data consists of going from input data (data exactly as it appeared
 to output data (data as you want it to appear).
 
 Transformation from input data to output data often has problems. You might, for example, have a column
-full of numbers, but one row in that column is actually the value `???` which cannot be transformed into
+full of numbers, but one row in that column is actually the value `hehe!` which cannot be transformed into
 a number. Rather than failing at each datum which is dirty or wrong, transforming your data allows you to
 reconcile these issues.
 
@@ -315,7 +315,7 @@ something like
 Or you could add a new column that says if the day was hot or not
 ```python
 (ok, new_output_schema) = output
-    .add_column('is_hot', 'Was the day hot?', 'to_number(`celsius`) >= 23', '')
+    .add_column('is_hot', 'Was the day hot?', 'to_number(`celsius`) >= 23')
     .run()
 ```
 
@@ -332,7 +332,7 @@ single column is a `Point` of the address
 
 ```python
 (ok, output) = output\
-    .add_column('location', 'Incident Location', 'geocode(`address`, `city`, `state`, `zip`)', 'very cool geocoded column')\
+    .add_column('location', 'Incident Location', 'geocode(`address`, `city`, `state`, `zip`)')\
     .drop_column('address')\
     .drop_column('city')\
     .drop_column('state')\

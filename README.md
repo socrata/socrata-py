@@ -240,7 +240,7 @@ Transforming data consists of going from input data (data exactly as it appeared
 to output data (data as you want it to appear).
 
 Transformation from input data to output data often has problems. You might, for example, have a column
-full of numbers, but one row in that column is actually the value "???" which cannot be transformed into
+full of numbers, but one row in that column is actually the value `???` which cannot be transformed into
 a number. Rather than failing at each datum which is dirty or wrong, transforming your data allows you to
 reconcile these issues.
 
@@ -257,7 +257,7 @@ date, celsius
 
 Suppose we uploaded it in our previous step, like this:
 
-```
+```python
 with open('temps.csv', 'rb') as f:
     (ok, input_schema) = upload.csv(f)
     assert ok
@@ -268,14 +268,14 @@ Our `input_schema` is the input data exactly as it appeared in the CSV, with all
 Our `output_schema` is the output data as it was *guessed* by Socrata. Guessing may not always be correct, which is why we have import configs to "lock in" a schema for automation. We can get the `output_schema`
 like so:
 
-```
+```python
 (ok, output_schema) = input_schema.latest_output()
 assert ok
 ```
 
 We can now make changes to the schema, like so
 
-```
+```python
 (ok, new_output_schema) = output
     # Change the field_name of date to the_date
     .change_column_metadata('date', 'field_name').to('the_date')\
@@ -299,14 +299,14 @@ Transforms can be complex SoQL expressions. Available functions are listed [http
 
 For example, you could change all `null` values into errors (which won't be imported) by doing
 something like
-```
+```python
 (ok, new_output_schema) = output
     .change_column_transform('celsius').to('coalesce(to_number(`celsius`), error("Celsius was null!"))')
     .run()
 ```
 
 Or you could add a new column that says if the day was hot or not
-```
+```python
 (ok, new_output_schema) = output
     .add_column('is_hot', 'Was the day hot?', 'to_number(`celsius`) >= 23', '')
     .run()

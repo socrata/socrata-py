@@ -24,10 +24,20 @@ classes = [
 def arg_spec_str(thing):
     return '`%s`' % str(inspect.getargspec(thing))
 
+def link_to(thing):
+    [_, rel] = inspect.getsourcefile(thing).split('socrata-py')
+    (_lines, line_num) = inspect.getsourcelines(thing)
+
+    return 'https://github.com/socrata/socrata-py/blob/master/{rel}#L{line_num}'.format(
+        rel = rel,
+        line_num = line_num
+    )
+
+
 def class_lines(klass):
     return [
         '',
-        '## %s' % klass.__name__,
+        '## [%s](%s)' % (klass.__name__, link_to(klass)),
         arg_spec_str(klass),
         '',
         inspect.getdoc(klass) or 'DocumentThis!'
@@ -35,9 +45,10 @@ def class_lines(klass):
 
 
 def func_lines(funcname, func):
+
     return [
         '',
-        '### %s' % funcname,
+        '### [%s](%s)' % (funcname, link_to(func)),
         arg_spec_str(func),
         '',
         inspect.getdoc(func) or 'DocumentThis!'

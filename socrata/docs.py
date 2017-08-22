@@ -35,24 +35,28 @@ def link_to(thing):
 
 
 def class_lines(klass):
-    return [
-        '',
-        '## [%s](%s)' % (klass.__name__, link_to(klass)),
-        arg_spec_str(klass),
-        '',
-        inspect.getdoc(klass) or 'DocumentThis!'
-    ]
-
+    doc = inspect.getdoc(klass)
+    if doc:
+        return [
+            '',
+            '## [%s](%s)' % (klass.__name__, link_to(klass)),
+            arg_spec_str(klass),
+            '',
+            doc
+        ]
+    return []
 
 def func_lines(funcname, func):
-
-    return [
-        '',
-        '### [%s](%s)' % (funcname, link_to(func)),
-        arg_spec_str(func),
-        '',
-        inspect.getdoc(func) or 'DocumentThis!'
-    ]
+    doc = inspect.getdoc(func)
+    if doc:
+        return [
+            '',
+            '### [%s](%s)' % (funcname, link_to(func)),
+            arg_spec_str(func),
+            '',
+            doc
+        ]
+    return []
 
 
 lines = ['<!-- doc -->', '# Library Docs']

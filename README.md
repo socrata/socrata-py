@@ -31,78 +31,44 @@ experimental sdk for the socrata data-pipeline api
     + [using_config](#using_config)
   * [Authorization](#authorization)
     + [live_dangerously](#live_dangerously)
-  * [Revisions](#revisions)
-    + [create_replace_revision](#create_replace_revision)
-    + [create_update_revision](#create_update_revision)
     + [create_using_config](#create_using_config)
-    + [list](#list)
-    + [lookup](#lookup)
-    + [path](#path)
   * [Revision](#revision)
-    + [apply](#apply)
-    + [create_source](#create_source)
     + [create_upload](#create_upload)
     + [discard](#discard)
     + [list_operations](#list_operations)
     + [open_in_browser](#open_in_browser)
-    + [path](#path-1)
-    + [show](#show)
     + [ui_url](#ui_url)
     + [update](#update)
-  * [Sources](#sources)
     + [create_upload](#create_upload-1)
   * [Source](#source)
     + [add_to_revision](#add_to_revision)
-    + [bytes](#bytes)
     + [csv](#csv)
     + [df](#df)
     + [list_operations](#list_operations-1)
-    + [path](#path-2)
     + [shapefile](#shapefile)
-    + [show](#show-1)
     + [tsv](#tsv)
     + [xls](#xls)
     + [xlsx](#xlsx)
-  * [Configs](#configs)
     + [create](#create-1)
-    + [list](#list-1)
-    + [lookup](#lookup-1)
-    + [path](#path-3)
-  * [Config](#config)
+    + [list](#list)
+    + [lookup](#lookup)
     + [create_revision](#create_revision)
     + [delete](#delete)
     + [list_operations](#list_operations-2)
-    + [path](#path-4)
-    + [show](#show-2)
     + [update](#update-1)
-  * [InputSchema](#inputschema)
     + [latest_output](#latest_output)
     + [list_operations](#list_operations-3)
-    + [path](#path-5)
-    + [show](#show-3)
     + [transform](#transform)
-  * [OutputSchema](#outputschema)
-    + [add_column](#add_column)
     + [any_failed](#any_failed)
     + [build_config](#build_config)
-    + [change_column_metadata](#change_column_metadata)
     + [change_column_transform](#change_column_transform)
-    + [drop_column](#drop_column)
     + [list_operations](#list_operations-4)
-    + [path](#path-6)
     + [rows](#rows)
-    + [run](#run)
     + [schema_errors](#schema_errors)
     + [schema_errors_csv](#schema_errors_csv)
-    + [set_row_id](#set_row_id)
-    + [show](#show-4)
-    + [validate_row_id](#validate_row_id)
     + [wait_for_finish](#wait_for_finish)
-  * [Job](#job)
     + [is_complete](#is_complete)
     + [list_operations](#list_operations-5)
-    + [path](#path-7)
-    + [show](#show-5)
     + [wait_for_finish](#wait_for_finish-1)
 
 <!-- tocstop -->
@@ -555,55 +521,15 @@ point for all operations.
 Disable SSL checking. Note that this should *only* be used while developing
 against a local Socrata instance.
 
-## [Revisions](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L9)
-`ArgSpec(args=['self', 'view'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [create_replace_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L42)
-`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [create_update_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L45)
-`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [create_using_config](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L55)
 `ArgSpec(args=['self', 'config'], varargs=None, keywords=None, defaults=None)`
 
 Create a revision for the given dataset.
 
-### [list](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L36)
-`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L48)
-`ArgSpec(args=['self', 'revision_seq'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L15)
-`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ## [Revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L68)
 `ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
 
 A revision is a change to a dataset
-
-### [apply](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L109)
-`ArgSpec(args=['self', 'uri', 'output_schema'], varargs=None, keywords=None, defaults=(None,))`
-
-DocumentThis!
-
-### [create_source](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L82)
-`ArgSpec(args=['self', 'uri', 'source_type'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
 
 ### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L73)
 `ArgSpec(args=['self', 'filename'], varargs=None, keywords=None, defaults=None)`
@@ -627,16 +553,6 @@ in the `links` section of each resource
 
 Open this revision in your browser, this will open a window
 
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L32)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [show](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L85)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L135)
 `ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
 
@@ -647,11 +563,6 @@ This is the URL to the landing page in the UI for this revision
 
 Set the metadata to be applied to the view
 when this revision is applied
-
-## [Sources](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L7)
-`ArgSpec(args=['self', 'auth'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
 
 ### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L8)
 `ArgSpec(args=['self', 'filename'], varargs=None, keywords=None, defaults=None)`
@@ -672,11 +583,6 @@ or tsv methods which will correctly set the content_type for you.
 
 Associate this Source with the given revision.
 
-### [bytes](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L34)
-`ArgSpec(args=['self', 'uri', 'file_handle', 'content_type'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L44)
 `ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
 
@@ -694,20 +600,10 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L32)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L68)
 `ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
 
 Upload a Shapefile, returns the new source.
-
-### [show](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L85)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
 
 ### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L62)
 `ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
@@ -723,11 +619,6 @@ Upload an XLS, returns the new source.
 `ArgSpec(args=['self', 'file_handle'], varargs=None, keywords=None, defaults=None)`
 
 Upload an XLSX, returns the new source.
-
-## [Configs](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L7)
-`ArgSpec(args=['self', 'auth'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
 
 ### [create](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L13)
 `ArgSpec(args=['self', 'name', 'data_action', 'parse_options', 'columns'], varargs=None, keywords=None, defaults=(None, None))`
@@ -745,16 +636,6 @@ List all the ImportConfigs on this domain
 `ArgSpec(args=['self', 'name'], varargs=None, keywords=None, defaults=None)`
 
 Obtain a single ImportConfig by name
-
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L8)
-`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-## [Config](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L49)
-`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
-
-DocumentThis!
 
 ### [create_revision](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L75)
 `ArgSpec(args=['self', 'uri', 'fourfour'], varargs=None, keywords=None, defaults=None)`
@@ -775,26 +656,11 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L32)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [show](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L85)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [update](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L56)
 `ArgSpec(args=['self', 'uri', 'data_action', 'parse_options', 'columns'], varargs=None, keywords=None, defaults=(None, None, None))`
 
 Mutate this ImportConfig in place. Subsequent revisions opened against this
 ImportConfig will take on its new value.
-
-## [InputSchema](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L7)
-`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
-
-DocumentThis!
 
 ### [latest_output](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L22)
 `ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
@@ -809,16 +675,6 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L32)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [show](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L85)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [transform](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L8)
 `ArgSpec(args=['self', 'uri', 'body'], varargs=None, keywords=None, defaults=None)`
 
@@ -827,16 +683,6 @@ new OutputSchema. Note that this call is async - the data
 may still be transforming even though the OutputSchema is
 returned. See OutputSchema.wait_for_finish to block until
 the
-
-## [OutputSchema](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L41)
-`ArgSpec(args=['self'], varargs='args', keywords='kwargs', defaults=None)`
-
-DocumentThis!
-
-### [add_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L164)
-`ArgSpec(args=['self', 'field_name', 'display_name', 'transform_expr', 'description'], varargs=None, keywords=None, defaults=(None,))`
-
-DocumentThis!
 
 ### [any_failed](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L66)
 `ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
@@ -849,21 +695,11 @@ Whether or not any transform in this output schema has failed
 Create a new ImportConfig from this OutputSchema. See the API
 docs for what an ImportConfig is and why they're useful
 
-### [change_column_metadata](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L181)
-`ArgSpec(args=['self', 'field_name', 'attribute'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [change_column_transform](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L184)
 `ArgSpec(args=['self', 'field_name'], varargs=None, keywords=None, defaults=None)`
 
 Change the column transform. This returns a TransformChange,
 which implements a `.to` function, which takes a transform expression.
-
-### [drop_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L177)
-`ArgSpec(args=['self', 'field_name'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
 
 ### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L53)
 `ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
@@ -872,21 +708,11 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L32)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [rows](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L112)
 `ArgSpec(args=['self', 'uri', 'offset', 'limit'], varargs=None, keywords=None, defaults=(0, 500))`
 
 Get the rows for this OutputSchema. Acceps `offset` and `limit` params
 for paging through the data.
-
-### [run](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L191)
-`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
 
 ### [schema_errors](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L120)
 `ArgSpec(args=['self', 'uri', 'offset', 'limit'], varargs=None, keywords=None, defaults=(0, 500))`
@@ -903,31 +729,11 @@ as a CSV stream.
 Note that this returns an (ok, Reponse) tuple, where Reponse
 is a python requests Reponse object
 
-### [set_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L155)
-`ArgSpec(args=['self', 'field_name'], varargs=None, keywords=None, defaults=(None,))`
-
-DocumentThis!
-
-### [show](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L85)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [validate_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L142)
-`ArgSpec(args=['self', 'uri', 'field_name'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L72)
-`ArgSpec(args=['self', 'progress', 'timeout'], varargs=None, keywords=None, defaults=(<function noop at 0x7f18fc07f158>, None))`
+`ArgSpec(args=['self', 'progress', 'timeout'], varargs=None, keywords=None, defaults=(<function noop at 0x7f9a0d95b158>, None))`
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
 and a timeout.
-
-## [Job](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L5)
-`ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
-
-DocumentThis!
 
 ### [is_complete](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L6)
 `ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
@@ -941,18 +747,8 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-### [path](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L32)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
-### [show](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L85)
-`ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
-
-DocumentThis!
-
 ### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L13)
-`ArgSpec(args=['self', 'progress'], varargs=None, keywords=None, defaults=(<function noop at 0x7f18fc07f158>,))`
+`ArgSpec(args=['self', 'progress'], varargs=None, keywords=None, defaults=(<function noop at 0x7f9a0d95b158>,))`
 
 Wait for this job to finish applying to the underlying
 dataset

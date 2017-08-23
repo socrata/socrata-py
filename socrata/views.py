@@ -21,6 +21,18 @@ class Views(Collection):
         )
 
     def lookup(self, fourfour):
+        """
+        Lookup the view by ID
+
+        Args:
+        ```
+            fourfour (str): The view's identifier, ex: abcd-1234
+        ```
+        Returns:
+        ```
+            result (bool, Revision | dict): Returns an API Result; the View or an error response
+        ```
+        """
         return self._subresource(View, get(
             self.path() + '/' + fourfour,
             auth = self.auth

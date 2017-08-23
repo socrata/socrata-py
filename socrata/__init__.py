@@ -37,15 +37,22 @@ class Socrata(Collection):
         be obtained from `socrata.views.lookup('view-id42')`
 
         Args:
+        ```
             config_name (str): The config name
             view (View): The view to update
+        ```
 
         Returns:
+        ```
             result (Revision, Job): Returns the Revision and the Job, which is now running
+        ```
 
         Examples:
-            >>> with open('my-file.csv', 'rb') as my_file:
-                    (rev, job) = p.using_config(name, view).csv(my_file)
+        ```
+            with open('my-file.csv', 'rb') as my_file:
+                (rev, job) = p.using_config(name, view).csv(my_file)
+        ```
+
         """
         (ok, config) = result = self.configs.lookup(config_name)
         if not ok:
@@ -71,17 +78,23 @@ class Socrata(Collection):
         ```
 
         Args:
+        ```
            **kwargs: Arbitrary revision metadata values
+        ```
 
         Returns:
-            result (Revision, OutputSchema): Returns the revision that was created
-                and the OutputSchema created from your uploaded file
+        ```
+            result (Revision, OutputSchema): Returns the revision that was created and the OutputSchema created from your uploaded file
+        ```
 
         Examples:
-            >>> Socrata(auth).create(
-                name = "cool dataset",
-                description = "a description"
-            ).csv(open('my-file.csv'))
+        ```python
+        Socrata(auth).create(
+            name = "cool dataset",
+            description = "a description"
+        ).csv(open('my-file.csv'))
+        ```
+
         """
 
 
@@ -93,13 +106,18 @@ class Socrata(Collection):
         view will be created for you, and the initial revision will be returned.
 
         Args:
+        ```
             metadata (dict): Metadata to apply to the revision
+        ```
 
         Returns:
+        ```
             result (bool, Revision | dict): Returns an API Result; the Revision if it was created or an API Error response
+        ```
 
         Examples:
-            >>> (ok, rev) = Socrata(auth).new({
+        ```python
+            (ok, rev) = Socrata(auth).new({
                 'name': 'hi',
                 'description': 'foo!',
                 'metadata': {
@@ -108,6 +126,7 @@ class Socrata(Collection):
 
                 }
             })
+        ```
         """
         return Revisions.new(self.auth, metadata)
 

@@ -39,6 +39,9 @@ class TransformChange(object):
 
 
 class OutputSchema(Resource):
+    """
+        This is data as transformed from an InputSchema
+    """
 
     def __init__(self, *args, **kwargs):
         super(OutputSchema, self).__init__(*args, **kwargs)
@@ -140,6 +143,19 @@ class OutputSchema(Resource):
         )
 
     def validate_row_id(self, uri, field_name):
+        """
+        Set the row id. Note you must call `validate_row_id` before doing this.
+
+        Args:
+        ```
+            field_name (str): The column to validate as the row id
+        ```
+
+        Returns:
+        ```
+            result (bool, dict): Returns an API Result; where the response says if it can be used as a row id
+        ```
+        """
         output_column = [oc for oc in self.attributes['output_columns'] if oc['field_name'] == field_name]
         if len(output_column):
             [output_column] = output_column
@@ -153,6 +169,24 @@ class OutputSchema(Resource):
             return (False, {"reason": "No column with field_name = %s" % field_name})
 
     def set_row_id(self, field_name = None):
+        """
+        Set the row id. Note you must call `validate_row_id` before doing this.
+
+        Args:
+        ```
+            field_name (str): The column to set as the row id
+        ```
+
+        Returns:
+        ```
+            result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+        ```
+
+        Examples:
+        ```python
+        (ok, new_output_schema) = output.set_row_id('the_id_column')
+        ```
+        """
         desired_schema = deepcopy(self.attributes['output_columns'])
 
         for oc in desired_schema:
@@ -162,6 +196,32 @@ class OutputSchema(Resource):
 
 
     def add_column(self, field_name, display_name, transform_expr, description = None):
+        """
+        Add a column
+
+        Args:
+        ```
+            field_name (str): The column's field_name, must be unique
+            display_name (str): The columns display name
+            transform_expr (str): SoQL expression to evaluate and fill the column with data from
+            description (str): Optional column description
+        ```
+
+        Returns:
+        ```
+            output_schema (OutputSchema): Returns self for easy chaining
+        ```
+
+        Examples:
+        ```python
+        (ok, new_output_schema) = output
+            # Add a new column, which is computed from the `celsius` column
+            .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
+            # Add a new column, which is computed from the `celsius` column
+            .add_column('kelvin', 'Degrees (Kelvin)', '(to_number(`celsius`) + 273.15')
+            .run()
+        ```
+        """
         position = len(self.attributes['output_columns']) + len(self.column_additions) - len(self.column_deletions)
         self.column_additions.append({
             'field_name': field_name,
@@ -175,20 +235,115 @@ class OutputSchema(Resource):
         return self
 
     def drop_column(self, field_name):
+        """
+        Drop the column
+
+        Args:
+        ```
+            field_name (str): The column to drop
+        ```
+
+        Returns:
+        ```
+            output_schema (OutputSchema): Returns self for easy chaining
+        ```
+
+        Examples:
+        ```python
+            (ok, new_output_schema) = output
+                .drop_column('foo')
+                .run()
+        ```
+        """
         self.column_deletions.append(field_name)
         return self
 
     def change_column_metadata(self, field_name, attribute):
+        """
+        Change the column metadata. This returns a ColumnChange,
+        which implements a `.to` function, which takes the new value to change to
+
+        Args:
+        ```
+            field_name (str): The column to change
+            attribute (str): The attribute of the column to change
+        ```
+
+        Returns:
+        ```
+            change (TransformChange): The transform change, which implements the `.to` function
+        ```
+
+        Examples:
+        ```python
+            (ok, new_output_schema) = output
+                # Change the field_name of date to the_date
+                .change_column_metadata('date', 'field_name').to('the_date')
+                # Change the description of the celsius column
+                .change_column_metadata('celsius', 'description').to('the temperature in celsius')
+                # Change the display name of the celsius column
+                .change_column_metadata('celsius', 'display_name').to('Degrees (Celsius)')
+                .run()
+        ```
+        """
         return ColumnChange(field_name, attribute, self)
 
     def change_column_transform(self, field_name):
         """
         Change the column transform. This returns a TransformChange,
         which implements a `.to` function, which takes a transform expression.
+
+        Args:
+        ```
+            field_name (str): The column to change
+        ```
+
+        Returns:
+        ```
+            change (TransformChange): The transform change, which implements the `.to` function
+        ```
+
+        Examples:
+        ```python
+            (ok, new_output_schema) = output
+                .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')
+                # Make the celsius column all numbers
+                .change_column_transform('celsius').to('to_number(`celsius`)')
+                # Add a new column, which is computed from the `celsius` column
+                .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
+                .run()
+        ```
         """
         return TransformChange(field_name, self)
 
     def run(self):
+        """
+        Run all adds, drops, and column changes.
+
+
+        Returns:
+        ```
+            result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+        ```
+
+        Examples:
+        ```python
+            (ok, new_output_schema) = output
+                # Change the field_name of date to the_date
+                .change_column_metadata('date', 'field_name').to('the_date')
+                # Change the description of the celsius column
+                .change_column_metadata('celsius', 'description').to('the temperature in celsius')
+                # Change the display name of the celsius column
+                .change_column_metadata('celsius', 'display_name').to('Degrees (Celsius)')
+                # Change the transform of the_date column to to_fixed_timestamp(`date`)
+                .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')
+                # Make the celsius column all numbers
+                .change_column_transform('celsius').to('to_number(`celsius`)')
+                # Add a new column, which is computed from the `celsius` column
+                .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
+                .run()
+        ```
+        """
         columns = [
             c for c in deepcopy(self.attributes['output_columns'])
             if not (c['field_name'] in self.column_deletions)

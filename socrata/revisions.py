@@ -36,7 +36,9 @@ class Revisions(Collection):
         List all the revisions on the view
 
         Returns:
+        ```
             result (bool, dict | list[Revision])
+        ```
         """
         return self._subresources(Revision, get(
             self.path(),
@@ -49,14 +51,18 @@ class Revisions(Collection):
         Create a revision on the view, which when applied, will replace the data.
 
         Args:
+        ```
             metadata (dict): The metadata to change; these changes will be applied when the revision
                 is applied
-
+        ```
         Returns:
+        ```
             result (bool, dict | Revision): The new revision, or an error
-
+        ```
         Examples:
+        ```
             >>> view.revisions.create_replace_revision({'name': 'new dataset name', 'description': 'updated description'})
+        ```
         """
         return self._create('replace', metadata)
 
@@ -69,14 +75,22 @@ class Revisions(Collection):
         those rows will be updated. Otherwise they will be appended.
 
         Args:
-            metadata (dict): The metadata to change; these changes will be applied when the revision
-                is applied
+        ```
+            metadata (dict): The metadata to change; these changes will be applied when the revision is applied
+        ```
 
         Returns:
+        ```
             result (bool, dict | Revision): The new revision, or an error
+        ```
 
         Examples:
-            >>> view.revisions.create_update_revision({'name': 'new dataset name', 'description': 'updated description'})
+        ```python
+            view.revisions.create_update_revision({
+                'name': 'new dataset name',
+                'description': 'updated description'
+            })
+        ```
         """
         return self._create('update', metadata)
 
@@ -107,10 +121,14 @@ class Revisions(Collection):
         Lookup a revision within the view based on the sequence number
 
         Args:
+        ```
             revision_seq (int): The sequence number of the revision to lookup
+        ```
 
         Returns:
+        ```
             result (bool, dict | Revision): The Revision resulting from this API call, or an error
+        ```
         """
         return self._subresource(Revision, get(
             self.path() + '/' + str(revision_seq),
@@ -140,10 +158,13 @@ class Revision(Resource):
         Create an upload within this revision
 
         Args:
+        ```
             filename (str): The name of the file to upload
-
+        ```
         Returns:
+        ```
             result (bool, dict | Source): The Source created by this API call, or an error
+        ```
         """
         return self.create_source({
             'type': 'upload',
@@ -164,7 +185,9 @@ class Revision(Resource):
         Discard this open revision.
 
         Returns:
+        ```
             result (bool, dict | Revision): The closed Revision or an error
+        ```
         """
         return delete(self.path(uri), auth = self.auth)
 
@@ -175,13 +198,22 @@ class Revision(Resource):
         when this revision is applied
 
         Args:
+        ```
             metadata (dict): The changes to make to this revision
+        ```
 
         Returns:
+        ```
             result (bool, dict | Revision): The updated Revision as a result of this API call, or an error
+        ```
 
         Examples:
-            >>> (ok, revision) = revision.update({'name': 'new name', 'description': 'new description'})
+        ```python
+            (ok, revision) = revision.update({
+                'name': 'new name',
+                'description': 'new description'
+            })
+        ```
         """
         return self._mutate(put(
             self.path(uri),
@@ -194,16 +226,22 @@ class Revision(Resource):
         Apply the Revision to the view that it was opened on
 
         Args:
+        ```
             output_schema (OutputSchema): Optional output schema. If your revision includes
                 data changes, this should be included. If it is a metadata only revision,
                 then you will not have an output schema, and you do not need to pass anything
                 here
+        ```
 
         Returns:
+        ```
             result (bool, dict | Job): Returns the job that is being run to apply the revision
+        ```
 
         Examples:
-            >>> (ok, job) = revision.apply(output_schema = my_output_schema)
+        ```
+        (ok, job) = revision.apply(output_schema = my_output_schema)
+        ```
         """
 
         if output_schema:
@@ -233,7 +271,9 @@ class Revision(Resource):
         This is the URL to the landing page in the UI for this revision
 
         Returns:
+        ```
             url (str): URL you can paste into a browser to view the revision UI
+        ```
         """
         return "https://{domain}/d/{fourfour}/manage/revisions/{seq}".format(
             domain = self.auth.domain,

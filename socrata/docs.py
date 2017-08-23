@@ -33,18 +33,20 @@ def link_to(thing):
         line_num = line_num
     )
 
+def format_doc(doc):
+    return doc
+
+
 
 def class_lines(klass):
     doc = inspect.getdoc(klass)
-    if doc:
-        return [
-            '',
-            '### [%s](%s)' % (klass.__name__, link_to(klass)),
-            arg_spec_str(klass),
-            '',
-            doc
-        ]
-    return []
+    return [
+        '',
+        '### [%s](%s)' % (klass.__name__, link_to(klass)),
+        arg_spec_str(klass),
+        '',
+        format_doc(doc or '')
+    ]
 
 def func_lines(funcname, func):
     doc = inspect.getdoc(func)
@@ -54,7 +56,7 @@ def func_lines(funcname, func):
             '#### [%s](%s)' % (funcname, link_to(func)),
             arg_spec_str(func),
             '',
-            doc
+            format_doc(doc)
         ]
     return []
 
@@ -78,6 +80,7 @@ with open('README.md', 'r') as f:
     docs = '\n'.join(lines)
     p = re.compile('<!-- doc -->.*<!-- docstop -->', re.DOTALL)
     updated_readme = p.sub(docs, readme)
+
 
 with open('README.md', 'w') as f:
     f.write(updated_readme)

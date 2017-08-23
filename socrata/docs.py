@@ -39,7 +39,7 @@ def class_lines(klass):
     if doc:
         return [
             '',
-            '## [%s](%s)' % (klass.__name__, link_to(klass)),
+            '### [%s](%s)' % (klass.__name__, link_to(klass)),
             arg_spec_str(klass),
             '',
             doc
@@ -51,7 +51,7 @@ def func_lines(funcname, func):
     if doc:
         return [
             '',
-            '### [%s](%s)' % (funcname, link_to(func)),
+            '#### [%s](%s)' % (funcname, link_to(func)),
             arg_spec_str(func),
             '',
             doc

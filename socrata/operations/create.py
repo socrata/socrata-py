@@ -5,13 +5,9 @@ class Create(Operation):
     def run(self, data, put_bytes, filename = None):
         filename = get_filename(data, filename)
 
-        (ok, view) = self.publish.views.create(self.properties)
+        (ok, rev) = self.publish.new(self.properties['metadata'])
         if not ok:
-            raise SocrataException("Failed to create the view", view)
-
-        (ok, rev) = view.revisions.create_update_revision()
-        if not ok:
-            raise SocrataException("Failed to create the revision", rev)
+            raise SocrataException("Failed to create the view and revision", view)
 
         (ok, source) = rev.create_upload(filename)
         if not ok:
@@ -29,4 +25,4 @@ class Create(Operation):
         if not ok:
             raise SocrataException("The dataset failed to validate")
 
-        return (view, rev, out)
+        return (rev, out)

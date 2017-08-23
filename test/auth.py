@@ -65,9 +65,12 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.pub = Socrata(auth)
-        (ok, v) = self.pub.views.create({'name': 'test-view'})
-        assert ok, v
-        self.view = v
+        (ok, rev) = self.pub.new({'name': 'test-view'})
+        assert ok, rev
+        self.rev = rev
+        (ok, view) = self.pub.views.lookup(rev.attributes['fourfour'])
+        assert ok, view
+        self.view = view
 
     def tearDown(self):
         if getattr(self, 'rev', False):

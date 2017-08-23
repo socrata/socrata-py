@@ -26,24 +26,11 @@ class Views(Collection):
             auth = self.auth
         ))
 
-    def create(self, body):
-        """
-        Create a new Socrata view.
-        """
-        body['displayType'] = 'draft'
-
-        return self._subresource(View, post(
-            self.path(),
-            auth = self.auth,
-            data = json.dumps(body)
-        ))
-
-
 
 class View(CoreResource):
     def __init__(self, *args, **kwargs):
         super(CoreResource, self).__init__(*args, **kwargs)
-        self.revisions = Revisions(self)
+        self.revisions = Revisions(self.attributes['id'], self.auth)
 
     def delete(self):
         """

@@ -33,12 +33,12 @@ class TestCase(unittest.TestCase):
         self.rev = r
         return r
 
-    def create_input_schema(self, rev = None):
+    def create_input_schema(self, rev = None, filename = 'simple.csv'):
         if not rev:
             rev = self.create_rev()
         (ok, source) = rev.create_upload('foo.csv')
         assert ok
-        with open('test/fixtures/simple.csv', 'rb') as f:
+        with open('test/fixtures/%s' % filename, 'rb') as f:
             (ok, input_schema) = source.csv(f)
             assert ok
             return input_schema
@@ -65,9 +65,12 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.pub = Socrata(auth)
-        (ok, v) = self.pub.views.create({'name': 'test-view'})
-        assert ok, v
-        self.view = v
+        (ok, rev) = self.pub.new({'name': 'test-view'})
+        assert ok, rev
+        self.rev = rev
+        (ok, view) = self.pub.views.lookup(rev.attributes['fourfour'])
+        assert ok, view
+        self.view = view
 
     def tearDown(self):
         if getattr(self, 'rev', False):

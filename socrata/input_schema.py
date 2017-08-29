@@ -5,6 +5,9 @@ from socrata.resource import Collection, Resource
 from socrata.output_schema import OutputSchema
 
 class InputSchema(Resource):
+    """
+    This represents a schema exactly as it appeared in the source
+    """
     def transform(self, uri, body):
         """
         Transform this InputSchema into an Output. Returns the
@@ -23,6 +26,9 @@ class InputSchema(Resource):
         """
         Get the latest (most recently created) OutputSchema
         which descends from this InputSchema
+
+        Returns:
+            result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
         """
         return self._subresource(OutputSchema, get(
             self.path(uri),

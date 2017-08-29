@@ -21,29 +21,28 @@ class Views(Collection):
         )
 
     def lookup(self, fourfour):
+        """
+        Lookup the view by ID
+
+        Args:
+        ```
+            fourfour (str): The view's identifier, ex: abcd-1234
+        ```
+        Returns:
+        ```
+            result (bool, Revision | dict): Returns an API Result; the View or an error response
+        ```
+        """
         return self._subresource(View, get(
             self.path() + '/' + fourfour,
             auth = self.auth
         ))
 
-    def create(self, body):
-        """
-        Create a new Socrata view.
-        """
-        body['displayType'] = 'draft'
-
-        return self._subresource(View, post(
-            self.path(),
-            auth = self.auth,
-            data = json.dumps(body)
-        ))
-
-
 
 class View(CoreResource):
     def __init__(self, *args, **kwargs):
         super(CoreResource, self).__init__(*args, **kwargs)
-        self.revisions = Revisions(self)
+        self.revisions = Revisions(self.attributes['id'], self.auth)
 
     def delete(self):
         """

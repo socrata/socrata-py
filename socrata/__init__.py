@@ -5,6 +5,7 @@ from socrata.views import Views
 from socrata.revisions import Revisions
 from socrata.operations.configured_job import ConfiguredJob
 from socrata.operations.create import Create
+from socrata.operations.utils import SocrataException
 
 import json
 import requests

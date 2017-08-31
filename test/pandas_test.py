@@ -23,7 +23,8 @@ class TestPandas(TestCase):
         assert ok
 
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, input_schema) = source.df(df)
+        (ok, source) = source.df(df)
+        input_schema = source.get_latest_input_schema()
         self.assertTrue(ok)
         self.assertEqual(input_schema.attributes['total_rows'], 4)
 
@@ -48,8 +49,9 @@ class TestPandas(TestCase):
         (ok, source) = pub.sources.create_upload('foo.csv')
         self.assertTrue(ok, source)
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, input_schema) = source.df(df)
-        self.assertTrue(ok, input_schema)
+        (ok, source) = source.df(df)
+        self.assertTrue(ok, source)
+        input_schema = source.get_latest_input_schema()
         names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
         self.assertEqual(['a', 'b', 'c'], names)
 

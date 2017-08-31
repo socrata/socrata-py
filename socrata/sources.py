@@ -1,7 +1,7 @@
 import json
 import io
 from socrata.http import post, patch, get
-from socrata.resource import Resource, Collection
+from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
 
@@ -49,7 +49,7 @@ class Source(Resource, ParseOptionBuilder):
     or tsv methods which will correctly set the content_type for you.
     """
     def bytes(self, uri, file_handle, content_type):
-        return self._subresource(InputSchema, post(
+        return self._mutate(post(
             self.path(uri),
             auth = self.auth,
             data = file_handle,
@@ -57,6 +57,19 @@ class Source(Resource, ParseOptionBuilder):
                 'content-type': content_type
             }
         ))
+
+    def child_specs(self):
+        return [
+            ChildResourceSpec(
+                self,
+                'input_schemas',
+                'input_schema_links',
+                'schemas',
+                InputSchema,
+                'input_schema_id'
+            )
+        ]
+
 
     def csv(self, file_handle):
         """
@@ -69,13 +82,13 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, InputSchema | dict): Returns an API Result; the new InputSchema or an error response
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
         ```
 
         Examples:
         ```python
             with open('my-file.csv', 'rb') as f:
-                (ok, input_schema) = upload.csv(f)
+                (ok, upload) = upload.csv(f)
         ```
         """
         return self.bytes(file_handle, "text/csv")
@@ -91,13 +104,13 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, InputSchema | dict): Returns an API Result; the new InputSchema or an error response
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
         ```
 
         Examples:
         ```python
             with open('my-file.xls', 'rb') as f:
-                (ok, input_schema) = upload.xls(f)
+                (ok, upload) = upload.xls(f)
         ```
         """
         return self.bytes(file_handle, "application/vnd.ms-excel")
@@ -113,13 +126,13 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, InputSchema | dict): Returns an API Result; the new InputSchema or an error response
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
         ```
 
         Examples:
         ```python
             with open('my-file.xlsx', 'rb') as f:
-                (ok, input_schema) = upload.xlsx(f)
+                (ok, upload) = upload.xlsx(f)
         ```
         """
         return self.bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -135,13 +148,13 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, InputSchema | dict): Returns an API Result; the new InputSchema or an error response
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
         ```
 
         Examples:
         ```python
             with open('my-file.tsv', 'rb') as f:
-                (ok, input_schema) = upload.tsv(f)
+                (ok, upload) = upload.tsv(f)
         ```
         """
         return self.bytes(file_handle, "text/tab-separated-values")
@@ -157,13 +170,13 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, InputSchema | dict): Returns an API Result; the new InputSchema or an error response
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
         ```
 
         Examples:
         ```python
             with open('my-shapefile-archive.zip', 'rb') as f:
-                (ok, input_schema) = upload.shapefile(f)
+                (ok, upload) = upload.shapefile(f)
         ```
         """
         return self.bytes(file_handle, "application/zip")
@@ -179,14 +192,14 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, InputSchema | dict): Returns an API Result; the new InputSchema or an error response
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
         ```
 
         Examples:
         ```python
             import pandas
             df = pandas.read_csv('test/fixtures/simple.csv')
-            (ok, input_schema) = upload.df(df)
+            (ok, upload) = upload.df(df)
         ```
         """
         s = io.StringIO()
@@ -197,7 +210,7 @@ class Source(Resource, ParseOptionBuilder):
         """
         Associate this Source with the given revision.
         """
-        (ok, res) = result = patch(
+        return self._mutate(patch(
             self.path(uri),
             auth = self.auth,
             data = json.dumps({
@@ -206,22 +219,14 @@ class Source(Resource, ParseOptionBuilder):
                     'revision_seq': revision.attributes['revision_seq']
                 }
             })
-        )
-        if ok:
-            self._on_response(res)
-            return (ok, self)
-        return result
+        ))
 
     def update(self, uri, body):
-        (ok, res) = result = patch(
+        return self._mutate(patch(
             self.path(uri),
             auth = self.auth,
             data = json.dumps(body)
-        )
-        if ok:
-            self._on_response(res)
-            return (ok, self)
-        return result
+        ))
 
     def show_input_schema(self, uri, input_schema_id):
         (ok, res) = result = get(
@@ -233,6 +238,6 @@ class Source(Resource, ParseOptionBuilder):
             return self._subresource(InputSchema, result)
         return result
 
-    def latest_input(self):
-        return self.show_input_schema(max([s['id'] for s in self.attributes['schemas']]))
+    def get_latest_input_schema(self):
+        return max(self.input_schemas, key = lambda s: s.attributes['id'])
 

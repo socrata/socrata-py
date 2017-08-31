@@ -28,3 +28,7 @@ class TestInputSchema(TestCase):
         (ok, output_schema) = input_schema.latest_output()
         self.assertTrue(ok)
         self.assertEqual(input_schema.attributes['id'], output_schema.attributes['input_schema_id'])
+
+        nested = input_schema.get_latest_output_schema()
+
+        self.assertEqual(nested.attributes['id'], output_schema.attributes['id'])

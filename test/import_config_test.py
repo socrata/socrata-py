@@ -41,6 +41,7 @@ class ImportConfigTest(TestCase):
             "header_count": 2,
             "column_header": 2,
             "quote_char": '"',
+            "parse_source": True,
             "column_separator": ","
         })
 
@@ -78,7 +79,7 @@ class ImportConfigTest(TestCase):
         self.assertTrue(ok, config)
         self.assertEqual(config.attributes['name'], name)
 
-    def test_source_to_config(self):
+    def test_upload_to_config(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         (ok, config) = p.configs.create(name, "replace")

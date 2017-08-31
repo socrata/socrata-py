@@ -3,67 +3,70 @@ from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 
 class TestSource(TestCase):
-    # def test_create_source(self):
-    #     rev = self.create_rev()
+    def test_create_source(self):
+        rev = self.create_rev()
 
-    #     (ok, source) = rev.create_upload('foo.csv')
-    #     self.assertTrue(ok)
-    #     self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
+        (ok, source) = rev.create_upload('foo.csv')
+        self.assertTrue(ok)
+        self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
 
-    #     assert 'show' in source.list_operations()
-    #     assert 'bytes' in source.list_operations()
+        assert 'show' in source.list_operations()
+        assert 'bytes' in source.list_operations()
 
-    # def test_upload_csv(self):
-    #     rev = self.create_rev()
-    #     (ok, source) = rev.create_upload('foo.csv')
-    #     assert ok
+    def test_upload_csv(self):
+        rev = self.create_rev()
+        (ok, source) = rev.create_upload('foo.csv')
+        assert ok
 
-    #     with open('test/fixtures/simple.csv', 'rb') as f:
-    #         (ok, input_schema) = source.csv(f)
-    #         self.assertTrue(ok)
-    #         self.assertEqual(input_schema.attributes['total_rows'], 4)
+        with open('test/fixtures/simple.csv', 'rb') as f:
+            (ok, source) = source.csv(f)
+            self.assertTrue(ok)
+            input_schema = source.get_latest_input_schema()
+            self.assertEqual(input_schema.attributes['total_rows'], 4)
 
-    #         names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
-    #         self.assertEqual(['a', 'b', 'c'], names)
+            names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
+            self.assertEqual(['a', 'b', 'c'], names)
 
-    #         assert 'show' in input_schema.list_operations()
+            assert 'show' in input_schema.list_operations()
 
-    # def test_create_source_outside_rev(self):
-    #     pub = Socrata(auth)
+    def test_create_source_outside_rev(self):
+        pub = Socrata(auth)
 
-    #     (ok, source) = pub.sources.create_upload('foo.csv')
-    #     self.assertTrue(ok, source)
-    #     self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
+        (ok, source) = pub.sources.create_upload('foo.csv')
+        self.assertTrue(ok, source)
+        self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
 
-    #     assert 'show' in source.list_operations()
-    #     assert 'bytes' in source.list_operations()
+        assert 'show' in source.list_operations()
+        assert 'bytes' in source.list_operations()
 
-    # def test_upload_csv_outside_rev(self):
-    #     pub = Socrata(auth)
+    def test_upload_csv_outside_rev(self):
+        pub = Socrata(auth)
 
-    #     (ok, source) = pub.sources.create_upload('foo.csv')
-    #     self.assertTrue(ok, source)
+        (ok, source) = pub.sources.create_upload('foo.csv')
+        self.assertTrue(ok, source)
 
-    #     with open('test/fixtures/simple.csv', 'rb') as f:
-    #         (ok, input_schema) = source.csv(f)
-    #         self.assertTrue(ok, input_schema)
-    #         names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
-    #         self.assertEqual(['a', 'b', 'c'], names)
+        with open('test/fixtures/simple.csv', 'rb') as f:
+            (ok, source) = source.csv(f)
+            input_schema = source.get_latest_input_schema()
+            self.assertTrue(ok, input_schema)
+            names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
+            self.assertEqual(['a', 'b', 'c'], names)
 
-    # def test_put_source_in_revision(self):
-    #     pub = Socrata(auth)
+    def test_put_source_in_revision(self):
+        pub = Socrata(auth)
 
-    #     (ok, source) = pub.sources.create_upload('foo.csv')
-    #     self.assertTrue(ok, source)
+        (ok, source) = pub.sources.create_upload('foo.csv')
+        self.assertTrue(ok, source)
 
-    #     with open('test/fixtures/simple.csv', 'rb') as f:
-    #         (ok, input_schema) = source.csv(f)
-    #         self.assertTrue(ok, input_schema)
+        with open('test/fixtures/simple.csv', 'rb') as f:
+            (ok, source) = source.csv(f)
+            input_schema = source.get_latest_input_schema()
+            self.assertTrue(ok, input_schema)
 
-    #         rev = self.create_rev()
+            rev = self.create_rev()
 
-    #         (ok, source) = source.add_to_revision(rev)
-    #         self.assertTrue(ok, source)
+            (ok, source) = source.add_to_revision(rev)
+            self.assertTrue(ok, source)
 
 
     def test_source_change_header_rows(self):
@@ -88,8 +91,8 @@ class TestSource(TestCase):
         self.assertTrue(ok, source)
 
         with open('test/fixtures/skip-header.csv', 'rb') as f:
-            (ok, input_schema) = source.csv(f)
-            self.assertTrue(ok, input_schema)
+            (ok, source) = source.csv(f)
+            self.assertTrue(ok, source)
 
 
         (ok, source) = source\
@@ -103,7 +106,7 @@ class TestSource(TestCase):
         self.assertEqual(po['header_count'], 2)
         self.assertEqual(po['column_header'], 2)
 
-        (ok, input_schema) = source.latest_input()
+        input_schema = source.get_latest_input_schema()
         self.assertTrue(ok, input_schema)
         (ok, output_schema) = input_schema.latest_output()
         self.assertTrue(ok, output_schema)

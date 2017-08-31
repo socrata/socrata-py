@@ -72,7 +72,7 @@ class OutputSchema(Resource):
         """
         return any([column['transform']['failed_at'] for column in self.attributes['output_columns']])
 
-    def wait_for_finish(self, progress = noop, timeout = None):
+    def wait_for_finish(self, progress = noop, timeout = None, sleeptime = 1):
         """
         Wait for this dataset to finish transforming and validating. Accepts a progress function
         and a timeout.
@@ -88,7 +88,7 @@ class OutputSchema(Resource):
                 return (ok, me)
             if self.any_failed():
                 return (False, me)
-            time.sleep(1)
+            time.sleep(sleeptime)
         return (True, self)
 
     def _munge_row(self, row):

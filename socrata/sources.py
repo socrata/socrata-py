@@ -1,8 +1,9 @@
 import json
 import io
-from socrata.http import post, patch
+from socrata.http import post, patch, get
 from socrata.resource import Resource, Collection
 from socrata.input_schema import InputSchema
+from socrata.builders.parse_options import ParseOptionBuilder
 
 class Sources(Collection):
     def create_upload(self, filename):
@@ -40,7 +41,7 @@ class Sources(Collection):
             })
         ))
 
-class Source(Resource):
+class Source(Resource, ParseOptionBuilder):
     """
     Uploads bytes into the source. Requires content_type argument
     be set correctly for the file handle. It's advised you don't
@@ -210,3 +211,28 @@ class Source(Resource):
             self._on_response(res)
             return (ok, self)
         return result
+
+    def update(self, uri, body):
+        (ok, res) = result = patch(
+            self.path(uri),
+            auth = self.auth,
+            data = json.dumps(body)
+        )
+        if ok:
+            self._on_response(res)
+            return (ok, self)
+        return result
+
+    def show_input_schema(self, uri, input_schema_id):
+        (ok, res) = result = get(
+            self.path(uri.format(input_schema_id = input_schema_id)),
+            auth = self.auth
+        )
+
+        if ok:
+            return self._subresource(InputSchema, result)
+        return result
+
+    def latest_input(self):
+        return self.show_input_schema(max([s['id'] for s in self.attributes['schemas']]))
+

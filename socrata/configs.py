@@ -2,6 +2,7 @@ import json
 import requests
 from socrata.http import get, post, patch, delete
 from socrata.resource import Collection, Resource
+from socrata.builders.parse_options import ParseOptionBuilder
 
 
 class Configs(Collection):
@@ -46,30 +47,22 @@ class Configs(Collection):
             auth = self.auth
         ))
 
-class Config(Resource):
+class Config(Resource, ParseOptionBuilder):
     def delete(self, uri):
         """
         Delete this ImportConfig. Note that this cannot be undone.
         """
         return delete(self.path(uri), auth = self.auth)
 
-    def update(self, uri, data_action = None, parse_options = None, columns = None):
+    def update(self, uri, body):
         """
         Mutate this ImportConfig in place. Subsequent revisions opened against this
         ImportConfig will take on its new value.
         """
-        data_action = data_action or self.attributes['data_action']
-        parse_options = parse_options or self.attributes['parse_options']
-        columns = columns or self.attributes['columns']
-
         return self._mutate(patch(
             self.path(uri),
             auth = self.auth,
-            data = json.dumps({
-                'data_action': data_action,
-                'parse_options': parse_options,
-                'columns': columns
-            })
+            data = json.dumps(body)
         ))
 
     def create_revision(self, uri, fourfour):

@@ -75,3 +75,14 @@ class TestSocrata(TestCase):
 
         (ok, source) = r.create_upload('foo.csv')
         self.assertTrue(ok, source)
+
+    def test_list_sources(self):
+        (ok, r) = self.view.revisions.create_replace_revision()
+        self.assertTrue(ok)
+
+        (ok, source) = r.create_upload('foo.csv')
+        self.assertTrue(ok, source)
+
+        (ok, sources) = r.list_sources()
+        self.assertEqual(len(sources), 1)
+        self.assertEqual(source.attributes['id'], sources[0].attributes['id'])

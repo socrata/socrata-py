@@ -24,6 +24,17 @@ class Resource(object):
         self._on_response(response)
         self.parent = parent
 
+    @classmethod
+    def from_uri(cls, auth, uri):
+        path = 'https://{domain}{uri}'.format(
+            domain = auth.domain,
+            uri = uri
+        )
+        (ok, resp) = result = get(path, auth = auth)
+        if ok:
+            return (ok, cls(auth, resp))
+        return result
+
     def _on_response(self, response):
         self.attributes = response['resource']
         self.links = response['links']
@@ -39,6 +50,12 @@ class Resource(object):
         (ok, res) = result
         if ok:
             return (ok, klass(self.auth, res, self, **kwargs))
+        return result
+
+    def _subresources(self, klass, result):
+        (ok, resources) = result
+        if ok:
+            return (ok, [klass(self.auth, res, self) for res in resources])
         return result
 
     def __repr__(self):

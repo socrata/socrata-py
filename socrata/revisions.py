@@ -180,6 +180,12 @@ class Revision(Resource):
             })
         ))
 
+    def list_sources(self, uri):
+        return self._subresources(Source, get(
+            self.path(uri),
+            auth = self.auth
+        ))
+
     def discard(self, uri):
         """
         Discard this open revision.

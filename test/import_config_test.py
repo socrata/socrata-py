@@ -90,7 +90,7 @@ class ImportConfigTest(TestCase):
             self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
 
-    def test_source_to_config(self):
+    def test_config_not_found(self):
         p = Socrata(auth)
 
         with open('test/fixtures/simple.csv', 'rb') as my_file:
@@ -151,12 +151,41 @@ class ImportConfigTest(TestCase):
             }
         ]
 
-        (ok, config) = config.update(
-            data_action = "update",
-            columns = columns
-        )
+        (ok, config) = config.update({
+            'data_action': 'update',
+            'columns': columns
+        })
         self.assertTrue(ok, config)
 
         self.assertEqual(config.attributes["data_action"], "update")
         self.assertEqual(config.attributes["columns"], columns)
+
+
+    def test_update_config_using_builder(self):
+        p = Socrata(auth)
+        name = "some_config %s" % str(uuid.uuid4())
+        (ok, config) = p.configs.create(name, "replace")
+        self.assertTrue(ok, config)
+
+        columns = [
+            {
+                "field_name": "foo",
+                "display_name": "Foo is the display name",
+                "transform_expr": "to_number(`foo`)"
+            }
+        ]
+
+        (ok, config) = config\
+            .change_parse_option('header_count').to(2)\
+            .change_parse_option('encoding').to('utf16')\
+            .change_parse_option('column_header').to(2)\
+            .run()
+
+        self.assertTrue(ok, config)
+
+        parse_options = config.attributes['parse_options']
+        self.assertEqual(parse_options['header_count'], 2)
+        self.assertEqual(parse_options['column_header'], 2)
+        self.assertEqual(parse_options['encoding'], 'utf16')
+
 

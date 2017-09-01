@@ -123,7 +123,6 @@ class TestOutputSchema(TestCase):
     def test_set_row_id(self):
         input_schema = self.create_input_schema()
 
-
         (ok, output_schema) = input_schema.transform({
             'output_columns': [
                 {
@@ -146,9 +145,7 @@ class TestOutputSchema(TestCase):
         self.assertEqual(output_schema.attributes['output_columns'][0]['is_primary_key'], True)
 
     def test_change_columns(self):
-        input_schema = self.create_input_schema()
-        (ok, output) = input_schema.latest_output()
-        assert ok, output
+        output = self.create_input_schema().get_latest_output_schema()
 
         (ok, output) = output\
             .change_column_metadata('a', 'field_name').to('aa')\
@@ -167,9 +164,7 @@ class TestOutputSchema(TestCase):
         self.assertEqual(c['transform']['transform_expr'], 'to_number(`c`) + 7')
 
     def test_change_column_and_reference(self):
-        input_schema = self.create_input_schema()
-        (ok, output) = input_schema.latest_output()
-        assert ok, output
+        output = self.create_input_schema().get_latest_output_schema()
 
         (ok, output) = output\
             .change_column_metadata('a', 'field_name').to('aa')\
@@ -186,9 +181,7 @@ class TestOutputSchema(TestCase):
         self.assertEqual(aa['display_name'], 'COLUMN AA!')
 
     def test_add_after_delete(self):
-        input_schema = self.create_input_schema()
-        (ok, output) = input_schema.latest_output()
-        assert ok, output
+        output = self.create_input_schema().get_latest_output_schema()
 
         (ok, output) = output\
             .drop_column('c')\
@@ -207,9 +200,7 @@ class TestOutputSchema(TestCase):
         self.assertEqual(a['display_name'], 'COLUMN AA!')
 
     def test_drop_column(self):
-        input_schema = self.create_input_schema()
-        (ok, output) = input_schema.latest_output()
-        assert ok, output
+        output = self.create_input_schema().get_latest_output_schema()
 
         (ok, output) = output\
             .change_column_metadata('a', 'field_name').to('aa')\
@@ -224,9 +215,7 @@ class TestOutputSchema(TestCase):
         self.assertEqual(aa['field_name'], 'aa')
 
     def test_create_column(self):
-        input_schema = self.create_input_schema()
-        (ok, output) = input_schema.latest_output()
-        assert ok, output
+        output = self.create_input_schema().get_latest_output_schema()
 
         (ok, output) = output\
             .change_column_metadata('a', 'field_name').to('aa')\
@@ -256,10 +245,7 @@ class TestOutputSchema(TestCase):
 
 
     def test_geocode_column(self):
-        input_schema = self.create_input_schema(filename = 'geo.csv')
-        (ok, output) = input_schema.latest_output()
-        assert ok, output
-
+        output = self.create_input_schema(filename = 'geo.csv').get_latest_output_schema()
         (ok, output) = output\
             .add_column('geocoded', 'Geocoded', 'geocode(`address`, `city`, `state`, `zip`)', 'geocoded column')\
             .drop_column('address')\

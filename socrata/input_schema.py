@@ -1,7 +1,7 @@
 import json
 import requests
 from socrata.http import noop, post, get
-from socrata.resource import Collection, Resource
+from socrata.resource import Collection, Resource, ChildResourceSpec
 from socrata.output_schema import OutputSchema
 
 class InputSchema(Resource):
@@ -34,3 +34,24 @@ class InputSchema(Resource):
             self.path(uri),
             auth = self.auth,
         ))
+
+    def get_latest_output_schema(self):
+        """
+        Note that this does not make an API request
+
+        Returns:
+            output_schema (OutputSchema): Returns the latest output schema
+        """
+        return max(self.output_schemas, key = lambda o: o.attributes['id'])
+
+    def child_specs(self):
+        return [
+            ChildResourceSpec(
+                self,
+                'output_schemas',
+                'output_schema_links',
+                'output_schemas',
+                OutputSchema,
+                'output_schema_id'
+            )
+        ]

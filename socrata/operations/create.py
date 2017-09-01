@@ -13,16 +13,14 @@ class Create(Operation):
         if not ok:
             raise SocrataException("Failed to create the upload", source)
 
-        (ok, inp) = put_bytes(source)
+        (ok, source) = put_bytes(source)
         if not ok:
-            raise SocrataException("Failed to upload the file", inp)
+            raise SocrataException("Failed to upload the file", source)
 
-        (ok, out) = inp.latest_output()
-        if not ok:
-            raise SocrataException("Failed to get the parsed dataset")
+        output_schema = source.get_latest_input_schema().get_latest_output_schema()
 
-        (ok, out) = out.wait_for_finish()
+        (ok, output_schema) = output_schema.wait_for_finish()
         if not ok:
             raise SocrataException("The dataset failed to validate")
 
-        return (rev, out)
+        return (rev, output_schema)

@@ -39,9 +39,9 @@ class TestCase(unittest.TestCase):
         (ok, source) = rev.create_upload('foo.csv')
         assert ok
         with open('test/fixtures/%s' % filename, 'rb') as f:
-            (ok, input_schema) = source.csv(f)
-            assert ok
-            return input_schema
+            (ok, source) = source.csv(f)
+            assert ok, source
+            return source.get_latest_input_schema()
 
     def create_output_schema(self, input_schema = None):
         if not input_schema:

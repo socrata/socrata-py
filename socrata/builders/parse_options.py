@@ -67,12 +67,7 @@ class ParseOptionBuilder(object):
         parse_options = copy(self.attributes['parse_options'])
         parse_options.update({key: value for key, value in self.parse_option_changes})
 
-        (ok, _) = result = self.update({
+        self.parse_option_changes = []
+        return self.update({
             'parse_options': parse_options
         })
-
-        if not ok:
-            return result
-
-        self.parse_option_changes = []
-        return result

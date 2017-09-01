@@ -377,4 +377,7 @@ class OutputSchema(Resource):
         desired_schema = {
             'output_columns': columns
         }
+        self.column_additions = []
+        self.column_deletions = []
+        self.column_changes = []
         return self.parent.transform(desired_schema)

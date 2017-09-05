@@ -186,6 +186,51 @@ class Revision(Resource):
             auth = self.auth
         ))
 
+    def get_output_schema(self):
+        (ok, _) = rev_result = self.show()
+        if not ok:
+            return rev_result
+
+        output_schema_id = self.attributes['output_schema_id']
+        if not output_schema_id:
+            return (True, None)
+
+        (ok, sources) = source_result = self.list_sources()
+        if not ok:
+            return source_result
+
+        output_schemas = [o_s for source in sources for i_s in source.input_schemas for o_s in i_s.output_schemas]
+        output_schema = None
+
+        for o_s in output_schemas:
+            if o_s.attributes['id'] == output_schema_id:
+                output_schema = o_s
+
+        return (True, output_schema)
+
+    def set_output_schema(self, output_schema_id):
+        """
+        Set the output schema id on the revision. This is what will get applied when
+        the revision is applied if no ouput schema is explicitly supplied
+
+        Args:
+        ```
+            output_schema_id (int): The output schema id
+        ```
+
+        Returns:
+        ```
+            result (bool, dict | Revision): The updated Revision as a result of this API call, or an error
+        ```
+
+        Examples:
+        ```python
+            (ok, revision) = revision.set_output_schema(42)
+        ```
+        """
+        return self.update({'output_schema_id': output_schema_id})
+
+
     def discard(self, uri):
         """
         Discard this open revision.
@@ -197,15 +242,14 @@ class Revision(Resource):
         """
         return delete(self.path(uri), auth = self.auth)
 
-
-    def update(self, uri, meta):
+    def update(self, uri, body):
         """
         Set the metadata to be applied to the view
         when this revision is applied
 
         Args:
         ```
-            metadata (dict): The changes to make to this revision
+            body (dict): The changes to make to this revision
         ```
 
         Returns:
@@ -216,15 +260,17 @@ class Revision(Resource):
         Examples:
         ```python
             (ok, revision) = revision.update({
-                'name': 'new name',
-                'description': 'new description'
+                'metadata': {
+                    'name': 'new name',
+                    'description': 'new description'
+                }
             })
         ```
         """
         return self._mutate(put(
             self.path(uri),
             auth = self.auth,
-            data = json.dumps({'metadata': meta}),
+            data = json.dumps(body),
         ))
 
     def apply(self, uri, output_schema = None):

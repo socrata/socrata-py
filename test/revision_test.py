@@ -35,7 +35,9 @@ class TestSocrata(TestCase):
         (ok, r) = self.view.revisions.create_update_revision()
 
         (ok, r) = r.update({
-            'name': 'new revision name'
+            'metadata': {
+                'name': 'new revision name'
+            }
         })
         self.assertTrue(ok, r)
         self.assertEqual(r.attributes['metadata']['name'], 'new revision name')
@@ -86,3 +88,15 @@ class TestSocrata(TestCase):
         (ok, sources) = r.list_sources()
         self.assertEqual(len(sources), 1)
         self.assertEqual(source.attributes['id'], sources[0].attributes['id'])
+
+    def test_get_output_schema(self):
+        (ok, r) = self.view.revisions.create_replace_revision()
+        self.assertTrue(ok)
+
+        input_schema = self.create_input_schema(rev = r)
+
+        r.set_output_schema(input_schema.get_latest_output_schema().attributes['id'])
+
+        (ok, output_schema) = r.get_output_schema()
+        self.assertTrue(ok)
+        self.assertTrue(output_schema != None)

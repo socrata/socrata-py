@@ -21,6 +21,7 @@ experimental sdk for the socrata data-pipeline api
     + [Errors in a transformation](#errors-in-a-transformation)
     + [Validating rows](#validating-rows)
     + [Do the upsert!](#do-the-upsert)
+    + [Metadata only revisions](#metadata-only-revisions)
 - [Development](#development)
   * [Testing](#testing)
   * [Generating docs](#generating-docs)
@@ -44,6 +45,8 @@ experimental sdk for the socrata data-pipeline api
       - [discard](#discard)
       - [list_operations](#list_operations)
       - [open_in_browser](#open_in_browser)
+      - [set_output_schema](#set_output_schema)
+      - [source_from_dataset](#source_from_dataset)
       - [ui_url](#ui_url)
       - [update](#update)
     + [Sources](#sources)
@@ -642,8 +645,8 @@ against a local Socrata instance.
 
 
 
-#### [create_replace_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L49)
-`ArgSpec(args=['self', 'metadata'], varargs=None, keywords=None, defaults=({},))`
+#### [create_replace_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L50)
+`ArgSpec(args=['self', 'metadata', 'permission'], varargs=None, keywords=None, defaults=({}, 'public'))`
 
 Create a revision on the view, which when applied, will replace the data.
 
@@ -661,8 +664,8 @@ Examples:
     >>> view.revisions.create_replace_revision({'name': 'new dataset name', 'description': 'updated description'})
 ```
 
-#### [create_update_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L69)
-`ArgSpec(args=['self', 'metadata'], varargs=None, keywords=None, defaults=({},))`
+#### [create_update_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L70)
+`ArgSpec(args=['self', 'metadata', 'permission'], varargs=None, keywords=None, defaults=({}, 'public'))`
 
 Create a revision on the view, which when applied, will update the data
 rather than replacing it.
@@ -688,12 +691,12 @@ Examples:
     })
 ```
 
-#### [create_using_config](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L138)
+#### [create_using_config](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L139)
 `ArgSpec(args=['self', 'config'], varargs=None, keywords=None, defaults=None)`
 
 Create a revision for the given dataset.
 
-#### [list](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L34)
+#### [list](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L35)
 `ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
 
 List all the revisions on the view
@@ -703,7 +706,7 @@ Returns:
     result (bool, dict | list[Revision])
 ```
 
-#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L119)
+#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L120)
 `ArgSpec(args=['self', 'revision_seq'], varargs=None, keywords=None, defaults=None)`
 
 Lookup a revision within the view based on the sequence number
@@ -718,12 +721,12 @@ Returns:
     result (bool, dict | Revision): The Revision resulting from this API call, or an error
 ```
 
-### [Revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L151)
+### [Revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L152)
 `ArgSpec(args=['self', 'auth', 'response', 'parent'], varargs='args', keywords='kwargs', defaults=(None,))`
 
 A revision is a change to a dataset
 
-#### [apply](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L230)
+#### [apply](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L286)
 `ArgSpec(args=['self', 'uri', 'output_schema'], varargs=None, keywords=None, defaults=(None,))`
 
 Apply the Revision to the view that it was opened on
@@ -746,7 +749,7 @@ Examples:
 (ok, job) = revision.apply(output_schema = my_output_schema)
 ```
 
-#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L156)
+#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L157)
 `ArgSpec(args=['self', 'filename'], varargs=None, keywords=None, defaults=None)`
 
 Create an upload within this revision
@@ -760,7 +763,7 @@ Returns:
     result (bool, dict | Source): The Source created by this API call, or an error
 ```
 
-#### [discard](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L189)
+#### [discard](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L244)
 `ArgSpec(args=['self', 'uri'], varargs=None, keywords=None, defaults=None)`
 
 Discard this open revision.
@@ -777,12 +780,38 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L290)
+#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L346)
 `ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
 
 Open this revision in your browser, this will open a window
 
-#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L275)
+#### [set_output_schema](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L221)
+`ArgSpec(args=['self', 'output_schema_id'], varargs=None, keywords=None, defaults=None)`
+
+Set the output schema id on the revision. This is what will get applied when
+the revision is applied if no ouput schema is explicitly supplied
+
+Args:
+```
+    output_schema_id (int): The output schema id
+```
+
+Returns:
+```
+    result (bool, dict | Revision): The updated Revision as a result of this API call, or an error
+```
+
+Examples:
+```python
+    (ok, revision) = revision.set_output_schema(42)
+```
+
+#### [source_from_dataset](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L175)
+`ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
+
+Create a dataset source within this revision
+
+#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L331)
 `ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None)`
 
 This is the URL to the landing page in the UI for this revision
@@ -792,15 +821,15 @@ Returns:
     url (str): URL you can paste into a browser to view the revision UI
 ```
 
-#### [update](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L201)
-`ArgSpec(args=['self', 'uri', 'meta'], varargs=None, keywords=None, defaults=None)`
+#### [update](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L255)
+`ArgSpec(args=['self', 'uri', 'body'], varargs=None, keywords=None, defaults=None)`
 
 Set the metadata to be applied to the view
 when this revision is applied
 
 Args:
 ```
-    metadata (dict): The changes to make to this revision
+    body (dict): The changes to make to this revision
 ```
 
 Returns:
@@ -811,8 +840,10 @@ Returns:
 Examples:
 ```python
     (ok, revision) = revision.update({
-        'name': 'new name',
-        'description': 'new description'
+        'metadata': {
+            'name': 'new name',
+            'description': 'new description'
+        }
     })
 ```
 
@@ -1386,7 +1417,7 @@ Returns:
 ```
 
 #### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L75)
-`ArgSpec(args=['self', 'progress', 'timeout', 'sleeptime'], varargs=None, keywords=None, defaults=(<function noop at 0x7fc1ccb286a8>, None, 1))`
+`ArgSpec(args=['self', 'progress', 'timeout', 'sleeptime'], varargs=None, keywords=None, defaults=(<function noop at 0x7f854520a6a8>, None, 1))`
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
 and a timeout.
@@ -1409,7 +1440,7 @@ object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
 #### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L13)
-`ArgSpec(args=['self', 'progress'], varargs=None, keywords=None, defaults=(<function noop at 0x7fc1ccb286a8>,))`
+`ArgSpec(args=['self', 'progress'], varargs=None, keywords=None, defaults=(<function noop at 0x7f854520a6a8>,))`
 
 Wait for this job to finish applying to the underlying
 dataset

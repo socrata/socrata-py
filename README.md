@@ -473,7 +473,7 @@ job.wait_for_finish(progress = lambda job: print(job.attributes['log']))
 ### Metadata only revisions
 When there is an existing Socrata view that you'd like to update the metadata of, you can do so by creating a Source which is the Socrata view.
 
-```
+```python
 (ok, view) = socrata.views.lookup('abba-cafe')
 assert ok, view
 

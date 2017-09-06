@@ -55,6 +55,7 @@ class Revisions(Collection):
         ```
             metadata (dict): The metadata to change; these changes will be applied when the revision
                 is applied
+            permission (string): 'public' or 'private'
         ```
         Returns:
         ```
@@ -62,7 +63,7 @@ class Revisions(Collection):
         ```
         Examples:
         ```
-            >>> view.revisions.create_replace_revision({'name': 'new dataset name', 'description': 'updated description'})
+            >>> view.revisions.create_replace_revision(metadata = {'name': 'new dataset name', 'description': 'updated description'})
         ```
         """
         return self._create('replace', metadata, permission)
@@ -78,6 +79,7 @@ class Revisions(Collection):
         Args:
         ```
             metadata (dict): The metadata to change; these changes will be applied when the revision is applied
+            permission (string): 'public' or 'private'
         ```
 
         Returns:
@@ -87,7 +89,7 @@ class Revisions(Collection):
 
         Examples:
         ```python
-            view.revisions.create_update_revision({
+            view.revisions.create_update_revision(metadata = {
                 'name': 'new dataset name',
                 'description': 'updated description'
             })

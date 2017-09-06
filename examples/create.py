@@ -1,8 +1,6 @@
 import os
-from os import path
 from socrata.authorization import Authorization
 from socrata import Socrata
-from time import sleep
 import sys
 import time
 import argparse
@@ -20,16 +18,6 @@ auth = Authorization(
   args.username,
   args.password
 )
-
-if 'localhost' in args.domain:
-    auth.live_dangerously()
-
-def path_to_show(resource):
-    return '{proto}{domain}{uri}'.format(
-        proto = auth.proto,
-        domain = auth.domain,
-        uri = resource.show_uri
-    )
 
 def create(name, filepath):
     socrata = Socrata(auth)

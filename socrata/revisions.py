@@ -172,7 +172,7 @@ class Revision(Resource):
             'filename': filename
         })
 
-    def create_dataset(self):
+    def source_from_dataset(self):
         """
         Create a dataset source within this revision
         """

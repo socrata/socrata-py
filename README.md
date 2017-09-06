@@ -467,7 +467,27 @@ job.wait_for_finish(progress = lambda job: print(job.attributes['log']))
 # So now if we go look at our original four-four, our data will be there
 ```
 
+### Metadata only revisions
+When there is an existing Socrata view that you'd like to update the metadata of, you can do so by creating a Source which is the Socrata view.
 
+```
+(ok, view) = socrata.views.lookup('abba-cafe')
+assert ok, view
+
+(ok, rev) = view.revisions.create_replace_revision()
+assert ok, rev
+(ok, source) = revision.source_from_dataset()
+assert ok, source
+output_schema = source.get_latest_input_schema().get_latest_output_schema()
+(ok, new_output_schema) = output_schema\
+    .change_column_metadata('a', 'description').to('meh')\
+    .change_column_metadata('b', 'display_name').to('bbbb')\
+    .change_column_metadata('c', 'field_name').to('ccc')\
+    .run()
+
+
+revision.apply(output_schema = new_output_schema)
+```
 # Development
 
 ## Testing

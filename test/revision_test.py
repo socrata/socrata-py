@@ -100,3 +100,44 @@ class TestSocrata(TestCase):
         (ok, output_schema) = r.get_output_schema()
         self.assertTrue(ok)
         self.assertTrue(output_schema != None)
+
+    def test_create_from_dataset(self):
+        with open('test/fixtures/simple.csv', 'rb') as file:
+            # boilerplate
+            input_schema = self.create_input_schema()
+            (ok, job) = self.rev.apply(output_schema = input_schema.get_latest_output_schema())
+            (ok, job) = job.wait_for_finish()
+            assert ok, job
+
+
+            (ok, view) = self.pub.views.lookup(self.rev.attributes['fourfour'])
+
+            (ok, rev) = view.revisions.create_replace_revision()
+            self.assertTrue(ok, rev)
+
+            (ok, rev) = rev.update({
+                'metadata': {
+                    'description': 'new dataset description'
+                }
+            })
+            self.assertTrue(ok, rev)
+
+            (ok, source) = rev.source_from_dataset()
+            self.assertTrue(ok, source)
+
+            output_schema = source.get_latest_input_schema().get_latest_output_schema()
+
+            (ok, new_output) = output_schema\
+                .change_column_metadata('a', 'description').to('meh')\
+                .change_column_metadata('b', 'display_name').to('bbbb')\
+                .change_column_metadata('c', 'field_name').to('ccc')\
+                .run()
+
+            [a, b, c] = new_output.attributes['output_columns']
+            self.assertEqual(a['description'], 'meh')
+            self.assertEqual(b['display_name'], 'bbbb')
+            self.assertEqual(c['field_name'], 'ccc')
+
+            self.assertEqual(rev.attributes['metadata']['description'], 'new dataset description')
+
+            view.open_in_browser()

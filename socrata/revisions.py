@@ -18,11 +18,12 @@ class Revisions(Collection):
             fourfour = self.fourfour
         )
 
-    def _create(self, action_type, metadata):
+    def _create(self, action_type, metadata, permission):
         body = {
             'metadata': metadata,
             'action': {
-                'type': action_type
+                'type': action_type,
+                'permission': permission
             }
         }
         return self._subresource(Revision, post(
@@ -46,7 +47,7 @@ class Revisions(Collection):
         ))
 
 
-    def create_replace_revision(self, metadata = {}):
+    def create_replace_revision(self, metadata = {}, permission = 'public'):
         """
         Create a revision on the view, which when applied, will replace the data.
 
@@ -64,9 +65,9 @@ class Revisions(Collection):
             >>> view.revisions.create_replace_revision({'name': 'new dataset name', 'description': 'updated description'})
         ```
         """
-        return self._create('replace', metadata)
+        return self._create('replace', metadata, permission)
 
-    def create_update_revision(self, metadata = {}):
+    def create_update_revision(self, metadata = {}, permission = 'public'):
         """
         Create a revision on the view, which when applied, will update the data
         rather than replacing it.
@@ -92,7 +93,7 @@ class Revisions(Collection):
             })
         ```
         """
-        return self._create('update', metadata)
+        return self._create('update', metadata, permission)
 
     @staticmethod
     def new(auth, metadata):
@@ -169,6 +170,15 @@ class Revision(Resource):
         return self.create_source({
             'type': 'upload',
             'filename': filename
+        })
+
+    def create_dataset(self):
+        """
+        Create a dataset source within this revision
+        """
+        return self.create_source({
+            'type': 'view',
+            'fourfour': self.view_id()
         })
 
     def create_source(self, uri, source_type):

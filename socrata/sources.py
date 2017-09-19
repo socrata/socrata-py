@@ -181,6 +181,52 @@ class Source(Resource, ParseOptionBuilder):
         """
         return self.bytes(file_handle, "application/zip")
 
+    def kml(self, file_handle):
+        """
+        Upload a KML file, returns the new input schema.
+
+        Args:
+        ```
+            file_handle: The file handle, as returned by the python function `open()`
+        ```
+
+        Returns:
+        ```
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+        ```
+
+        Examples:
+        ```python
+            with open('my-kml-file.kml', 'rb') as f:
+                (ok, upload) = upload.kml(f)
+        ```
+        """
+        return self.bytes(file_handle, "application/vnd.google-earth.kml+xml")
+
+
+    def geojson(self, file_handle):
+        """
+        Upload a geojson file, returns the new input schema.
+
+        Args:
+        ```
+            file_handle: The file handle, as returned by the python function `open()`
+        ```
+
+        Returns:
+        ```
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+        ```
+
+        Examples:
+        ```python
+            with open('my-geojson-file.geojson', 'rb') as f:
+                (ok, upload) = upload.geojson(f)
+        ```
+        """
+        return self.bytes(file_handle, "application/vnd.geo+json")
+
+
     def df(self, dataframe):
         """
         Upload a pandas DataFrame, returns the new source.

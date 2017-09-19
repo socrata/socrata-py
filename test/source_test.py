@@ -29,6 +29,55 @@ class TestSource(TestCase):
 
             assert 'show' in input_schema.list_operations()
 
+
+    def test_upload_kml(self):
+        rev = self.create_rev()
+        (ok, source) = rev.create_upload('wards.kml')
+        assert ok
+
+        with open('test/fixtures/wards.kml', 'rb') as f:
+            (ok, source) = source.kml(f)
+            self.assertTrue(ok, source)
+
+            input_schema = source.get_latest_input_schema()
+
+            self.assertEqual(
+                set(['ward_phone', 'ward', 'shape_leng', 'shape_area', 'perimeter', 'hall_phone', 'hall_offic', 'edit_date1', 'data_admin', 'class', 'alderman', 'address', 'polygon']),
+                set([ic['field_name'] for ic in input_schema.attributes['input_columns']])
+            )
+
+    def test_upload_shapefile(self):
+        rev = self.create_rev()
+        (ok, source) = rev.create_upload('wards.zip')
+        assert ok
+
+        with open('test/fixtures/wards.zip', 'rb') as f:
+            (ok, source) = source.shapefile(f)
+            self.assertTrue(ok, source)
+
+            input_schema = source.get_latest_input_schema()
+
+            self.assertEqual(
+                set(['ward_phone', 'ward', 'shape_leng', 'shape_area', 'perimeter', 'hall_phone', 'hall_offic', 'edit_date1', 'data_admin', 'class', 'alderman', 'address', 'the_geom']),
+                set([ic['field_name'] for ic in input_schema.attributes['input_columns']])
+            )
+
+    def test_upload_geojson(self):
+        rev = self.create_rev()
+        (ok, source) = rev.create_upload('wards.geojson')
+        assert ok
+
+        with open('test/fixtures/wards.geojson', 'rb') as f:
+            (ok, source) = source.geojson(f)
+            self.assertTrue(ok, source)
+
+            input_schema = source.get_latest_input_schema()
+
+            self.assertEqual(
+                set(['ward_phone', 'ward', 'shape_leng', 'shape_area', 'perimeter', 'hall_phone', 'hall_offic', 'edit_date1', 'data_admin', 'class', 'alderman', 'address', 'polygon']),
+                set([ic['field_name'] for ic in input_schema.attributes['input_columns']])
+            )
+
     def test_create_source_outside_rev(self):
         pub = Socrata(auth)
 

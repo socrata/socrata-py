@@ -58,3 +58,21 @@ class Operation(object):
         """
         return self.run(file, lambda upload: upload.shapefile(file), *args, **kwargs)
 
+
+    def kml(self, file, *args, **kwargs):
+        """
+        Create a revision on that view, then upload the contents
+        of the kml and wait for validation to complete.
+        Returns an `OutputSchema` which, when applied, will by
+        applied to the view.
+        """
+        return self.run(file, lambda upload: upload.kml(file), *args, **kwargs)
+
+    def geojson(self, file, *args, **kwargs):
+        """
+        Create a revision on that view, then upload the contents
+        of the geojson and wait for validation to complete.
+        Returns an `OutputSchema` which, when applied, will by
+        applied to the view.
+        """
+        return self.run(file, lambda upload: upload.geojson(file), *args, **kwargs)

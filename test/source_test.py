@@ -78,6 +78,26 @@ class TestSource(TestCase):
                 set([ic['field_name'] for ic in input_schema.attributes['input_columns']])
             )
 
+    def test_create_from_url(self):
+        # Yes, this is a bad idea
+        # But the reason this test doesn't make a view on demand is because
+        # we blacklist local addresses, which wouldn't allow this test to run against
+        # localhost
+        url = 'https://cheetah.test-socrata.com/api/views/agi2-jsej/rows.csv?accessType=DOWNLOAD'
+
+        rev = self.create_rev()
+        (ok, source) = rev.source_from_url(url)
+        self.assertTrue(ok, source)
+
+        (ok, source) = source.show()
+        output_schema = source.get_latest_input_schema().get_latest_output_schema()
+        output_schema.wait_for_finish()
+
+        actual_columns = set([oc['field_name'] for oc in output_schema.attributes['output_columns']])
+        expected_columns = set(['id', 'plausibility', 'incident_occurrence', 'incident_location', 'witness_gibberish', 'blood_alcohol_level'])
+
+        self.assertEqual(actual_columns, expected_columns)
+
     def test_create_source_outside_rev(self):
         pub = Socrata(auth)
 

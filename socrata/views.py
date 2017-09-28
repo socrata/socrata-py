@@ -67,7 +67,7 @@ class View(CoreResource):
 
     def ui_url(self):
         """
-        This is the URL to the landing page in the UI for this revision
+        This is the URL to the landing page in the UI for this view
         """
         return "https://{domain}/d/{fourfour}".format(
             domain = self.auth.domain,

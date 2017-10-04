@@ -1,4 +1,3 @@
-import time
 from socrata.http import noop
 from socrata.resource import Resource
 
@@ -10,16 +9,15 @@ class Job(Resource):
         status = self.attributes['status']
         return (status == 'failure' or status == 'successful')
 
-    def wait_for_finish(self, progress = noop):
+    def wait_for_finish(self, progress = noop, timeout = None, sleeptime = 1):
         """
-        Wait for this job to finish applying to the underlying
-        dataset
+        Wait for this dataset to finish transforming and validating. Accepts a progress function
+        and a timeout.
         """
-        while not self.is_complete():
-            (ok, job) = self.show()
-            progress(self)
-            if not ok:
-                return (ok, job)
-            time.sleep(1)
-        return (True, self)
-
+        return self._wait_for_finish(
+            is_finished = lambda m: m.attributes['finished_at'],
+            is_failed = lambda m: m.attributes['status'] == 'failure',
+            progress = progress,
+            timeout = timeout,
+            sleeptime = sleeptime
+        )

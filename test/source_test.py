@@ -89,7 +89,8 @@ class TestSource(TestCase):
         (ok, source) = rev.source_from_url(url)
         self.assertTrue(ok, source)
 
-        (ok, source) = source.show()
+        (ok, source) = source.wait_for_finish()
+
         output_schema = source.get_latest_input_schema().get_latest_output_schema()
         output_schema.wait_for_finish()
 

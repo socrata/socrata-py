@@ -77,19 +77,13 @@ class OutputSchema(Resource):
         Wait for this dataset to finish transforming and validating. Accepts a progress function
         and a timeout.
         """
-        started = time.time()
-        while not self.attributes['completed_at']:
-            current = time.time()
-            if timeout and (current - started > timeout):
-                raise TimeoutException("Timed out after %s seconds waiting for completion" % timeout)
-            (ok, me) = self.show()
-            progress(self)
-            if not ok:
-                return (ok, me)
-            if self.any_failed():
-                return (False, me)
-            time.sleep(sleeptime)
-        return (True, self)
+        return self._wait_for_finish(
+            is_finished = lambda m: m.attributes['completed_at'],
+            is_failed = lambda m: m.any_failed(),
+            progress = progress,
+            timeout = timeout,
+            sleeptime = sleeptime
+        )
 
     def _munge_row(self, row):
         row = row['row']

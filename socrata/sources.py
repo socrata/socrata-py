@@ -1,6 +1,6 @@
 import json
 import io
-from socrata.http import post, patch, get
+from socrata.http import post, patch, get, noop
 from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
@@ -287,3 +287,15 @@ class Source(Resource, ParseOptionBuilder):
     def get_latest_input_schema(self):
         return max(self.input_schemas, key = lambda s: s.attributes['id'])
 
+    def wait_for_finish(self, progress = noop, timeout = None, sleeptime = 1):
+        """
+        Wait for this dataset to finish transforming and validating. Accepts a progress function
+        and a timeout.
+        """
+        return self._wait_for_finish(
+            is_finished = lambda m: m.attributes['finished_at'],
+            is_failed = lambda m: m.attributes['failed_at'],
+            progress = progress,
+            timeout = timeout,
+            sleeptime = sleeptime
+        )

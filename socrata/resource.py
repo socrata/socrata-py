@@ -1,3 +1,4 @@
+import time
 import pprint
 from socrata.http import noop, get
 import requests
@@ -179,3 +180,18 @@ class Resource(object):
             auth = self.auth
         ))
 
+
+    def _wait_for_finish(self, is_finished, is_failed, progress, timeout, sleeptime):
+        started = time.time()
+        while not is_finished(self):
+            current = time.time()
+            if timeout and (current - started > timeout):
+                raise TimeoutException("Timed out after %s seconds waiting for completion" % timeout)
+            (ok, me) = self.show()
+            progress(self)
+            if not ok:
+                return (ok, me)
+            if is_failed(self):
+                return (False, me)
+            time.sleep(sleeptime)
+        return (True, self)

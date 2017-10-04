@@ -139,5 +139,3 @@ class TestSocrata(TestCase):
             self.assertEqual(c['field_name'], 'ccc')
 
             self.assertEqual(rev.attributes['metadata']['description'], 'new dataset description')
-
-            view.open_in_browser()

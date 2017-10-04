@@ -25,6 +25,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 
+
 class TestCase(unittest.TestCase):
     def create_rev(self):
         p = Socrata(auth)

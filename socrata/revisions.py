@@ -174,6 +174,24 @@ class Revision(Resource):
             'filename': filename
         })
 
+    def source_from_url(self, url):
+        """
+        Create a URL source
+
+        Args:
+        ```
+            url (str): The URL to create the dataset from
+        ```
+        Returns:
+        ```
+            result (bool, dict | Source): The Source created by this API call, or an error
+        ```
+        """
+        return self.create_source({
+            'type': 'url',
+            'url': url
+        })
+
     def source_from_dataset(self):
         """
         Create a dataset source within this revision

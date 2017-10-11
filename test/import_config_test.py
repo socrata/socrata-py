@@ -42,7 +42,9 @@ class ImportConfigTest(TestCase):
             "column_header": 2,
             "quote_char": '"',
             "parse_source": True,
-            "column_separator": ","
+            "column_separator": ",",
+            "remove_empty_rows": True,
+            "trim_whitespace": True
         })
 
         self.assertEqual(config.attributes['columns'], [

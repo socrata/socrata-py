@@ -11,19 +11,23 @@ def noop(*args, **kwargs):
 def generate_request_id(length = 32):
     return binascii.hexlify(os.urandom(int(length/2))).decode('utf8')
 
-def gen_headers(extra = {}):
+def gen_headers(extra = {}, auth = None):
+
+    request_id_prefix = ''
+    if auth:
+        request_id_prefix = auth.request_id_prefix()
     d =  {
         'user-agent': 'publish-py',
         'content-type': 'application/json',
         'accept': 'application/json',
-        'x-socrata-requestid': generate_request_id()
+        'x-socrata-requestid': request_id_prefix + generate_request_id(32 - len(request_id_prefix))
     }
     d.update(extra)
     return d
 
 
-def prepare(headers):
-    all_headers = gen_headers(headers)
+def prepare(headers, auth):
+    all_headers = gen_headers(headers, auth)
     return all_headers, all_headers['x-socrata-requestid']
 
 def is_json(response):
@@ -47,7 +51,7 @@ def respond(response, request_id = None):
         return (False, {'error': 'json', 'content': response.content})
 
 def post(path, auth = None, data = None, headers = {}):
-    (headers, request_id) = prepare(headers)
+    (headers, request_id) = prepare(headers, auth)
     log.info('POST %s %s', path, request_id)
     return respond(requests.post(
         path,
@@ -60,7 +64,7 @@ def post(path, auth = None, data = None, headers = {}):
 
 
 def put(path, auth = None, data = None, headers = {}):
-    (headers, request_id) = prepare(headers)
+    (headers, request_id) = prepare(headers, auth)
     log.info('PUT %s %s', path, request_id)
     return respond(requests.put(
         path,
@@ -72,7 +76,7 @@ def put(path, auth = None, data = None, headers = {}):
 
 
 def patch(path, auth = None, data = None, headers = {}):
-    (headers, request_id) = prepare(headers)
+    (headers, request_id) = prepare(headers, auth)
     log.info('PATCH %s %s', path, request_id)
     return respond(requests.patch(
         path,
@@ -83,7 +87,7 @@ def patch(path, auth = None, data = None, headers = {}):
     ), request_id = request_id)
 
 def get(path, auth = None, params = {}, headers = {}, **kwargs):
-    (headers, request_id) = prepare(headers)
+    (headers, request_id) = prepare(headers, auth)
     log.info('GET %s %s', path, request_id)
     return respond(requests.get(
         path,
@@ -95,7 +99,7 @@ def get(path, auth = None, params = {}, headers = {}, **kwargs):
     ), request_id = request_id)
 
 def delete(path, auth = None, headers = {}):
-    (headers, request_id) = prepare(headers)
+    (headers, request_id) = prepare(headers, auth)
     log.info('DELETE %s %s', path, request_id)
     return respond(requests.delete(
         path,

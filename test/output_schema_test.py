@@ -1,6 +1,7 @@
 import unittest
 from socrata import Socrata
 from test.auth import auth, TestCase
+from time import sleep
 import uuid
 
 def create_bad_output_schema(input_schema):
@@ -275,3 +276,106 @@ class TestOutputSchema(TestCase):
         self.assertEqual(p2['type'], 'Point')
         self.assertAlmostEqual(p2['coordinates'][0], -122.398373)
         self.assertAlmostEqual(p2['coordinates'][1], 47.6762)
+
+    def test_change_existing_schema(self):
+        # First we'll actually create a dataset
+
+        rev = self.create_rev()
+        input_schema = self.create_input_schema(rev = rev)
+        output_schema = input_schema.get_latest_output_schema()
+        (ok, job) = rev.apply(output_schema = output_schema)
+
+        assert ok, job
+        done = False
+        attempts = 0
+        while not done and attempts < 20:
+            (ok, job) = job.show()
+            attempts += 1
+            assert ok, job
+
+            done = job.attributes['status'] == 'successful'
+            sleep(0.5)
+
+        assert done, "Polling job never resulted in a successful completion: %s" % job
+
+        (ok, rev) = self.view.revisions.create_replace_revision()
+        assert ok, rev
+        self.rev.discard()
+        self.rev = rev
+
+        # Ok, we've got a dataset.  Let's create a revision on it and mess with its schema!
+
+        (ok, source) = rev.source_from_dataset()
+        assert ok, source
+
+        input_schema = source.get_latest_input_schema()
+        output_schema = input_schema.get_latest_output_schema()
+        (ok, new_output_schema) = output_schema.add_column('d', 'D', 'a + 5')\
+                                               .drop_column('b')\
+                                               .drop_column('c')\
+                                               .run()
+        assert ok, new_output_schema
+
+        (ok, job) = rev.apply(output_schema = new_output_schema)
+        assert ok, job
+
+        done = False
+        attempts = 0
+        while not done and attempts < 20:
+            (ok, job) = job.show()
+            attempts += 1
+            assert ok, job
+
+            done = job.attributes['status'] == 'successful'
+            sleep(0.5)
+
+        assert done, "Polling job never resulted in a successful completion: %s" % job
+
+        from socrata.http import get
+
+        (ok, result) = get("https://{domain}/id/{fourfour}".format(domain = auth.domain, fourfour = rev.attributes['fourfour']), auth)
+        assert ok, result
+
+        assert result == [{'a': '1', 'd': '6'}, {'a': '2', 'd': '7'}, {'a': '3', 'd': '8'}, {'a': '4', 'd': '9'}]
+
+
+    def test_add_column_for_wrong_backend(self):
+        # First we'll actually create a dataset
+
+        rev = self.create_rev()
+        input_schema = self.create_input_schema(rev = rev)
+        output_schema = input_schema.get_latest_output_schema()
+        (ok, job) = rev.apply(output_schema = output_schema)
+
+        assert ok, job
+        done = False
+        attempts = 0
+        while not done and attempts < 20:
+            (ok, job) = job.show()
+            attempts += 1
+            assert ok, job
+
+            done = job.attributes['status'] == 'successful'
+            sleep(0.5)
+
+        assert done, "Polling job never resulted in a successful completion: %s" % job
+
+        (ok, rev) = self.view.revisions.create_replace_revision()
+        assert ok, rev
+        self.rev.discard()
+        self.rev = rev
+
+        # Ok, we've got a dataset.  Let's create a revision on it and mess with its schema!
+
+        (ok, source) = rev.source_from_dataset()
+        assert ok, source
+
+        input_schema = source.get_latest_input_schema()
+        output_schema = input_schema.get_latest_output_schema()
+        (ok, new_output_schema) = output_schema.add_column('d', 'D', 'make_point(a, c)').run()
+
+        assert ok == False
+        assert new_output_schema == {
+            'message': 'The request you made had invalid values.',
+            'reason': {'output_schema_id': ['Cannot attach a schema containing a column of type "point" to this revision']}
+        }

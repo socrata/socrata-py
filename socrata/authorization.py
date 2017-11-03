@@ -13,13 +13,15 @@ class Authorization(object):
         )
         publishing = Socrata(auth)
     """
-    def __init__(self, domain, username, password):
+    def __init__(self, domain, username, password, request_id_prefix = ''):
         self.domain = domain
         self.username = username
         self.password = password
 
         self.proto = 'https://'
         self.verify = True
+
+        self._request_id_prefix = request_id_prefix
 
         self.basic = HTTPBasicAuth(self.username, self.password)
 
@@ -32,4 +34,7 @@ class Authorization(object):
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         self.verify = False
+
+    def request_id_prefix(self):
+        return self._request_id_prefix
 

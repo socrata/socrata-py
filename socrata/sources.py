@@ -256,7 +256,7 @@ class Source(Resource, ParseOptionBuilder):
         """
         Associate this Source with the given revision.
         """
-        return self._mutate(patch(
+        return self._clone(patch(
             self.path(uri),
             auth = self.auth,
             data = json.dumps({
@@ -268,7 +268,7 @@ class Source(Resource, ParseOptionBuilder):
         ))
 
     def update(self, uri, body):
-        return self._mutate(patch(
+        return self._clone(post(
             self.path(uri),
             auth = self.auth,
             data = json.dumps(body)

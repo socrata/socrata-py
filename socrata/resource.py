@@ -94,6 +94,13 @@ class Resource(object):
             return (ok, cls(auth, resp))
         return result
 
+
+    def _clone(self, result):
+        (ok, res) = result
+        if ok:
+            return (ok, self.__class__(self.auth, res, self.parent))
+        return result
+
     def _on_response(self, response):
         self.attributes = response['resource']
         self.links = response['links']

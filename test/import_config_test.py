@@ -51,7 +51,8 @@ class ImportConfigTest(TestCase):
             {
                 "field_name": "foo",
                 "display_name": "Foo is the display name",
-                "transform_expr": "to_number(`foo`)"
+                "transform_expr": "to_number(`foo`)",
+                "format": {}
             }
         ])
 
@@ -150,7 +151,8 @@ class ImportConfigTest(TestCase):
             {
                 "field_name": "foo",
                 "display_name": "Foo is the display name",
-                "transform_expr": "to_number(`foo`)"
+                "transform_expr": "to_number(`foo`)",
+                "format": {}
             }
         ]
 

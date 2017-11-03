@@ -172,6 +172,8 @@ class TestSource(TestCase):
 
         self.assertTrue(ok, source)
 
+        (ok, source) = source.wait_for_finish()
+
         po = source.attributes['parse_options']
         self.assertEqual(po['header_count'], 2)
         self.assertEqual(po['column_header'], 2)

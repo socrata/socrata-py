@@ -357,7 +357,7 @@ class Revision(Resource):
             url (str): URL you can paste into a browser to view the revision UI
         ```
         """
-        return "https://{domain}/d/{fourfour}/manage/revisions/{seq}".format(
+        return "https://{domain}/d/{fourfour}/revisions/{seq}".format(
             domain = self.auth.domain,
             fourfour = self.attributes["fourfour"],
             seq = self.attributes["revision_seq"]

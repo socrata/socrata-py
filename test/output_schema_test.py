@@ -374,8 +374,15 @@ class TestOutputSchema(TestCase):
         output_schema = input_schema.get_latest_output_schema()
         (ok, new_output_schema) = output_schema.add_column('d', 'D', 'make_point(a, c)').run()
 
-        assert ok == False
-        assert new_output_schema == {
-            'message': 'The request you made had invalid values.',
-            'reason': {'output_schema_id': ['Cannot attach a schema containing a column of type "point" to this revision']}
-        }
+        assert not ok
+
+        self.assertEqual(new_output_schema, {
+            'message': '{output_schema_id} Cannot attach a schema containing a column of type "point" to this revision',
+            'params': {
+                'output_schema_id': [
+                    'Cannot attach a schema containing a column of type "point" to this revision'
+                ],
+                'invalid_keys': ['output_schema_id']
+            },
+            'key': 'validation_failed'
+        })

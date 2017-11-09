@@ -266,16 +266,16 @@ class TestOutputSchema(TestCase):
         [p0, p1, p2] = [r['geocoded']['ok'] for r in rows]
 
         self.assertEqual(p0['type'], 'Point')
-        self.assertAlmostEqual(p0['coordinates'][0], -122.29939)
-        self.assertAlmostEqual(p0['coordinates'][1], 47.702105)
+        self.assertAlmostEqual(p0['coordinates'][0], -122.29939, places = 2)
+        self.assertAlmostEqual(p0['coordinates'][1], 47.702105, places = 2)
 
         self.assertEqual(p1['type'], 'Point')
-        self.assertAlmostEqual(p1['coordinates'][0], -77.037458,)
-        self.assertAlmostEqual(p1['coordinates'][1], 38.898771)
+        self.assertAlmostEqual(p1['coordinates'][0], -77.037458, places = 2)
+        self.assertAlmostEqual(p1['coordinates'][1], 38.898771, places = 2)
 
         self.assertEqual(p2['type'], 'Point')
-        self.assertAlmostEqual(p2['coordinates'][0], -122.398373)
-        self.assertAlmostEqual(p2['coordinates'][1], 47.6762)
+        self.assertAlmostEqual(p2['coordinates'][0], -122.398373, places = 2)
+        self.assertAlmostEqual(p2['coordinates'][1], 47.6762, places = 2)
 
     def test_change_existing_schema(self):
         # First we'll actually create a dataset

@@ -22,7 +22,32 @@ classes = [
 ]
 
 def arg_spec_str(thing):
-    return '`%s`' % str(inspect.getargspec(thing))
+    spec = inspect.getargspec(thing)
+    args = spec.args
+
+    # Hacks for closing over self and uri
+    if len(args) and args[0] == 'self':
+        args = args[1:]
+    if len(args) and args[0] == 'uri':
+        args = args[1:]
+
+    if not len(args):
+        return ''
+
+    arg_str = '\n    Args: ' + ', '.join(args)
+
+    default_str = ''
+    if spec.defaults and any([d != None for d in spec.defaults]):
+        defaults = list(spec.defaults)
+        default_str = '\n    Defaults: ' + ', '.join([
+            name + '=' + str(default)
+            for (name, default) in zip(args, defaults) if default != None
+        ])
+
+    return '```\nArgSpec{arg_str}{default_str}\n```'.format(
+        arg_str = arg_str,
+        default_str = default_str
+    )
 
 def link_to(thing):
     [_, rel] = inspect.getsourcefile(thing).split('socrata-py')

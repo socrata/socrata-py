@@ -86,6 +86,8 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-blob.jpg', 'rb') as f:
+                (ok, upload) = upload.blob(f)
+        ```
 
         """
         source = self

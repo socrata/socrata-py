@@ -198,7 +198,7 @@ with open('cool_dataset.csv', 'rb') as file:
 Similar to the `csv` method are the `xls`, `xlsx`, and `tsv` methods, which upload
 those files.
 
-There is a `blob` method as well, which uploads blobby data to the source. This means the data will not be parsed, and will be displayed as a blob in the catalog once the revision is applied.
+There is a `blob` method as well, which uploads blobby data to the source. This means the data will not be parsed, and will be displayed under "Files and Documents" in the catalog once the revision is applied.
 
 #### Create a new Dataset from Pandas
 Datasets can also be created from Pandas DataFrames

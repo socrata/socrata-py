@@ -7,9 +7,6 @@ from socrata.operations.configured_job import ConfiguredJob
 from socrata.operations.create import Create
 from socrata.operations.utils import SocrataException
 
-import json
-import requests
-
 
 class Socrata(Collection):
     """
@@ -45,8 +42,13 @@ class Socrata(Collection):
 
         Returns:
         ```
-            result (Revision, Job): Returns the Revision and the Job, which is now running
+            result (ConfiguredJob): Returns the ConfiguredJob
         ```
+
+        Note:
+            Typical usage would be in a context manager block (as demonstrated in the example
+            below). In this case, the `ConfiguredJob` is created and immediately launched by way of
+            the call to the `ConfiguredJob.csv` method.
 
         Examples:
         ```
@@ -58,8 +60,7 @@ class Socrata(Collection):
         (ok, config) = result = self.configs.lookup(config_name)
         if not ok:
             raise SocrataException("Failed to lookup config %s" % config_name, result)
-        return ConfiguredJob(self, view = view, config = config)
-
+        return ConfiguredJob(self, view=view, config=config)
 
     def create(self, **kwargs):
         """
@@ -85,7 +86,8 @@ class Socrata(Collection):
 
         Returns:
         ```
-            result (Revision, OutputSchema): Returns the revision that was created and the OutputSchema created from your uploaded file
+            result (Revision, OutputSchema): Returns the revision that was created and the
+                OutputSchema created from your uploaded file
         ```
 
         Examples:
@@ -97,9 +99,7 @@ class Socrata(Collection):
         ```
 
         """
-
-
-        return Create(self, metadata = kwargs)
+        return Create(self, metadata=kwargs)
 
     def new(self, metadata):
         """
@@ -113,7 +113,8 @@ class Socrata(Collection):
 
         Returns:
         ```
-            result (bool, Revision | dict): Returns an API Result; the Revision if it was created or an API Error response
+            result (bool, Revision | dict): Returns an API Result; the Revision if it was created
+                or an API Error response
         ```
 
         Examples:
@@ -130,7 +131,6 @@ class Socrata(Collection):
         ```
         """
         return Revisions.new(self.auth, metadata)
-
 
 
 __all__ = [

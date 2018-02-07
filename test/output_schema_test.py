@@ -379,6 +379,9 @@ class TestOutputSchema(TestCase):
         self.assertEqual(new_output_schema, {
             'message': '{output_schema_id} Cannot attach a schema containing a column of type "point" to this revision',
             'params': {
+                'details': {
+                    'output_schema_id': [{}]
+                },
                 'output_schema_id': [
                     'Cannot attach a schema containing a column of type "point" to this revision'
                 ],

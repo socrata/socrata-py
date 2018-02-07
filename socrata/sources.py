@@ -1,5 +1,6 @@
 import json
 import io
+import webbrowser
 from socrata.http import post, patch, get, noop
 from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
@@ -69,6 +70,33 @@ class Source(Resource, ParseOptionBuilder):
                 'input_schema_id'
             )
         ]
+
+
+    def blob(self, file_handle):
+        """
+        Uploads a Blob dataset. A blob is a file that will not be parsed as a data file,
+        ie: an image, video, etc.
+
+
+        Returns:
+        ```
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+        ```
+
+        Examples:
+        ```python
+            with open('my-blob.jpg', 'rb') as f:
+                (ok, upload) = upload.blob(f)
+        ```
+
+        """
+        source = self
+        if self.attributes['parse_options']['parse_source']:
+            (ok, cloned) = self.change_parse_option('parse_source').to(False).run()
+            assert ok, cloned
+            source = cloned
+
+        return source.bytes(file_handle, "application/octet-stream")
 
 
     def csv(self, file_handle):
@@ -299,3 +327,26 @@ class Source(Resource, ParseOptionBuilder):
             timeout = timeout,
             sleeptime = sleeptime
         )
+
+    def ui_url(self):
+        """
+        This is the URL to the landing page in the UI for the sources
+
+        Returns:
+        ```
+            url (str): URL you can paste into a browser to view the source UI
+        ```
+        """
+        if not self.parent:
+            raise NotImplementedError("UI for revisionless sources is not implemented (yet). Sorry!")
+
+        revision = self.parent
+        return revision.ui_url() +  '/sources/{source_id}/preview'.format(
+            source_id = self.attributes['id']
+        )
+
+    def open_in_browser(self):
+        """
+        Open this source in your browser, this will open a window
+        """
+        webbrowser.open(self.ui_url(), new = 2)

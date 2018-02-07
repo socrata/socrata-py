@@ -13,6 +13,22 @@ class TestSource(TestCase):
         assert 'show' in source.list_operations()
         assert 'bytes' in source.list_operations()
 
+
+    def test_upload_blob(self):
+        rev = self.create_rev()
+        (ok, source) = rev.create_upload('foo.csv')
+        assert ok
+
+        with open('test/fixtures/simple.csv', 'rb') as f:
+            (ok, source) = source.blob(f)
+            self.assertTrue(ok, source)
+            self.assertEqual(source.attributes['parse_options']['parse_source'], False)
+
+            (ok, rev) = rev.show()
+            self.assertTrue(ok, rev)
+            self.assertEqual(rev.attributes['blob_id'], source.attributes['id'])
+
+
     def test_upload_csv(self):
         rev = self.create_rev()
         (ok, source) = rev.create_upload('foo.csv')
@@ -28,6 +44,8 @@ class TestSource(TestCase):
             self.assertEqual(['a', 'b', 'c'], names)
 
             assert 'show' in input_schema.list_operations()
+
+
 
 
     def test_upload_kml(self):

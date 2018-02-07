@@ -336,7 +336,7 @@ class TestOutputSchema(TestCase):
         (ok, result) = get("https://{domain}/id/{fourfour}".format(domain = auth.domain, fourfour = rev.attributes['fourfour']), auth)
         assert ok, result
 
-        assert result == [{'a': '1', 'd': '6'}, {'a': '2', 'd': '7'}, {'a': '3', 'd': '8'}, {'a': '4', 'd': '9'}]
+        self.assertEqual(result, [{'a': '1', 'd': '6'}, {'a': '2', 'd': '7'}, {'a': '3', 'd': '8'}, {'a': '4', 'd': '9'}])
 
 
     def test_add_column_for_wrong_backend(self):

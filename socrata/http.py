@@ -5,6 +5,9 @@ import binascii
 import logging
 log = logging.getLogger(__name__)
 
+class TimeoutException(Exception):
+    pass
+
 def noop(*args, **kwargs):
     pass
 

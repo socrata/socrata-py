@@ -1,6 +1,6 @@
 import time
 import pprint
-from socrata.http import noop, get
+from socrata.http import noop, get, TimeoutException
 import requests
 
 class Collection(object):

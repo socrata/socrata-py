@@ -5,8 +5,6 @@ from socrata.resource import Resource
 from socrata.configs import Config
 from socrata.http import noop, put, get, post
 
-class TimeoutException(Exception):
-    pass
 
 class ColumnChange(object):
     def __init__(self, field_name, attribute, output_schema):

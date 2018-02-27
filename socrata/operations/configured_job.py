@@ -23,7 +23,7 @@ class ConfiguredJob(Operation):
 
         (ok, output_schema) = output_schema.wait_for_finish()
         if not ok:
-            raise SocrataException("The dataset failed to validate")
+            raise SocrataException("The dataset failed to validate", output_schema)
 
         (ok, job) = rev.apply(output_schema = output_schema)
         if not ok:

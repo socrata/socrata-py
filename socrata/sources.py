@@ -7,6 +7,30 @@ from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
 
 class Sources(Collection):
+    def path(self):
+        return 'https://{domain}/api/publishing/v1/source'.format(
+            domain = self.auth.domain
+        )
+
+    def lookup(self, source_id):
+        """
+        Lookup a source
+
+        Args:
+        ```
+            source_id (int): The id
+        ```
+
+        Returns:
+        ```
+            result (bool, dict | Source): The Source resulting from this API call, or an error
+        ```
+        """
+        return self._subresource(Source, get(
+            self.path() + '/' + str(source_id),
+            auth = self.auth
+        ))
+
     def create_upload(self, filename):
         """
         Create a new source. Takes a `body` param, which must contain a `filename`
@@ -28,11 +52,8 @@ class Sources(Collection):
         ```
 
         """
-        path = 'https://{domain}/api/publishing/v1/source'.format(
-            domain = self.auth.domain
-        )
         return self._subresource(Source, post(
-            path,
+            self.path(),
             auth = self.auth,
             data = json.dumps({
                 'source_type' : {

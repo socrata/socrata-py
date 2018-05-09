@@ -353,7 +353,10 @@ class OutputSchema(Resource):
                 [column] = column
 
             new_column = change_fun(column)
-            new_column['initial_output_column_id'] = column['id']
+
+            # if there is an id, this means the column is not brand new
+            if 'id' in column:
+                new_column['initial_output_column_id'] = column['id']
 
             def replace_with(c):
                 if c == column:

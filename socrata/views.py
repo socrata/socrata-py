@@ -1,12 +1,11 @@
 import json
 import requests
-from socrata.http import post, put, delete, get
+from socrata.http import post, put, delete, get, gen_headers
 from socrata.resource import Collection, Resource
 from socrata.sources import Source
 from socrata.job import Job
 from socrata.revisions import Revisions
 import webbrowser
-from socrata.http import gen_headers, post
 
 
 class CoreResource(Resource):
@@ -79,3 +78,8 @@ class View(CoreResource):
         Open this revision in your browser, this will open a window
         """
         webbrowser.open(self.ui_url(), new = 2)
+
+    def show(self):
+        return super(CoreResource, self).show("/api/views/{ff}".format(
+            ff = self.attributes['id']
+        ))

@@ -193,7 +193,7 @@ class Resource(object):
         while not is_finished(self):
             current = time.time()
             if timeout and (current - started > timeout):
-                raise TimeoutException("Timed out after %s seconds waiting for completion" % timeout)
+                raise TimeoutException("Timed out after %s seconds waiting for completion for %s" % (timeout, str(self)))
             (ok, me) = self.show()
             progress(self)
             if not ok:

@@ -272,6 +272,21 @@ class Revision(Resource):
         """
         return delete(self.path(uri), auth = self.auth)
 
+    def plan(self, uri):
+        """
+        Return the list of operations this revision will make when it is applied
+
+        Returns:
+        ```
+            result (bool, dict): The revision plan
+        ```
+        """
+        (ok, resource) = result = get(self.path(uri), auth = self.auth)
+        if ok:
+            return (ok, resource['resource'])
+        return result
+
+
     def update(self, uri, body):
         """
         Set the metadata to be applied to the view

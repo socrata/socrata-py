@@ -101,6 +101,20 @@ class TestSocrata(TestCase):
         self.assertTrue(ok)
         self.assertTrue(output_schema != None)
 
+    def test_get_plan(self):
+        (ok, r) = self.view.revisions.create_replace_revision()
+        self.assertTrue(ok)
+
+        input_schema = self.create_input_schema(rev = r)
+
+        r.set_output_schema(input_schema.get_latest_output_schema().attributes['id'])
+
+        (ok, plan) = r.plan()
+        self.assertTrue(ok)
+        expected = set(['prepare_draft_for_import', 'set_schema', 'apply_metadata', 'upsert_task', 'set_display_type', 'publish', 'set_permission', 'wait_for_replication'])
+        actual   = set([step['type'] for step in plan])
+        self.assertTrue(set.issubset(expected, actual))
+
     def test_create_from_dataset(self):
         with open('test/fixtures/simple.csv', 'rb') as file:
             # boilerplate

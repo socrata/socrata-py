@@ -346,19 +346,8 @@ class TestOutputSchema(TestCase):
         input_schema = self.create_input_schema(rev = rev)
         output_schema = input_schema.get_latest_output_schema()
         (ok, job) = rev.apply(output_schema = output_schema)
-
+        (ok, job) = job.wait_for_finish()
         assert ok, job
-        done = False
-        attempts = 0
-        while not done and attempts < 20:
-            (ok, job) = job.show()
-            attempts += 1
-            assert ok, job
-
-            done = job.attributes['status'] == 'successful'
-            sleep(0.5)
-
-        assert done, "Polling job never resulted in a successful completion: %s" % job
 
         (ok, rev) = self.view.revisions.create_replace_revision()
         assert ok, rev

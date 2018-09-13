@@ -53,7 +53,8 @@ class ImportConfigTest(TestCase):
                 "display_name": "Foo is the display name",
                 "transform_expr": "to_number(`foo`)",
                 "format": {},
-                "description": ""
+                "description": "",
+                "is_primary_key": None
             }
         ])
 
@@ -154,7 +155,8 @@ class ImportConfigTest(TestCase):
                 "display_name": "Foo is the display name",
                 "transform_expr": "to_number(`foo`)",
                 "format": {},
-                "description": ""
+                "description": "",
+                "is_primary_key": None
             }
         ]
 
@@ -194,5 +196,3 @@ class ImportConfigTest(TestCase):
         self.assertEqual(parse_options['header_count'], 2)
         self.assertEqual(parse_options['column_header'], 2)
         self.assertEqual(parse_options['encoding'], 'utf16')
-
-

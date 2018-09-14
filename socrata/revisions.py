@@ -201,6 +201,17 @@ class Revision(Resource):
             'fourfour': self.view_id()
         })
 
+    def source_from_agent(self, agent_uid, namespace, path):
+        """
+        Create a source from a connection agent in this revision
+        """
+        return self.create_source({
+          'type': 'connection_agent',
+          'agent_uid': agent_uid,
+          'namespace': namespace,
+          'path': path
+        })
+
     def create_source(self, uri, source_type):
         return self._subresource(Source, post(
             self.path(uri),

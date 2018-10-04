@@ -54,7 +54,8 @@ class ImportConfigTest(TestCase):
                 "transform_expr": "to_number(`foo`)",
                 "format": {},
                 "description": "",
-                "is_primary_key": None
+                "is_primary_key": None,
+                "flags": []
             }
         ])
 
@@ -156,7 +157,8 @@ class ImportConfigTest(TestCase):
                 "transform_expr": "to_number(`foo`)",
                 "format": {},
                 "description": "",
-                "is_primary_key": None
+                "is_primary_key": None,
+                "flags": []
             }
         ]
 

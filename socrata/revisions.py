@@ -351,6 +351,21 @@ class Revision(Resource):
         (ok, job) = revision.apply(output_schema = my_output_schema)
         ```
         """
+
+        if output_schema:
+            if not output_schema.attributes['finished_at']:
+                (ok, source) = result = output_schema.parent.parent.show()
+                if not ok:
+                    return result
+
+                source_type = source.attributes['source_type']
+                if source_type['type'] == 'view' and not source_type['loaded']:
+                    pass
+                else:
+                    (ok, output_schema) = result = output_schema.wait_for_finish()
+                    if not ok:
+                        return result
+
         body = {}
 
         if output_schema:

@@ -351,12 +351,6 @@ class Revision(Resource):
         (ok, job) = revision.apply(output_schema = my_output_schema)
         ```
         """
-
-        if output_schema:
-            (ok, output_schema) = result = output_schema.wait_for_finish()
-            if not ok:
-                return result
-
         body = {}
 
         if output_schema:

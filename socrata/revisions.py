@@ -97,6 +97,33 @@ class Revisions(Collection):
         """
         return self._create('update', metadata, permission)
 
+    def create_delete_revision(self, metadata = {}, permission = 'public'):
+        """
+        Create a revision on the view, which when applied, will delete rows of data.
+
+        This is an upsert; a row id must be set.
+
+        Args:
+        ```
+            metadata (dict): The metadata to change; these changes will be applied when the revision is applied
+            permission (string): 'public' or 'private'
+        ```
+
+        Returns:
+        ```
+            result (bool, dict | Revision): The new revision, or an error
+        ```
+
+        Examples:
+        ```python
+            view.revisions.create_delete_revision(metadata = {
+                'name': 'new dataset name',
+                'description': 'description'
+            })
+        ```
+        """
+        return self._create('delete', metadata, permission)
+
     @staticmethod
     def new(auth, metadata):
         path = 'https://{domain}/api/publishing/v1/revision'.format(

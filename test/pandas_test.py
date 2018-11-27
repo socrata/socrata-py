@@ -24,14 +24,13 @@ class TestPandas(TestCase):
 
         df = pd.read_csv('test/fixtures/simple.csv')
         (ok, source) = source.df(df)
-        input_schema = source.get_latest_input_schema()
         self.assertTrue(ok)
-        self.assertEqual(input_schema.attributes['total_rows'], 4)
+        output_schema = source.get_latest_input_schema().get_latest_output_schema()
 
-        names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
+        names = sorted([oc['field_name'] for oc in output_schema.attributes['output_columns']])
         self.assertEqual(['a', 'b', 'c'], names)
 
-        assert 'show' in input_schema.list_operations()
+        assert 'show' in output_schema.list_operations()
 
     def test_create_source_outside_rev(self):
         pub = Socrata(auth)

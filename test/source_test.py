@@ -37,15 +37,13 @@ class TestSource(TestCase):
         with open('test/fixtures/simple.csv', 'rb') as f:
             (ok, source) = source.csv(f)
             self.assertTrue(ok)
-            input_schema = source.get_latest_input_schema()
-            self.assertEqual(input_schema.attributes['total_rows'], 4)
+            output_schema = source.get_latest_input_schema().get_latest_output_schema()
+            (ok, output_schema) = output_schema.wait_for_finish()
 
-            names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
+            names = sorted([ic['field_name'] for ic in output_schema.attributes['output_columns']])
             self.assertEqual(['a', 'b', 'c'], names)
 
-            assert 'show' in input_schema.list_operations()
-
-
+            assert 'show' in output_schema.list_operations()
 
 
     def test_upload_kml(self):

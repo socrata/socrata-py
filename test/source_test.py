@@ -48,17 +48,17 @@ class TestSource(TestCase):
 
     def test_upload_kml(self):
         rev = self.create_rev()
-        (ok, source) = rev.create_upload('wards.kml')
+        (ok, source) = rev.create_upload('simple_points.kml')
         assert ok
 
-        with open('test/fixtures/wards.kml', 'rb') as f:
+        with open('test/fixtures/simple_points.kml', 'rb') as f:
             (ok, source) = source.kml(f)
             self.assertTrue(ok, source)
 
             input_schema = source.get_latest_input_schema()
 
             self.assertEqual(
-                set(['ward_phone', 'ward', 'shape_leng', 'shape_area', 'perimeter', 'hall_phone', 'hall_offic', 'edit_date1', 'data_admin', 'class', 'alderman', 'address', 'polygon']),
+                set(['point', 'a_float', 'a_string', 'a_num', 'a_bool']),
                 set([ic['field_name'] for ic in input_schema.attributes['input_columns']])
             )
 
@@ -80,17 +80,17 @@ class TestSource(TestCase):
 
     def test_upload_geojson(self):
         rev = self.create_rev()
-        (ok, source) = rev.create_upload('wards.geojson')
+        (ok, source) = rev.create_upload('simple_points.geojson')
         assert ok
 
-        with open('test/fixtures/wards.geojson', 'rb') as f:
+        with open('test/fixtures/simple_points.geojson', 'rb') as f:
             (ok, source) = source.geojson(f)
             self.assertTrue(ok, source)
 
             input_schema = source.get_latest_input_schema()
 
             self.assertEqual(
-                set(['ward_phone', 'ward', 'shape_leng', 'shape_area', 'perimeter', 'hall_phone', 'hall_offic', 'edit_date1', 'data_admin', 'class', 'alderman', 'address', 'polygon']),
+                set(['point', 'a_float', 'a_string', 'a_num', 'a_bool']),
                 set([ic['field_name'] for ic in input_schema.attributes['input_columns']])
             )
 

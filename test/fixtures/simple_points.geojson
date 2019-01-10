@@ -1,0 +1,37 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          102.0,
+          0.5
+        ]
+      },
+      "properties": {
+        "a_string": "first value",
+        "a_num": 2,
+        "a_float": 2.2,
+        "a_bool": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.0,
+          1.5
+        ]
+      },
+      "properties": {
+        "a_string": "second value",
+        "a_num": 2,
+        "a_float": 2.2,
+        "a_bool": true
+      }
+    }
+  ]
+}

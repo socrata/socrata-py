@@ -98,7 +98,9 @@ class TestOutputSchema(TestCase):
 
 
     def test_validate_row_id(self):
-        input_schema = self.create_input_schema()
+        (ok, rev) = self.view.revisions.create_replace_revision()
+        assert ok, rev
+        input_schema = self.create_input_schema(rev = rev)
         (ok, output_schema) = input_schema.transform({
             'output_columns': [
                 {
@@ -122,7 +124,9 @@ class TestOutputSchema(TestCase):
         self.assertEqual(result, {'reason': 'No column with field_name = nope'})
 
     def test_set_row_id(self):
-        input_schema = self.create_input_schema()
+        (ok, rev) = self.view.revisions.create_replace_revision()
+        assert ok, rev
+        input_schema = self.create_input_schema(rev = rev)
 
         (ok, output_schema) = input_schema.transform({
             'output_columns': [

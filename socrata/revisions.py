@@ -135,7 +135,7 @@ class Revisions(Collection):
             auth = auth,
             data = json.dumps({
                 'action': {
-                    'type': 'update'
+                    'type': 'replace'
                 },
                 'metadata': metadata
             })

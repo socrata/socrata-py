@@ -1,5 +1,5 @@
 # socrata-py
-experimental sdk for the socrata data-pipeline api
+Python SDK for the Socrata Data Management API
 
 <!-- toc -->
 
@@ -176,7 +176,7 @@ with open('cool_dataset.csv', 'rb') as file:
     assert output.attributes['error_count'] == 0
 
     # If you want, you can get a csv stream of all the errors
-    (ok, errors) = output_schema.schema_errors_csv()
+    (ok, errors) = output.schema_errors_csv()
     for line in errors.iter_lines():
         print(line)
 
@@ -188,7 +188,7 @@ with open('cool_dataset.csv', 'rb') as file:
 
     # This opens a browser window to your revision, and you will see the progress
     # of the job
-    rev.open_in_browser()
+    revision.open_in_browser()
 
     # Application is async - this will block until all the data
     # is in place and readable
@@ -246,7 +246,10 @@ socrata = Socrata(auth)
 (ok, view) = socrata.views.lookup(view_id) # View will be the view we are updating with the new data
 
 with open('updated-cool-dataset.csv', 'rb') as my_file:
-    (rev, job) = socrata.using_config(configuration_name, view).csv(my_file)
+    (revision, job) = socrata.using_config(
+        configuration_name,
+        view
+    ).csv(my_file)
     print(job) # Our update job is now running
 ```
 
@@ -260,11 +263,11 @@ with open('updated-cool-dataset.csv', 'rb') as my_file:
 socrata = Socrata(auth)
 
 # This will make our initial revision, on a view that doesn't yet exist
-(ok, rev) = socrata.new({'name': 'cool dataset'})
+(ok, revision) = socrata.new({'name': 'cool dataset'})
 assert ok
 
-# rev is a Revision object, we can print it
-print(rev)
+# revision is a Revision object, we can print it
+print(revision)
 Revision({'created_by': {'display_name': 'rozap',
                 'email': 'chris.duranti@socrata.com',
                 'user_id': 'tugg-ikce'},
@@ -276,14 +279,14 @@ Revision({'created_by': {'display_name': 'rozap',
  'upsert_jobs': []})
 
 # We can also access the attributes of the revision
-print(rev.attributes['metadata']['name'])
+print(revision.attributes['metadata']['name'])
 'cool dataset'
 ```
 
 ### Create an upload
 ```python
 # Using that revision, we can create an upload
-(ok, upload) = rev.create_upload('foo.csv')
+(ok, upload) = revision.create_upload('foo.csv')
 assert ok
 
 # And print it
@@ -343,7 +346,7 @@ Our `output_schema` is the output data as it was *guessed* by Socrata. Guessing 
 like so:
 
 ```python
-(ok, output_schema) = input_schema.get_latest_output_schema()()
+(ok, output_schema) = input_schema.get_latest_output_schema()
 assert ok
 ```
 
@@ -457,7 +460,7 @@ self.assertEqual(rows, [
 ### Do the upsert!
 ```python
 # Now we have transformed our data into the shape we want, let's do an upsert
-(ok, job) = rev.apply(output_schema = output_schema)
+(ok, job) = revision.apply(output_schema = output_schema)
 
 # This will complete the upsert behind the scenes. If we want to
 # re-fetch the current state of the upsert job, we can do so
@@ -486,8 +489,8 @@ When there is an existing Socrata view that you'd like to update the metadata of
 (ok, view) = socrata.views.lookup('abba-cafe')
 assert ok, view
 
-(ok, rev) = view.revisions.create_replace_revision()
-assert ok, rev
+(ok, revision) = view.revisions.create_replace_revision()
+assert ok, revision
 (ok, source) = revision.source_from_dataset()
 assert ok, source
 output_schema = source.get_latest_input_schema().get_latest_output_schema()

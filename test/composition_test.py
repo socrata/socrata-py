@@ -3,17 +3,33 @@ from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 
+def create(filename, kind):
+    def decorator(method):
+        def wrapper(slf):
+            test_name = str(method.__qualname__)
+            pub = Socrata(auth)
+            with open('test/fixtures/%s' % filename, 'rb') as file:
+                create = pub.create(
+                    name = "test for %s" % test_name,
+                    description = "a description"
+                )
+                (revision, output) = getattr(create, kind)(file)
+                try:
+                    method(slf, output)
+                finally:
+                    (ok, view) = pub.views.lookup(revision.view_id())
+                    view.delete()
+        return wrapper
+    return decorator
+
+
 class CompositionTest(TestCase):
 
-    def test_create_new_csv(self):
-        with open('test/fixtures/simple.csv', 'rb') as file:
-            (revision, output) = Socrata(auth).create(
-                name = "cool dataset",
-                description = "a description"
-            ).csv(file)
+    @create('simple.csv', 'csv')
+    def test_create_new_csv(self, output):
+        self.assertEqual(output.attributes['error_count'], 0)
+        self.assertIsNotNone(output.attributes['completed_at'])
 
-            self.assertEqual(output.attributes['error_count'], 0)
-            self.assertIsNotNone(output.attributes['completed_at'])
 
     def test_create_new_csv_from_str(self):
         string = """a,b,c
@@ -26,47 +42,30 @@ class CompositionTest(TestCase):
             name = "cool dataset",
             description = "a description"
         ).csv(string, filename = "foo.csv")
+        try:
+            self.assertIsNotNone(output.attributes['completed_at'])
+        finally:
+            (ok, view) = Socrata(auth).views.lookup(revision.view_id())
+            view.delete()
 
+
+    @create('simple.xls', 'xls')
+    def test_create_new_xls(self, output):
+        self.assertEqual(output.attributes['error_count'], 0)
         self.assertIsNotNone(output.attributes['completed_at'])
 
-    def test_create_new_xls(self):
-        with open('test/fixtures/simple.xls', 'rb') as file:
-            (revision, output) = Socrata(auth).create(
-                name = "cool dataset",
-                description = "a description"
-            ).xls(file)
 
-            self.assertEqual(output.attributes['error_count'], 0)
-            self.assertIsNotNone(output.attributes['completed_at'])
+    @create('simple.xlsx', 'xlsx')
+    def test_create_new_xlsx(self, output):
+        self.assertEqual(output.attributes['error_count'], 0)
+        self.assertIsNotNone(output.attributes['completed_at'])
 
+    @create('simple.tsv', 'tsv')
+    def test_create_new_tsv(self, output):
+        self.assertEqual(output.attributes['error_count'], 0)
+        self.assertIsNotNone(output.attributes['completed_at'])
 
-    def test_create_new_xlsx(self):
-        with open('test/fixtures/simple.xlsx', 'rb') as file:
-            (revision, output) = Socrata(auth).create(
-                name = "cool dataset",
-                description = "a description"
-            ).xlsx(file)
-
-            self.assertEqual(output.attributes['error_count'], 0)
-            self.assertIsNotNone(output.attributes['completed_at'])
-
-
-    def test_create_new_tsv(self):
-        with open('test/fixtures/simple.tsv', 'rb') as file:
-            (revision, output) = Socrata(auth).create(
-                name = "cool dataset",
-                description = "a description"
-            ).tsv(file)
-
-            self.assertEqual(output.attributes['error_count'], 0)
-            self.assertIsNotNone(output.attributes['completed_at'])
-
-    def test_create_new_shapefile(self):
-        with open('test/fixtures/zillow.zip', 'rb') as file:
-            (revision, output) = Socrata(auth).create(
-                name = "zillow",
-                description = "a description"
-            ).shapefile(file)
-
-            self.assertEqual(output.attributes['error_count'], 0)
-            self.assertIsNotNone(output.attributes['completed_at'])
+    @create('zillow.zip', 'shapefile')
+    def test_create_new_shapefile(self, output):
+        self.assertEqual(output.attributes['error_count'], 0)
+        self.assertIsNotNone(output.attributes['completed_at'])

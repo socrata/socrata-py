@@ -183,7 +183,7 @@ class Revision(Resource):
     A revision is a change to a dataset
     """
 
-    def create_upload(self, filename):
+    def create_upload(self, filename, parse_options = {}):
         """
         Create an upload within this revision
 
@@ -199,9 +199,9 @@ class Revision(Resource):
         return self.create_source({
             'type': 'upload',
             'filename': filename
-        })
+        }, parse_options)
 
-    def source_from_url(self, url):
+    def source_from_url(self, url, parse_options = {}):
         """
         Create a URL source
 
@@ -217,18 +217,18 @@ class Revision(Resource):
         return self.create_source({
             'type': 'url',
             'url': url
-        })
+        }, parse_options)
 
-    def source_from_dataset(self):
+    def source_from_dataset(self, parse_options = {}):
         """
         Create a dataset source within this revision
         """
         return self.create_source({
             'type': 'view',
             'fourfour': self.view_id()
-        })
+        }, parse_options)
 
-    def source_from_agent(self, agent_uid, namespace, path):
+    def source_from_agent(self, agent_uid, namespace, path, parse_options = {}):
         """
         Create a source from a connection agent in this revision
         """
@@ -237,14 +237,21 @@ class Revision(Resource):
           'agent_uid': agent_uid,
           'namespace': namespace,
           'path': path
-        })
+        }, parse_options)
 
-    def create_source(self, uri, source_type):
+    def source_as_blob(self, filename, parse_options = {}):
+        """
+        Create a source from a file that should remain unparsed
+        """
+        return self.create_upload(filename, parse_options.merge({'parse_source': False}))
+
+    def create_source(self, uri, source_type, parse_options = {}):
         return self._subresource(Source, post(
             self.path(uri),
             auth = self.auth,
             data = json.dumps({
-                'source_type' : source_type
+                'source_type' : source_type,
+                'parse_options' : parse_options
             })
         ))
 

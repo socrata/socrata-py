@@ -526,7 +526,7 @@ release to pypi by bumping the version to something reasonable and running
 ```
 python setup.py sdist upload -r pypi
 ```
-Note you'll need your `.pypirc` file in your home directory. For help, read [this](http://peterdowns.com/posts/first-time-with-pypi.html)
+Note you'll need your `.pypirc` file in your home directory. For help, read [this](https://web.archive.org/web/20180523182143/http://peterdowns.com/posts/first-time-with-pypi.html)
 
 <!-- doc -->
 # Library Docs

@@ -243,7 +243,8 @@ class Revision(Resource):
         """
         Create a source from a file that should remain unparsed
         """
-        return self.create_upload(filename, parse_options.update({'parse_source': False}))
+        parse_options.update({'parse_source': False})
+        return self.create_upload(filename, parse_options)
 
     def create_source(self, uri, source_type, parse_options = {}):
         return self._subresource(Source, post(

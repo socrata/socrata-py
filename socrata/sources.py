@@ -80,7 +80,7 @@ class Source(Resource, ParseOptionBuilder):
             }
         ))
 
-    def load(self):
+    def load(self, uri = None):
         """
         Forces the source to load, if it's a view source.
 
@@ -90,7 +90,7 @@ class Source(Resource, ParseOptionBuilder):
         ```
         """
         return self._mutate(put(
-            self.path(self.links['show'] + "/load"),
+            self.path(uri or (self.links['show'] + "/load")),
             auth = self.auth,
             data = {},
             headers = {

@@ -1,7 +1,7 @@
 import json
 import io
 import webbrowser
-from socrata.http import post, patch, get, noop
+from socrata.http import post, put, patch, get, noop
 from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
@@ -77,6 +77,24 @@ class Source(Resource, ParseOptionBuilder):
             data = file_handle,
             headers = {
                 'content-type': content_type
+            }
+        ))
+
+    def load(self):
+        """
+        Forces the source to load, if it's a view source.
+
+        Returns:
+        ```
+            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+        ```
+        """
+        return self._mutate(put(
+            self.path(self.links['show'] + "/load"),
+            auth = self.auth,
+            data = {},
+            headers = {
+                'content-type': 'application/json'
             }
         ))
 

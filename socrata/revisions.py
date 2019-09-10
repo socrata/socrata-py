@@ -228,7 +228,7 @@ class Revision(Resource):
             'fourfour': self.view_id()
         }, parse_options)
 
-    def source_from_agent(self, agent_uid, namespace, path, parse_options = {}):
+    def source_from_agent(self, agent_uid, namespace, path, parse_options = {}, parameters = {}):
         """
         Create a source from a connection agent in this revision
         """
@@ -236,7 +236,8 @@ class Revision(Resource):
           'type': 'connection_agent',
           'agent_uid': agent_uid,
           'namespace': namespace,
-          'path': path
+          'path': path,
+          'parameters': parameters
         }, parse_options)
 
     def source_as_blob(self, filename, parse_options = {}):

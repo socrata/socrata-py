@@ -346,8 +346,7 @@ Our `output_schema` is the output data as it was *guessed* by Socrata. Guessing 
 like so:
 
 ```python
-(ok, output_schema) = input_schema.get_latest_output_schema()
-assert ok
+output_schema = input_schema.get_latest_output_schema()
 ```
 
 We can now make changes to the schema, like so

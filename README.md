@@ -48,6 +48,7 @@ Python SDK for the Socrata Data Management API
       - [set_output_schema](#set_output_schema)
       - [source_from_dataset](#source_from_dataset)
       - [source_from_url](#source_from_url)
+      - [view_id](#view_id)
       - [ui_url](#ui_url)
       - [update](#update)
     + [Sources](#sources)
@@ -882,6 +883,20 @@ Args:
 Returns:
 ```
     result (bool, dict | Source): The Source created by this API call, or an error
+```
+
+#### [view_id](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L443)
+
+
+This returns the dataset identifier—commonly known as a "four by four"—for the dataset on which the revision is based. All datasets have a unique identifier - eight alphanumeric characters split into two four-character phrases by a dash.
+
+Returns:
+```
+    view_id (str): The dataset identifier for the dataset on which the revision is based
+```
+Examples:
+```python
+   view_id = revision.view_id()
 ```
 
 #### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L351)

@@ -887,7 +887,6 @@ Returns:
 
 #### [view_id](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L443)
 
-
 This returns the dataset identifier—commonly known as a "four by four"—for the dataset on which the revision is based. All datasets have a unique identifier - eight alphanumeric characters split into two four-character phrases by a dash.
 
 Returns:

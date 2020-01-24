@@ -48,7 +48,7 @@ class Sources(Collection):
 
         Examples:
         ```python
-            (ok, upload) = revision.create_upload('foo.csv')
+            upload = revision.create_upload('foo.csv')
         ```
 
         """
@@ -125,16 +125,13 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-blob.jpg', 'rb') as f:
-                (ok, upload) = upload.blob(f)
+                upload = upload.blob(f)
         ```
 
         """
         source = self
         if self.attributes['parse_options']['parse_source']:
-            (ok, cloned) = self.change_parse_option('parse_source').to(False).run()
-            assert ok, cloned
-            source = cloned
-
+            source = self.change_parse_option('parse_source').to(False).run()
         return source.bytes(file_handle, "application/octet-stream")
 
 
@@ -155,7 +152,7 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.csv', 'rb') as f:
-                (ok, upload) = upload.csv(f)
+                upload = upload.csv(f)
         ```
         """
         return self.bytes(file_handle, "text/csv")
@@ -177,7 +174,7 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.xls', 'rb') as f:
-                (ok, upload) = upload.xls(f)
+                upload = upload.xls(f)
         ```
         """
         return self.bytes(file_handle, "application/vnd.ms-excel")
@@ -199,7 +196,7 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.xlsx', 'rb') as f:
-                (ok, upload) = upload.xlsx(f)
+                upload = upload.xlsx(f)
         ```
         """
         return self.bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -221,7 +218,7 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.tsv', 'rb') as f:
-                (ok, upload) = upload.tsv(f)
+                upload = upload.tsv(f)
         ```
         """
         return self.bytes(file_handle, "text/tab-separated-values")
@@ -243,7 +240,7 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-shapefile-archive.zip', 'rb') as f:
-                (ok, upload) = upload.shapefile(f)
+                upload = upload.shapefile(f)
         ```
         """
         return self.bytes(file_handle, "application/zip")
@@ -265,7 +262,7 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-kml-file.kml', 'rb') as f:
-                (ok, upload) = upload.kml(f)
+                upload = upload.kml(f)
         ```
         """
         return self.bytes(file_handle, "application/vnd.google-earth.kml+xml")
@@ -288,7 +285,7 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-geojson-file.geojson', 'rb') as f:
-                (ok, upload) = upload.geojson(f)
+                upload = upload.geojson(f)
         ```
         """
         return self.bytes(file_handle, "application/vnd.geo+json")
@@ -312,7 +309,7 @@ class Source(Resource, ParseOptionBuilder):
         ```python
             import pandas
             df = pandas.read_csv('test/fixtures/simple.csv')
-            (ok, upload) = upload.df(df)
+            upload = upload.df(df)
         ```
         """
         s = io.StringIO()
@@ -342,14 +339,12 @@ class Source(Resource, ParseOptionBuilder):
         ))
 
     def show_input_schema(self, uri, input_schema_id):
-        (ok, res) = result = get(
+        res = get(
             self.path(uri.format(input_schema_id = input_schema_id)),
             auth = self.auth
         )
 
-        if ok:
-            return self._subresource(InputSchema, result)
-        return result
+        return self._subresource(InputSchema, res)
 
     def get_latest_input_schema(self):
         return max(self.input_schemas, key = lambda s: s.attributes['id'])

@@ -17,7 +17,7 @@ def create(filename, kind):
                 try:
                     method(slf, output)
                 finally:
-                    (ok, view) = pub.views.lookup(revision.view_id())
+                    view = pub.views.lookup(revision.view_id())
                     view.delete()
         return wrapper
     return decorator
@@ -45,7 +45,7 @@ class CompositionTest(TestCase):
         try:
             self.assertIsNotNone(output.attributes['completed_at'])
         finally:
-            (ok, view) = Socrata(auth).views.lookup(revision.view_id())
+            view = Socrata(auth).views.lookup(revision.view_id())
             view.delete()
 
 

@@ -7,17 +7,11 @@ class Collection(object):
     def __init__(self, auth):
         self.auth = auth
 
-    def _subresources(self, klass, result):
-        (ok, resources) = result
-        if ok:
-            return (ok, [klass(self.auth, res, self) for res in resources])
-        return result
+    def _subresources(self, klass, resources):
+        return [klass(self.auth, res, self) for res in resources]
 
-    def _subresource(self, klass, result):
-        (ok, res) = result
-        if ok:
-            return (ok, klass(self.auth, res, self))
-        return result
+    def _subresource(self, klass, res):
+        return klass(self.auth, res, self)
 
 
 def parameterize_links(links, id_name, id_val):
@@ -28,6 +22,11 @@ def parameterize_links(links, id_name, id_val):
         else:
             d[name] = parameterize_links(uri, id_name, id_val)
     return d
+
+class ResourceFailedException(Exception):
+    def __init__(self, body):
+        super(ResourceFailedException, self).__init__("Response indicated that resource failed to process {body}".format(body))
+        self.body = body
 
 class ChildResourceSpec(object):
     def __init__(
@@ -89,17 +88,12 @@ class Resource(object):
             domain = auth.domain,
             uri = uri
         )
-        (ok, resp) = result = get(path, auth = auth)
-        if ok:
-            return (ok, cls(auth, resp))
-        return result
+        resp = get(path, auth = auth)
+        return cls(auth, resp)
 
 
-    def _clone(self, result):
-        (ok, res) = result
-        if ok:
-            return (ok, self.__class__(self.auth, res, self.parent))
-        return result
+    def _clone(self, res):
+        return self.__class__(self.auth, res, self.parent)
 
     def _on_response(self, response):
         self.attributes = response['resource']
@@ -123,17 +117,11 @@ class Resource(object):
             uri = uri
         )
 
-    def _subresource(self, klass, result, **kwargs):
-        (ok, res) = result
-        if ok:
-            return (ok, klass(self.auth, res, self, **kwargs))
-        return result
+    def _subresource(self, klass, res, **kwargs):
+        return klass(self.auth, res, self, **kwargs)
 
-    def _subresources(self, klass, result):
-        (ok, resources) = result
-        if ok:
-            return (ok, [klass(self.auth, res, self) for res in resources])
-        return result
+    def _subresources(self, klass, resources):
+        return [klass(self.auth, res, self) for res in resources]
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, pprint.pformat(self.attributes))
@@ -173,12 +161,9 @@ class Resource(object):
     def _noop(self, uri, *args, **kwargs):
         raise NotImplementedError("%s is not implemented" % uri)
 
-    def _mutate(self, result):
-        (ok, response) = result
-        if ok:
-            self._on_response(response)
-            return (ok, self)
-        return result
+    def _mutate(self, response):
+        self._on_response(response)
+        return response
 
     # This is just the identity of this resource, so it's easy to abstract
     def show(self, uri):
@@ -194,11 +179,9 @@ class Resource(object):
             current = time.time()
             if timeout and (current - started > timeout):
                 raise TimeoutException("Timed out after %s seconds waiting for completion for %s" % (timeout, str(self)))
-            (ok, me) = self.show()
+            me = self.show()
             progress(self)
-            if not ok:
-                return (ok, me)
             if is_failed(self):
-                return (False, me)
+                raise ResourceFailedException(me)
             time.sleep(sleeptime)
-        return (True, self)
+        return self

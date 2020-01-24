@@ -8,6 +8,12 @@ log = logging.getLogger(__name__)
 class TimeoutException(Exception):
     pass
 
+class UnexpectedResponseException(Exception):
+    def __init__(self, status, body):
+        super(UnexpectedResponseException, self).__init__("Unexpected status {status} {body}".format(status=status, body=body))
+        self.body = body
+        self.status = status
+
 def noop(*args, **kwargs):
     pass
 
@@ -37,21 +43,20 @@ def is_json(response):
     return 'application/json' in response.headers['Content-Type']
 
 def respond(response, request_id = None):
-    try:
-        if response.status_code in [200, 201, 202]:
-            if is_json(response):
-                return (True, response.json())
-            else:
-                return (True, response)
+    if response.status_code in [200, 201, 202]:
+        if is_json(response):
+            return response.json()
         else:
-            log.warning("Request failed with %s, request_id was %s", response.status_code, request_id)
-            if is_json(response):
-                return (False, response.json())
-            else:
-                return (False, response)
-    except Exception: # json.decoder.JSONDecodeError isn't always a thing???? WHY PYTHON
-        log.error("Request raised an exception, request_id was %s", request_id)
-        return (False, {'error': 'json', 'content': response.content})
+            return response
+    else:
+        log.warning("Request failed with %s, request_id was %s", response.status_code, request_id)
+        if is_json(response):
+            raise UnexpectedResponseException(response.status_code, response.json())
+        else:
+            raise UnexpectedResponseException(response.status_code, response)
+
+def pluck_resource(body):
+    return body['resource']
 
 def post(path, auth = None, data = None, headers = {}):
     (headers, request_id) = prepare(headers, auth)

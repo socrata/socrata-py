@@ -27,28 +27,23 @@ def create(name, filepath):
             name = name
         ).csv(csv_file)
 
-        (ok, job) = initial_rev.apply(output_schema = output)
-        assert ok, job
-        (ok, job) = job.wait_for_finish()
-        assert ok, job
+        job = initial_rev.apply(output_schema = output)
+        job = job.wait_for_finish()
 
-        (ok, view) = socrata.views.lookup(initial_rev.attributes['fourfour'])
-        assert ok, view
+        view = socrata.views.lookup(initial_rev.attributes['fourfour'])
         update(view)
 
 
 def update(view):
-    (ok, revision) = view.revisions.create_replace_revision()
-    assert ok, revision
-    (ok, source) = revision.source_from_dataset()
-    assert ok, source
+    revision = view.revisions.create_replace_revision()
+    source = revision.source_from_dataset()
 
     output_schema = source.get_latest_input_schema().get_latest_output_schema()
 
     print(output_schema)
     random_column = output_schema.attributes['output_columns'][0]['field_name']
 
-    (ok, new_output) = output_schema\
+    new_output = output_schema\
         .change_column_metadata(random_column, 'description').to('this is the updated description')\
         .change_column_metadata(random_column, 'display_name').to('updated display name')\
         .run()

@@ -54,7 +54,7 @@ class ParseOptionBuilder(object):
 
         Examples:
         ```python
-            (ok, source) = source\
+            source = source\
             .change_parse_option('header_count').to(2)\
             .change_parse_option('column_header').to(2)\
             .run()

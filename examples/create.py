@@ -26,10 +26,7 @@ def create(name, filepath):
             name = name
         ).csv(csv_file)
 
-        (ok, job) = revision.apply(output_schema = output)
-        assert ok, job
-
+        job = revision.apply(output_schema = output)
         revision.open_in_browser()
-
 
 create(args.name, args.csv)

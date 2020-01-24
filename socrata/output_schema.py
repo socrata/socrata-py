@@ -52,7 +52,7 @@ class OutputSchema(Resource):
         Create a new ImportConfig from this OutputSchema. See the API
         docs for what an ImportConfig is and why they're useful
         """
-        (ok, res) = result = post(
+        res = post(
             self.path(uri),
             auth = self.auth,
             data = json.dumps({
@@ -60,9 +60,7 @@ class OutputSchema(Resource):
                 'data_action': data_action
             })
         )
-        if ok:
-            return (ok, Config(self.auth, res, None))
-        return result
+        return Config(self.auth, res, None)
 
     def any_failed(self):
         """
@@ -91,18 +89,14 @@ class OutputSchema(Resource):
 
 
     def _get_rows(self, uri, offset, limit):
-        ok, resp = get(
+        resp = get(
             self.path(uri),
             params = {'limit': limit, 'offset': offset},
             auth = self.auth
         )
 
-        if not ok:
-            return ok, resp
-
         rows = resp[1:]
-
-        return (ok, [self._munge_row(row) for row in rows])
+        return [self._munge_row(row) for row in rows]
 
     def rows(self, uri, offset = 0, limit = 500):
         """
@@ -124,7 +118,7 @@ class OutputSchema(Resource):
         Get the errors that results in transforming into this output schema
         as a CSV stream.
 
-        Note that this returns an (ok, Reponse) tuple, where Reponse
+        Note that this returns a Reponse, where Reponse
         is a python requests Reponse object
         """
         return get(
@@ -158,7 +152,7 @@ class OutputSchema(Resource):
                 auth = self.auth
             )
         else:
-            return (False, {"reason": "No column with field_name = %s" % field_name})
+            return False
 
     def set_row_id(self, field_name = None):
         """
@@ -176,7 +170,7 @@ class OutputSchema(Resource):
 
         Examples:
         ```python
-        (ok, new_output_schema) = output.set_row_id('the_id_column')
+        new_output_schema = output.set_row_id('the_id_column')
         ```
         """
         desired_schema = deepcopy(self.attributes['output_columns'])
@@ -206,7 +200,7 @@ class OutputSchema(Resource):
 
         Examples:
         ```python
-        (ok, new_output_schema) = output
+        new_output_schema = output
             # Add a new column, which is computed from the `celsius` column
             .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
             # Add a new column, which is computed from the `celsius` column
@@ -242,7 +236,7 @@ class OutputSchema(Resource):
 
         Examples:
         ```python
-            (ok, new_output_schema) = output
+            new_output_schema = output
                 .drop_column('foo')
                 .run()
         ```
@@ -268,7 +262,7 @@ class OutputSchema(Resource):
 
         Examples:
         ```python
-            (ok, new_output_schema) = output
+            new_output_schema = output
                 # Change the field_name of date to the_date
                 .change_column_metadata('date', 'field_name').to('the_date')
                 # Change the description of the celsius column
@@ -297,7 +291,7 @@ class OutputSchema(Resource):
 
         Examples:
         ```python
-            (ok, new_output_schema) = output
+            new_output_schema = output
                 .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')
                 # Make the celsius column all numbers
                 .change_column_transform('celsius').to('to_number(`celsius`)')
@@ -320,7 +314,7 @@ class OutputSchema(Resource):
 
         Examples:
         ```python
-            (ok, new_output_schema) = output
+            new_output_schema = output
                 # Change the field_name of date to the_date
                 .change_column_metadata('date', 'field_name').to('the_date')
                 # Change the description of the celsius column

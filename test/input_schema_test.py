@@ -6,7 +6,7 @@ class TestInputSchema(TestCase):
     def test_transform(self):
         input_schema = self.create_input_schema()
 
-        (ok, res) = input_schema.transform({
+        res = input_schema.transform({
             'output_columns': [
                 {
                     "field_name": "b",
@@ -20,13 +20,10 @@ class TestInputSchema(TestCase):
             ]}
         )
 
-        self.assertTrue(ok)
-
     def test_show_latest(self):
         input_schema = self.create_input_schema()
 
-        (ok, output_schema) = input_schema.latest_output()
-        self.assertTrue(ok)
+        output_schema = input_schema.latest_output()
         self.assertEqual(input_schema.attributes['id'], output_schema.attributes['input_schema_id'])
 
         nested = input_schema.get_latest_output_schema()

@@ -6,7 +6,7 @@ from test.auth import auth, TestCase
 
 class TestViews(TestCase):
     def test_lookup_view(self):
-        (ok, view) = self.pub.views.lookup(self.rev.view_id())
+        view = self.pub.views.lookup(self.rev.view_id())
         self.assertEqual(view.attributes['name'], 'test-view')
 
 

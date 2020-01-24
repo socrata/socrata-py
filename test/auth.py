@@ -29,26 +29,23 @@ logger.setLevel(logging.INFO)
 class TestCase(unittest.TestCase):
     def create_rev(self):
         p = Socrata(auth)
-        (ok, r) = self.view.revisions.create_update_revision()
-        assert ok
+        r = self.view.revisions.create_update_revision()
         self.rev = r
         return r
 
     def create_input_schema(self, rev = None, filename = 'simple.csv'):
         if not rev:
             rev = self.create_rev()
-        (ok, source) = rev.create_upload('foo.csv')
-        assert ok
+        source = rev.create_upload('foo.csv')
         with open('test/fixtures/%s' % filename, 'rb') as f:
-            (ok, source) = source.csv(f)
-            assert ok, source
+            source = source.csv(f)
             return source.get_latest_input_schema()
 
     def create_output_schema(self, input_schema = None):
         if not input_schema:
             input_schema = self.create_input_schema()
 
-        (ok, output_schema) = input_schema.transform({
+        output_schema = input_schema.transform({
             'output_columns': [
                 {
                     "field_name": "b",
@@ -61,16 +58,13 @@ class TestCase(unittest.TestCase):
                 }
             ]}
         )
-        assert ok
         return output_schema
 
     def setUp(self):
         self.pub = Socrata(auth)
-        (ok, rev) = self.pub.new({'name': 'test-view'})
-        assert ok, rev
+        rev = self.pub.new({'name': 'test-view'})
         self.rev = rev
-        (ok, view) = self.pub.views.lookup(rev.attributes['fourfour'])
-        assert ok, view
+        view = self.pub.views.lookup(rev.attributes['fourfour'])
         self.view = view
 
     def tearDown(self):

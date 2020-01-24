@@ -57,9 +57,7 @@ class Socrata(Collection):
         ```
 
         """
-        (ok, config) = result = self.configs.lookup(config_name)
-        if not ok:
-            raise SocrataException("Failed to lookup config %s" % config_name, result)
+        config = self.configs.lookup(config_name)
         return ConfiguredJob(self, view=view, config=config)
 
     def create(self, **kwargs):
@@ -76,7 +74,7 @@ class Socrata(Collection):
             description = "a description"
         ).csv(file)
 
-        (ok, job) = revision.apply(output_schema = output_schema)
+        job = revision.apply(output_schema = output_schema)
         ```
 
         Args:
@@ -119,7 +117,7 @@ class Socrata(Collection):
 
         Examples:
         ```python
-            (ok, rev) = Socrata(auth).new({
+            rev = Socrata(auth).new({
                 'name': 'hi',
                 'description': 'foo!',
                 'metadata': {

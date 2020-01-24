@@ -3,7 +3,7 @@ from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 import uuid
-from socrata.operations.utils import SocrataException
+from socrata.http import UnexpectedResponseException
 
 class ImportConfigTest(TestCase):
     def test_create_config(self):
@@ -90,12 +90,13 @@ class ImportConfigTest(TestCase):
             (rev, job) = p.using_config(name, self.view).csv(my_file)
             self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
+            job.wait_for_finish()
 
     def test_config_not_found(self):
         p = Socrata(auth)
 
         with open('test/fixtures/simple.csv', 'rb') as my_file:
-            with self.assertRaises(SocrataException):
+            with self.assertRaises(UnexpectedResponseException):
                 (rev, job) = p.using_config("nope", self.view).csv(my_file)
 
     def test_source_to_config(self):
@@ -114,6 +115,7 @@ class ImportConfigTest(TestCase):
         )
         self.assertEqual(rev.attributes['action']['type'], 'replace')
         self.assertTrue(job.attributes['created_at'])
+        job.wait_for_finish()
 
 
     def test_show_config(self):
@@ -131,7 +133,8 @@ class ImportConfigTest(TestCase):
         _ = config.delete()
 
         # TODO exception
-        _ = config.show()
+        with self.assertRaises(UnexpectedResponseException):
+            _ = config.show()
 
     def test_update_config(self):
         p = Socrata(auth)

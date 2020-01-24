@@ -107,12 +107,10 @@ class TestOutputSchema(TestCase):
         )
 
         result = output_schema.validate_row_id('a')
-
-        self.assertEqual(result, {'valid': True})
+        self.assertEqual(result, True)
 
         result = output_schema.validate_row_id('nope')
-
-        self.assertEqual(result, {'reason': 'No column with field_name = nope'})
+        self.assertEqual(result, False)
 
     def test_set_row_id(self):
         rev = self.view.revisions.create_replace_revision()

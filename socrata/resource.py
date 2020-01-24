@@ -65,12 +65,7 @@ class ChildResourceSpec(object):
                 'resource': child
             }
 
-            # At this point, this looks identical to the response we receive
-            # when looking up the child via the API using a GET request,
-            # so we can just create the child resource like we would in that case
-            result = (True, child_response)
-
-            (_, subresource) = self._parent._subresource(self._child_type, result)
+            subresource = self._parent._subresource(self._child_type, child_response)
             subresources.append(subresource)
 
         return self._child_list_name, subresources
@@ -99,9 +94,9 @@ class Resource(object):
         self.attributes = response['resource']
         self.links = response['links']
         self._define_operations(self.links)
-        self.define_children(response)
+        self._define_children(response)
 
-    def define_children(self, response):
+    def _define_children(self, response):
         for child_list_name, child_list in [
             spec.build_children_from(response)
             for spec in self.child_specs()
@@ -163,7 +158,7 @@ class Resource(object):
 
     def _mutate(self, response):
         self._on_response(response)
-        return response
+        return self
 
     # This is just the identity of this resource, so it's easy to abstract
     def show(self, uri):

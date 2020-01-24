@@ -1,4 +1,4 @@
-from socrata.operations.utils import get_filename, SocrataException
+from socrata.operations.utils import get_filename
 from socrata.operations.operation import Operation
 
 class Create(Operation):

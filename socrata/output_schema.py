@@ -150,7 +150,7 @@ class OutputSchema(Resource):
             return get(
                 self.path(uri.format(transform_id = transform_id)),
                 auth = self.auth
-            )
+            )['valid']
         else:
             return False
 

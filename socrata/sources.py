@@ -5,6 +5,8 @@ from socrata.http import post, put, patch, get, noop
 from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
+from socrata.lazy_pool import LazyThreadPoolExecutor
+from threading import Lock
 
 class Sources(Collection):
     def path(self):
@@ -63,7 +65,70 @@ class Sources(Collection):
             })
         ))
 
+
+class ChunkIterator(object):
+    def __init__(self, filelike, chunk_size):
+        self._filelike = filelike
+        self.lock = Lock()
+        self._chunk_size = chunk_size
+        self.seq_num = 0
+        self.byte_offset = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        with self.lock:
+            read = self._filelike.read(self._chunk_size)
+            if not read:
+                raise StopIteration
+
+            this_seq = self.seq_num
+            this_byte_offset = self.byte_offset
+            self.seq_num = self.seq_num + 1
+            self.byte_offset = self.byte_offset + len(read)
+            return (this_seq, this_byte_offset, self.byte_offset, read)
+
 class Source(Resource, ParseOptionBuilder):
+    def initiate(self, uri, content_type):
+        return post(
+            self.path(uri),
+            auth = self.auth,
+            data = json.dumps({ 'content_type': content_type })
+        )
+
+    def chunk(self, uri, seq_num, byte_offset, bytes):
+        return post(
+            self.path(uri).format(seq_num=seq_num, byte_offset=byte_offset),
+            auth = self.auth,
+            data = bytes,
+            headers = { 'content-type': 'application/octet-stream' }
+        )
+
+    def commit(self, uri, seq_num, byte_offset):
+        return post(
+            self.path(uri).format(seq_num=seq_num, byte_offset=byte_offset),
+            auth = self.auth
+        )
+
+
+    def _chunked_bytes(self, file_handle, content_type):
+        init = self.initiate(content_type)
+        chunk_size = init['preferred_chunk_size']
+        parallelism = init['preferred_upload_parallelism']
+
+        def sendit(chunk):
+            (seq_num, byte_offset, end_byte_offset, bytes) = chunk
+            self.chunk(seq_num, byte_offset, bytes)
+            return (seq_num, byte_offset, end_byte_offset)
+
+        pool = LazyThreadPoolExecutor(parallelism)
+        results = [r for r in pool.map(sendit, ChunkIterator(file_handle, chunk_size))]
+        (seq_num, byte_offset, end_byte_offset) = results[-1]
+        self.commit(seq_num, end_byte_offset)
+        return self.show()
+
+
     """
     Uploads bytes into the source. Requires content_type argument
     be set correctly for the file handle. It's advised you don't
@@ -71,6 +136,10 @@ class Source(Resource, ParseOptionBuilder):
     or tsv methods which will correctly set the content_type for you.
     """
     def bytes(self, uri, file_handle, content_type):
+        post(
+            '{base}/initiate'
+        )
+
         return self._mutate(post(
             self.path(uri),
             auth = self.auth,
@@ -79,6 +148,7 @@ class Source(Resource, ParseOptionBuilder):
                 'content-type': content_type
             }
         ))
+
 
     def load(self, uri = None):
         """
@@ -155,7 +225,7 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.csv(f)
         ```
         """
-        return self.bytes(file_handle, "text/csv")
+        return self._chunked_bytes(file_handle, "text/csv")
 
     def xls(self, file_handle):
         """

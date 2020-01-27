@@ -124,7 +124,7 @@ class Source(Resource, ParseOptionBuilder):
 
         pool = LazyThreadPoolExecutor(parallelism)
         results = [r for r in pool.map(sendit, ChunkIterator(file_handle, chunk_size))]
-        (seq_num, byte_offset, end_byte_offset) = results[-1]
+        (seq_num, byte_offset, end_byte_offset) = sorted(results, key=lambda x: x[0])[-1]
         self.commit(seq_num, end_byte_offset)
         return self.show()
 

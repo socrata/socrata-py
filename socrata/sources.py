@@ -135,19 +135,9 @@ class Source(Resource, ParseOptionBuilder):
     use this method directly, instead use one of the csv, xls, xlsx,
     or tsv methods which will correctly set the content_type for you.
     """
-    # def bytes(self, uri, file_handle, content_type):
-    #     post(
-    #         '{base}/initiate'
-    #     )
-
-    #     return self._mutate(post(
-    #         self.path(uri),
-    #         auth = self.auth,
-    #         data = file_handle,
-    #         headers = {
-    #             'content-type': content_type
-    #         }
-    #     ))
+    def bytes(self, uri, file_handle, content_type):
+        # This is just for backwards compat
+        self._chunked_bytes(file_handle, content_type)
 
 
     def load(self, uri = None):

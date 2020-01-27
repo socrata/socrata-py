@@ -135,19 +135,19 @@ class Source(Resource, ParseOptionBuilder):
     use this method directly, instead use one of the csv, xls, xlsx,
     or tsv methods which will correctly set the content_type for you.
     """
-    def bytes(self, uri, file_handle, content_type):
-        post(
-            '{base}/initiate'
-        )
+    # def bytes(self, uri, file_handle, content_type):
+    #     post(
+    #         '{base}/initiate'
+    #     )
 
-        return self._mutate(post(
-            self.path(uri),
-            auth = self.auth,
-            data = file_handle,
-            headers = {
-                'content-type': content_type
-            }
-        ))
+    #     return self._mutate(post(
+    #         self.path(uri),
+    #         auth = self.auth,
+    #         data = file_handle,
+    #         headers = {
+    #             'content-type': content_type
+    #         }
+    #     ))
 
 
     def load(self, uri = None):
@@ -202,7 +202,7 @@ class Source(Resource, ParseOptionBuilder):
         source = self
         if self.attributes['parse_options']['parse_source']:
             source = self.change_parse_option('parse_source').to(False).run()
-        return source.bytes(file_handle, "application/octet-stream")
+        return source._chunked_bytes(file_handle, "application/octet-stream")
 
 
     def csv(self, file_handle):
@@ -247,7 +247,7 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.xls(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.ms-excel")
+        return self._chunked_bytes(file_handle, "application/vnd.ms-excel")
 
     def xlsx(self, file_handle):
         """
@@ -269,7 +269,7 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.xlsx(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        return self._chunked_bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     def tsv(self, file_handle):
         """
@@ -291,7 +291,7 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.tsv(f)
         ```
         """
-        return self.bytes(file_handle, "text/tab-separated-values")
+        return self._chunked_bytes(file_handle, "text/tab-separated-values")
 
     def shapefile(self, file_handle):
         """
@@ -313,7 +313,7 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.shapefile(f)
         ```
         """
-        return self.bytes(file_handle, "application/zip")
+        return self._chunked_bytes(file_handle, "application/zip")
 
     def kml(self, file_handle):
         """
@@ -335,7 +335,7 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.kml(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.google-earth.kml+xml")
+        return self._chunked_bytes(file_handle, "application/vnd.google-earth.kml+xml")
 
 
     def geojson(self, file_handle):
@@ -358,7 +358,7 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.geojson(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.geo+json")
+        return self._chunked_bytes(file_handle, "application/vnd.geo+json")
 
 
     def df(self, dataframe):
@@ -384,7 +384,7 @@ class Source(Resource, ParseOptionBuilder):
         """
         s = io.StringIO()
         dataframe.to_csv(s, index=False)
-        return self.bytes(bytes(s.getvalue().encode()),"text/csv")
+        return self._chunked_bytes(bytes(s.getvalue().encode()),"text/csv")
 
     def add_to_revision(self, uri, revision):
         """

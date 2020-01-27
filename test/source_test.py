@@ -29,7 +29,6 @@ class TestSource(TestCase):
 
         with open('test/fixtures/simple.csv', 'rb') as f:
             source = source.csv(f)
-            print("Done now???")
             output_schema = source.get_latest_input_schema().get_latest_output_schema()
             output_schema = output_schema.wait_for_finish()
 

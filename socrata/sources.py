@@ -102,14 +102,18 @@ class FileLikeGenerator(object):
         if self.done:
             return None
 
-        buf = b''
-        while len(buf) < how_much:
+        buf = []
+        consumed = 0
+        while consumed < how_much:
             try:
-                buf = buf + next(self.gen)
+                chunk = next(self.gen)
+                consumed += len(chunk)
+                buf.append(chunk)
             except StopIteration:
                 self.done = True
                 break
-        return buf
+
+        return b''.join(buf)
 
 
 class Source(Resource, ParseOptionBuilder):

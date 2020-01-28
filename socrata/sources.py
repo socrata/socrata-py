@@ -1,6 +1,7 @@
 import json
 import io
 import webbrowser
+import types
 from socrata.http import post, put, patch, get, noop
 from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
@@ -89,6 +90,28 @@ class ChunkIterator(object):
             self.byte_offset = self.byte_offset + len(read)
             return (this_seq, this_byte_offset, self.byte_offset, read)
 
+    def next(self):
+        return self.__next__()
+
+class FileLikeGenerator(object):
+    def __init__(self, gen):
+        self.gen = gen
+        self.done = False
+
+    def read(self, how_much):
+        if self.done:
+            return None
+
+        buf = b''
+        while len(buf) < how_much:
+            try:
+                buf = buf + next(self.gen)
+            except StopIteration:
+                self.done = True
+                break
+        return buf
+
+
 class Source(Resource, ParseOptionBuilder):
     def initiate(self, uri, content_type):
         return post(
@@ -112,7 +135,17 @@ class Source(Resource, ParseOptionBuilder):
         )
 
 
-    def _chunked_bytes(self, file_handle, content_type):
+    def _chunked_bytes(self, file_or_string_or_generator, content_type):
+        if type(file_or_string_or_generator) is str:
+            file_handle = io.StringIO(file_or_string_or_generator)
+        elif isinstance(file_or_string_or_generator, types.GeneratorType):
+            file_handle = FileLikeGenerator(file_or_string_or_generator)
+        elif hasattr(file_or_string_or_generator, 'read'):
+            file_handle = file_or_string_or_generator
+        else:
+            raise ValueError("The thing to upload must be a file, string, or generator which yields bytes")
+
+
         init = self.initiate(content_type)
         chunk_size = init['preferred_chunk_size']
         parallelism = init['preferred_upload_parallelism']

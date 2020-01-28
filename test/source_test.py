@@ -1,6 +1,7 @@
 from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
+import uuid
 
 class TestSource(TestCase):
     def test_create_source(self):
@@ -36,6 +37,46 @@ class TestSource(TestCase):
             self.assertEqual(['a', 'b', 'c'], names)
 
             assert 'show' in output_schema.list_operations()
+
+    def test_upload_string_csv(self):
+        rev = self.create_rev()
+        source = rev.create_upload('foo.csv')
+
+        f = """
+        a,b,c
+        1,2,3
+        4,5,6
+        """
+
+        source = source.csv(f)
+        output_schema = source.get_latest_input_schema().get_latest_output_schema()
+        output_schema = output_schema.wait_for_finish()
+
+        names = sorted([ic['field_name'] for ic in output_schema.attributes['output_columns']])
+
+        self.assertEqual(['a', 'b', 'c'], names)
+        [one, two] = output_schema.rows()
+        self.assertEqual(one['a']['ok'], '1')
+        self.assertEqual(two['a']['ok'], '4')
+
+    def test_upload_generator_csv(self):
+        rev = self.create_rev()
+        source = rev.create_upload('foo.csv')
+        row_count = 100000
+        def gen():
+            a_row = bytes(str(uuid.uuid4()) + ',' + str(uuid.uuid4()) + ',' + str(uuid.uuid4()) + '\n', 'utf-8')
+            yield b'a,b,c\n'
+            for i in range(0, row_count):
+                yield a_row
+
+        source = source.csv(gen())
+        output_schema = source.get_latest_input_schema().get_latest_output_schema()
+        output_schema = output_schema.wait_for_finish()
+
+        names = sorted([ic['field_name'] for ic in output_schema.attributes['output_columns']])
+
+        self.assertEqual(['a', 'b', 'c'], names)
+        self.assertEqual(output_schema.attributes['total_rows'], row_count)
 
 
     def test_upload_kml(self):

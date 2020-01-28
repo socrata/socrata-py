@@ -3,21 +3,20 @@ from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 import uuid
-from socrata.operations.utils import SocrataException
+from socrata.http import UnexpectedResponseException
 
 class ImportConfigTest(TestCase):
     def test_create_config(self):
         name = "some_config %s" % str(uuid.uuid4())
         p = Socrata(auth)
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
         self.assertEqual(config.attributes['name'], name)
 
 
     def test_create_config_with_non_defaults(self):
         name = "some_config %s" % str(uuid.uuid4())
         p = Socrata(auth)
-        (ok, config) = p.configs.create(
+        config = p.configs.create(
             name,
             "replace",
             parse_options = {
@@ -33,7 +32,6 @@ class ImportConfigTest(TestCase):
                 }
             ]
         )
-        self.assertTrue(ok, config)
         self.assertEqual(config.attributes['name'], name)
 
         self.assertEqual(config.attributes['parse_options'], {
@@ -62,10 +60,9 @@ class ImportConfigTest(TestCase):
     def test_list_operations(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
-        (ok, configs) = p.configs.list()
+        configs = p.configs.list()
 
         # Assert there's some config on this domain where the
         # name is what we want
@@ -77,38 +74,35 @@ class ImportConfigTest(TestCase):
     def test_lookup_config(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
-        (ok, config) = p.configs.lookup(name)
+        config = p.configs.lookup(name)
 
-        self.assertTrue(ok, config)
         self.assertEqual(config.attributes['name'], name)
 
     def test_upload_to_config(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
         p = Socrata(auth)
         with open('test/fixtures/simple.csv', 'rb') as my_file:
             (rev, job) = p.using_config(name, self.view).csv(my_file)
             self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
+            job.wait_for_finish()
 
     def test_config_not_found(self):
         p = Socrata(auth)
 
         with open('test/fixtures/simple.csv', 'rb') as my_file:
-            with self.assertRaises(SocrataException):
+            with self.assertRaises(UnexpectedResponseException):
                 (rev, job) = p.using_config("nope", self.view).csv(my_file)
 
     def test_source_to_config(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
         p = Socrata(auth)
         (rev, job) = p.using_config(name, self.view).csv(
@@ -121,34 +115,31 @@ class ImportConfigTest(TestCase):
         )
         self.assertEqual(rev.attributes['action']['type'], 'replace')
         self.assertTrue(job.attributes['created_at'])
+        job.wait_for_finish()
 
 
     def test_show_config(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
-        (ok, config) = config.show()
-        self.assertTrue(ok, config)
+        config = config.show()
 
     def test_delete_config(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
-        (ok, _) = config.delete()
-        self.assertTrue(ok)
+        _ = config.delete()
 
-        (ok, _) = config.show()
-        self.assertFalse(ok)
+        # TODO exception
+        with self.assertRaises(UnexpectedResponseException):
+            _ = config.show()
 
     def test_update_config(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
         columns = [
             {
@@ -162,11 +153,10 @@ class ImportConfigTest(TestCase):
             }
         ]
 
-        (ok, config) = config.update({
+        config = config.update({
             'data_action': 'update',
             'columns': columns
         })
-        self.assertTrue(ok, config)
 
         self.assertEqual(config.attributes["data_action"], "update")
         self.assertEqual(config.attributes["columns"], columns)
@@ -175,8 +165,7 @@ class ImportConfigTest(TestCase):
     def test_update_config_using_builder(self):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
-        (ok, config) = p.configs.create(name, "replace")
-        self.assertTrue(ok, config)
+        config = p.configs.create(name, "replace")
 
         columns = [
             {
@@ -186,13 +175,12 @@ class ImportConfigTest(TestCase):
             }
         ]
 
-        (ok, config) = config\
+        config = config\
             .change_parse_option('header_count').to(2)\
             .change_parse_option('encoding').to('utf16')\
             .change_parse_option('column_header').to(2)\
             .run()
 
-        self.assertTrue(ok, config)
 
         parse_options = config.attributes['parse_options']
         self.assertEqual(parse_options['header_count'], 2)

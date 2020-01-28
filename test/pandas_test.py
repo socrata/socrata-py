@@ -10,8 +10,7 @@ class TestPandas(TestCase):
     def test_create_source(self):
         rev = self.create_rev()
 
-        (ok, source) = rev.create_upload('foo.csv')
-        self.assertTrue(ok)
+        source = rev.create_upload('foo.csv')
         self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
 
         assert 'show' in source.list_operations()
@@ -19,12 +18,10 @@ class TestPandas(TestCase):
 
     def test_source_csv(self):
         rev = self.create_rev()
-        (ok, source) = rev.create_upload('foo.csv')
-        assert ok
+        source = rev.create_upload('foo.csv')
 
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, source) = source.df(df)
-        self.assertTrue(ok)
+        source = source.df(df)
         output_schema = source.get_latest_input_schema().get_latest_output_schema()
 
         names = sorted([oc['field_name'] for oc in output_schema.attributes['output_columns']])
@@ -35,8 +32,7 @@ class TestPandas(TestCase):
     def test_create_source_outside_rev(self):
         pub = Socrata(auth)
 
-        (ok, source) = pub.sources.create_upload('foo.csv')
-        self.assertTrue(ok, source)
+        source = pub.sources.create_upload('foo.csv')
         self.assertEqual(source.attributes['source_type']['filename'], 'foo.csv')
 
         assert 'show' in source.list_operations()
@@ -45,26 +41,17 @@ class TestPandas(TestCase):
     def test_source_csv_outside_rev(self):
         pub = Socrata(auth)
 
-        (ok, source) = pub.sources.create_upload('foo.csv')
-        self.assertTrue(ok, source)
+        source = pub.sources.create_upload('foo.csv')
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, source) = source.df(df)
-        self.assertTrue(ok, source)
+        source = source.df(df)
         input_schema = source.get_latest_input_schema()
         names = sorted([ic['field_name'] for ic in input_schema.attributes['input_columns']])
         self.assertEqual(['a', 'b', 'c'], names)
 
     def test_put_source_in_revision(self):
         pub = Socrata(auth)
-
-        (ok, source) = pub.sources.create_upload('foo.csv')
-        self.assertTrue(ok, source)
-
+        source = pub.sources.create_upload('foo.csv')
         df = pd.read_csv('test/fixtures/simple.csv')
-        (ok, input_schema) = source.df(df)
-        self.assertTrue(ok, input_schema)
-
+        input_schema = source.df(df)
         rev = self.create_rev()
-
-        (ok, source) = source.add_to_revision(rev)
-        self.assertTrue(ok, source)
+        source = source.add_to_revision(rev)

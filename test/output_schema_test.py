@@ -5,7 +5,7 @@ from time import sleep
 import uuid
 
 def create_bad_output_schema(input_schema):
-    (ok, output_schema) = input_schema.transform({
+    output_schema = input_schema.transform({
         'output_columns': [
             {
                 "field_name": "b",
@@ -18,11 +18,10 @@ def create_bad_output_schema(input_schema):
             }
         ]}
     )
-    assert ok
     return output_schema
 
 def create_good_output_schema(input_schema):
-    (ok, output_schema) = input_schema.transform({
+    output_schema = input_schema.transform({
         'output_columns': [
             {
                 "field_name": "b",
@@ -35,36 +34,33 @@ def create_good_output_schema(input_schema):
             }
         ]}
     )
-    assert ok
     return output_schema
 
 
 class TestOutputSchema(TestCase):
     def test_get_errors(self):
         output_schema = create_bad_output_schema(self.create_input_schema())
-        (ok, output_schema) = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish()
 
-        (ok, errors) = output_schema.schema_errors()
+        errors = output_schema.schema_errors()
 
         for e in errors:
             assert 'error' in e['b']
 
     def test_get_errors_csv(self):
         output_schema = create_bad_output_schema(self.create_input_schema())
-        (ok, output_schema) = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish()
 
-        (ok, errors) = output_schema.schema_errors_csv()
-        assert ok, errors
+        errors = output_schema.schema_errors_csv()
         out_csv = '\n'.join([str(line) for line in errors.iter_lines()])
 
         assert 'Unable to convert' in out_csv
 
     def test_get_rows(self):
         output_schema = create_good_output_schema(self.create_input_schema())
-        (ok, output_schema) = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish()
 
-        (ok, rows) = output_schema.rows()
-        self.assertTrue(ok, rows)
+        rows = output_schema.rows()
 
         self.assertEqual(rows, [
             {'b': {'ok': 'bfoo'}},
@@ -73,9 +69,7 @@ class TestOutputSchema(TestCase):
             {'b': {'ok': 'bfoo'}}
         ])
 
-        (ok, rows) = output_schema.rows(offset = 2, limit = 1)
-        self.assertTrue(ok, rows)
-
+        rows = output_schema.rows(offset = 2, limit = 1)
         self.assertEqual(rows, [
             {'b': {'ok': 'bfoo'}}
         ])
@@ -83,12 +77,10 @@ class TestOutputSchema(TestCase):
     def test_build_config(self):
         output_schema = create_good_output_schema(self.create_input_schema())
 
-        (ok, config) = output_schema.build_config(
+        config = output_schema.build_config(
             "my cool config %s" % str(uuid.uuid4()),
             "replace"
         )
-
-        self.assertTrue(ok, config)
 
         [single_column] = config.attributes['columns']
 
@@ -98,10 +90,9 @@ class TestOutputSchema(TestCase):
 
 
     def test_validate_row_id(self):
-        (ok, rev) = self.view.revisions.create_replace_revision()
-        assert ok, rev
+        rev = self.view.revisions.create_replace_revision()
         input_schema = self.create_input_schema(rev = rev)
-        (ok, output_schema) = input_schema.transform({
+        output_schema = input_schema.transform({
             'output_columns': [
                 {
                     "field_name": "a",
@@ -115,20 +106,17 @@ class TestOutputSchema(TestCase):
             ]}
         )
 
-        (ok, result) = output_schema.validate_row_id('a')
+        result = output_schema.validate_row_id('a')
+        self.assertEqual(result, True)
 
-        self.assertEqual(result, {'valid': True})
-
-        (ok, result) = output_schema.validate_row_id('nope')
-
-        self.assertEqual(result, {'reason': 'No column with field_name = nope'})
+        result = output_schema.validate_row_id('nope')
+        self.assertEqual(result, False)
 
     def test_set_row_id(self):
-        (ok, rev) = self.view.revisions.create_replace_revision()
-        assert ok, rev
+        rev = self.view.revisions.create_replace_revision()
         input_schema = self.create_input_schema(rev = rev)
 
-        (ok, output_schema) = input_schema.transform({
+        output_schema = input_schema.transform({
             'output_columns': [
                 {
                     "field_name": "a",
@@ -141,25 +129,22 @@ class TestOutputSchema(TestCase):
                 }
             ]}
         )
-        (ok, result) = output_schema.validate_row_id('a')
-        assert ok, result
+        result = output_schema.validate_row_id('a')
 
-        (ok, output_schema) = output_schema.set_row_id('a')
-        assert ok, output_schema
+        output_schema = output_schema.set_row_id('a')
 
         self.assertEqual(output_schema.attributes['output_columns'][0]['is_primary_key'], True)
 
     def test_change_columns(self):
         output = self.create_input_schema().get_latest_output_schema()
 
-        (ok, output) = output\
+        output = output\
             .change_column_metadata('a', 'field_name').to('aa')\
             .change_column_metadata('b', 'description').to('the description of b')\
             .change_column_metadata('c', 'display_name').to('Column C!')\
             .change_column_transform('c').to('to_number(`c`) + 7')\
             .run()
 
-        assert ok, output
 
         [aa, b, c] = output.attributes['output_columns']
 
@@ -171,13 +156,12 @@ class TestOutputSchema(TestCase):
     def test_change_column_and_reference(self):
         output = self.create_input_schema().get_latest_output_schema()
 
-        (ok, output) = output\
+        output = output\
             .change_column_metadata('a', 'field_name').to('aa')\
             .change_column_metadata('aa', 'description').to('the description of aa')\
             .change_column_metadata('aa', 'display_name').to('COLUMN AA!')\
             .run()
 
-        assert ok, output
 
         [aa, _b, _c] = output.attributes['output_columns']
 
@@ -188,7 +172,7 @@ class TestOutputSchema(TestCase):
     def test_add_after_delete(self):
         output = self.create_input_schema().get_latest_output_schema()
 
-        (ok, output) = output\
+        output = output\
             .drop_column('c')\
             .drop_column('b')\
             .drop_column('a')\
@@ -196,7 +180,6 @@ class TestOutputSchema(TestCase):
             .change_column_metadata('a', 'display_name').to('COLUMN AA!')\
             .run()
 
-        assert ok, output
 
         [a] = output.attributes['output_columns']
 
@@ -207,13 +190,12 @@ class TestOutputSchema(TestCase):
     def test_drop_column(self):
         output = self.create_input_schema().get_latest_output_schema()
 
-        (ok, output) = output\
+        output = output\
             .change_column_metadata('a', 'field_name').to('aa')\
             .drop_column('b')\
             .drop_column('c')\
             .run()
 
-        assert ok, output
 
         [aa] = output.attributes['output_columns']
         self.assertEqual(len(output.attributes['output_columns']), 1)
@@ -222,23 +204,22 @@ class TestOutputSchema(TestCase):
     def test_create_column(self):
         output = self.create_input_schema().get_latest_output_schema()
 
-        (ok, output) = output\
+        output = output\
             .change_column_metadata('a', 'field_name').to('aa')\
             .drop_column('b')\
             .drop_column('c')\
             .add_column('aa_aa', 'AA+AA', 'to_number(`a`) + to_number(`a`)', 'this is column a plus a')\
             .run()
 
-        assert ok, output
 
-        (ok, output) = output.wait_for_finish()
+        output = output.wait_for_finish()
 
         [aa, a_plus_a] = output.attributes['output_columns']
         self.assertEqual(len(output.attributes['output_columns']), 2)
         self.assertEqual(aa['field_name'], 'aa')
         self.assertEqual(a_plus_a['field_name'], 'aa_aa')
 
-        (ok, rows) = output.rows(offset = 0, limit = 4)
+        rows = output.rows(offset = 0, limit = 4)
         cells = [row.get('aa_aa')['ok'] for row in rows]
 
         self.assertEqual(cells, [
@@ -251,7 +232,7 @@ class TestOutputSchema(TestCase):
 
     def test_geocode_column(self):
         output = self.create_input_schema(filename = 'geo.csv').get_latest_output_schema()
-        (ok, output) = output\
+        output = output\
             .add_column('geocoded', 'Geocoded', 'geocode(`address`, `city`, `state`, `zip`)', 'geocoded column')\
             .drop_column('address')\
             .drop_column('city')\
@@ -259,13 +240,10 @@ class TestOutputSchema(TestCase):
             .drop_column('zip')\
             .run()
 
-        assert ok, output
 
-        (ok, output) = output.wait_for_finish()
-        assert ok, output
+        output = output.wait_for_finish()
 
-        (ok, rows) = output.rows(offset = 0, limit = 4)
-        assert ok, rows
+        rows = output.rows(offset = 0, limit = 4)
 
         [p0, p1, p2] = [r['geocoded']['ok'] for r in rows]
 
@@ -287,48 +265,41 @@ class TestOutputSchema(TestCase):
         rev = self.create_rev()
         input_schema = self.create_input_schema(rev = rev)
         output_schema = input_schema.get_latest_output_schema()
-        (ok, job) = rev.apply(output_schema = output_schema)
+        job = rev.apply(output_schema = output_schema)
 
-        assert ok, job
         done = False
         attempts = 0
         while not done and attempts < 20:
-            (ok, job) = job.show()
+            job = job.show()
             attempts += 1
-            assert ok, job
 
             done = job.attributes['status'] == 'successful'
             sleep(0.5)
 
         assert done, "Polling job never resulted in a successful completion: %s" % job
 
-        (ok, rev) = self.view.revisions.create_replace_revision()
-        assert ok, rev
+        rev = self.view.revisions.create_replace_revision()
         self.rev.discard()
         self.rev = rev
 
         # Ok, we've got a dataset.  Let's create a revision on it and mess with its schema!
 
-        (ok, source) = rev.source_from_dataset()
-        assert ok, source
+        source = rev.source_from_dataset()
 
         input_schema = source.get_latest_input_schema()
         output_schema = input_schema.get_latest_output_schema()
-        (ok, new_output_schema) = output_schema.add_column('d', 'D', 'a + 5')\
+        new_output_schema = output_schema.add_column('d', 'D', 'a + 5')\
                                                .drop_column('b')\
                                                .drop_column('c')\
                                                .run()
-        assert ok, new_output_schema
 
-        (ok, job) = rev.apply(output_schema = new_output_schema)
-        assert ok, job
+        job = rev.apply(output_schema = new_output_schema)
 
         done = False
         attempts = 0
         while not done and attempts < 20:
-            (ok, job) = job.show()
+            job = job.show()
             attempts += 1
-            assert ok, job
 
             done = job.attributes['status'] == 'successful'
             sleep(0.5)
@@ -337,50 +308,6 @@ class TestOutputSchema(TestCase):
 
         from socrata.http import get
 
-        (ok, result) = get("https://{domain}/id/{fourfour}".format(domain = auth.domain, fourfour = rev.attributes['fourfour']), auth)
-        assert ok, result
+        result = get("https://{domain}/id/{fourfour}".format(domain = auth.domain, fourfour = rev.attributes['fourfour']), auth)
 
         self.assertEqual(result, [{'a': '1', 'd': '6'}, {'a': '2', 'd': '7'}, {'a': '3', 'd': '8'}, {'a': '4', 'd': '9'}])
-
-
-    # Broken due to ingress strategy flags - if we leave this long enough maybe
-    # the OBE will be gone and we can just delete it
-    # def test_add_column_for_wrong_backend(self):
-    #     # First we'll actually create a dataset
-
-    #     rev = self.create_rev()
-    #     input_schema = self.create_input_schema(rev = rev)
-    #     output_schema = input_schema.get_latest_output_schema()
-    #     (ok, job) = rev.apply(output_schema = output_schema)
-    #     (ok, job) = job.wait_for_finish()
-    #     assert ok, job
-
-    #     (ok, rev) = self.view.revisions.create_replace_revision()
-    #     assert ok, rev
-    #     self.rev.discard()
-    #     self.rev = rev
-
-    #     # Ok, we've got a dataset.  Let's create a revision on it and mess with its schema!
-
-    #     (ok, source) = rev.source_from_dataset()
-    #     assert ok, source
-
-    #     input_schema = source.get_latest_input_schema()
-    #     output_schema = input_schema.get_latest_output_schema()
-    #     (ok, new_output_schema) = output_schema.add_column('d', 'D', 'make_point(a, c)').run()
-
-    #     assert not ok
-
-    #     self.assertEqual(new_output_schema, {
-    #         'message': '{output_schema_id} Cannot attach a schema containing a column of type "point" to this revision',
-    #         'params': {
-    #             'details': {
-    #                 'output_schema_id': [{}]
-    #             },
-    #             'output_schema_id': [
-    #                 'Cannot attach a schema containing a column of type "point" to this revision'
-    #             ],
-    #             'invalid_keys': ['output_schema_id']
-    #         },
-    #         'key': 'validation_failed'
-    #     })

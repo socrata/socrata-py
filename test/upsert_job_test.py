@@ -6,14 +6,12 @@ class TestUpsertJob(TestCase):
         rev = self.create_rev()
         input_schema = self.create_input_schema(rev = rev)
         output_schema = self.create_output_schema(input_schema = input_schema)
-        (ok, job) = rev.apply(output_schema = output_schema)
-        assert ok, job
+        job = rev.apply(output_schema = output_schema)
         done = False
         attempts = 0
         while not done and attempts < 20:
-            (ok, job) = job.show()
+            job = job.show()
             attempts += 1
-            assert ok, job
 
             done = job.attributes['status'] == 'successful'
             sleep(0.5)

@@ -74,10 +74,8 @@ class Config(Resource, ParseOptionBuilder):
         # Because of circular dependencies ;_;
         from socrata.revisions import Revision
 
-        (ok, res) = result = post(
+        res = post(
             self.path(uri).format(fourfour = fourfour),
             auth = self.auth
         )
-        if not ok:
-            return result
-        return (ok, Revision(self.auth, res))
+        return Revision(self.auth, res)

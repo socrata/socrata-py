@@ -1,6 +1,6 @@
 import json
 import requests
-from socrata.http import post, put, delete, get
+from socrata.http import post, put, delete, get, pluck_resource
 from socrata.resource import Collection, Resource
 from socrata.sources import Source
 from socrata.job import Job
@@ -130,7 +130,7 @@ class Revisions(Collection):
             domain = auth.domain,
         )
 
-        (ok, response) = result = post(
+        response = post(
             path,
             auth = auth,
             data = json.dumps({
@@ -140,11 +140,7 @@ class Revisions(Collection):
                 'metadata': metadata
             })
         )
-
-        if not ok:
-            return result
-
-        return (ok, Revision(auth, response))
+        return Revision(auth, response)
 
     def lookup(self, revision_seq):
         """
@@ -264,18 +260,12 @@ class Revision(Resource):
         ))
 
     def get_output_schema(self):
-        (ok, _) = rev_result = self.show()
-        if not ok:
-            return rev_result
-
+        self.show()
         output_schema_id = self.attributes['output_schema_id']
         if not output_schema_id:
-            return (True, None)
+            return None
 
-        (ok, sources) = source_result = self.list_sources()
-        if not ok:
-            return source_result
-
+        sources = self.list_sources()
         output_schemas = [o_s for source in sources for i_s in source.input_schemas for o_s in i_s.output_schemas]
         output_schema = None
 
@@ -283,7 +273,7 @@ class Revision(Resource):
             if o_s.attributes['id'] == output_schema_id:
                 output_schema = o_s
 
-        return (True, output_schema)
+        return output_schema
 
     def set_output_schema(self, output_schema_id):
         """
@@ -302,7 +292,7 @@ class Revision(Resource):
 
         Examples:
         ```python
-            (ok, revision) = revision.set_output_schema(42)
+            revision = revision.set_output_schema(42)
         ```
         """
         return self.update({'output_schema_id': output_schema_id})
@@ -328,10 +318,7 @@ class Revision(Resource):
             result (bool, dict): The revision plan
         ```
         """
-        (ok, resource) = result = get(self.path(uri), auth = self.auth)
-        if ok:
-            return (ok, resource['resource'])
-        return result
+        return pluck_resource(get(self.path(uri), auth = self.auth))
 
 
     def update(self, uri, body):
@@ -351,7 +338,7 @@ class Revision(Resource):
 
         Examples:
         ```python
-            (ok, revision) = revision.update({
+            revision = revision.update({
                 'metadata': {
                     'name': 'new name',
                     'description': 'new description'
@@ -384,23 +371,18 @@ class Revision(Resource):
 
         Examples:
         ```
-        (ok, job) = revision.apply(output_schema = my_output_schema)
+        job = revision.apply(output_schema = my_output_schema)
         ```
         """
 
         if output_schema:
             if not output_schema.attributes['finished_at']:
-                (ok, source) = result = output_schema.parent.parent.show()
-                if not ok:
-                    return result
-
+                source = output_schema.parent.parent.show()
                 source_type = source.attributes['source_type']
                 if source_type['type'] == 'view' and not source_type['loaded']:
                     pass
                 else:
-                    (ok, output_schema) = result = output_schema.wait_for_finish()
-                    if not ok:
-                        return result
+                    output_schema = output_schema.wait_for_finish()
 
         body = {}
 

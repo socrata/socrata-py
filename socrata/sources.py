@@ -1,10 +1,13 @@
 import json
 import io
 import webbrowser
+import types
 from socrata.http import post, put, patch, get, noop
 from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
+from socrata.lazy_pool import LazyThreadPoolExecutor
+from threading import Lock
 
 class Sources(Collection):
     def path(self):
@@ -48,7 +51,7 @@ class Sources(Collection):
 
         Examples:
         ```python
-            (ok, upload) = revision.create_upload('foo.csv')
+            upload = revision.create_upload('foo.csv')
         ```
 
         """
@@ -63,7 +66,106 @@ class Sources(Collection):
             })
         ))
 
+
+class ChunkIterator(object):
+    def __init__(self, filelike, chunk_size):
+        self._filelike = filelike
+        self.lock = Lock()
+        self._chunk_size = chunk_size
+        self.seq_num = 0
+        self.byte_offset = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        with self.lock:
+            read = self._filelike.read(self._chunk_size)
+            if not read:
+                raise StopIteration
+
+            this_seq = self.seq_num
+            this_byte_offset = self.byte_offset
+            self.seq_num = self.seq_num + 1
+            self.byte_offset = self.byte_offset + len(read)
+            return (this_seq, this_byte_offset, self.byte_offset, read)
+
+    def next(self):
+        return self.__next__()
+
+class FileLikeGenerator(object):
+    def __init__(self, gen):
+        self.gen = gen
+        self.done = False
+
+    def read(self, how_much):
+        if self.done:
+            return None
+
+        buf = []
+        consumed = 0
+        while consumed < how_much:
+            try:
+                chunk = next(self.gen)
+                consumed += len(chunk)
+                buf.append(chunk)
+            except StopIteration:
+                self.done = True
+                break
+
+        return b''.join(buf)
+
+
 class Source(Resource, ParseOptionBuilder):
+    def initiate(self, uri, content_type):
+        return post(
+            self.path(uri),
+            auth = self.auth,
+            data = json.dumps({ 'content_type': content_type })
+        )
+
+    def chunk(self, uri, seq_num, byte_offset, bytes):
+        return post(
+            self.path(uri).format(seq_num=seq_num, byte_offset=byte_offset),
+            auth = self.auth,
+            data = bytes,
+            headers = { 'content-type': 'application/octet-stream' }
+        )
+
+    def commit(self, uri, seq_num, byte_offset):
+        return post(
+            self.path(uri).format(seq_num=seq_num, byte_offset=byte_offset),
+            auth = self.auth
+        )
+
+
+    def _chunked_bytes(self, file_or_string_or_generator, content_type):
+        if type(file_or_string_or_generator) is str:
+            file_handle = io.StringIO(file_or_string_or_generator)
+        elif isinstance(file_or_string_or_generator, types.GeneratorType):
+            file_handle = FileLikeGenerator(file_or_string_or_generator)
+        elif hasattr(file_or_string_or_generator, 'read'):
+            file_handle = file_or_string_or_generator
+        else:
+            raise ValueError("The thing to upload must be a file, string, or generator which yields bytes")
+
+
+        init = self.initiate(content_type)
+        chunk_size = init['preferred_chunk_size']
+        parallelism = init['preferred_upload_parallelism']
+
+        def sendit(chunk):
+            (seq_num, byte_offset, end_byte_offset, bytes) = chunk
+            self.chunk(seq_num, byte_offset, bytes)
+            return (seq_num, byte_offset, end_byte_offset)
+
+        pool = LazyThreadPoolExecutor(parallelism)
+        results = [r for r in pool.map(sendit, ChunkIterator(file_handle, chunk_size))]
+        (seq_num, byte_offset, end_byte_offset) = sorted(results, key=lambda x: x[0])[-1]
+        self.commit(seq_num, end_byte_offset)
+        return self.show()
+
+
     """
     Uploads bytes into the source. Requires content_type argument
     be set correctly for the file handle. It's advised you don't
@@ -71,14 +173,9 @@ class Source(Resource, ParseOptionBuilder):
     or tsv methods which will correctly set the content_type for you.
     """
     def bytes(self, uri, file_handle, content_type):
-        return self._mutate(post(
-            self.path(uri),
-            auth = self.auth,
-            data = file_handle,
-            headers = {
-                'content-type': content_type
-            }
-        ))
+        # This is just for backwards compat
+        self._chunked_bytes(file_handle, content_type)
+
 
     def load(self, uri = None):
         """
@@ -125,17 +222,14 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-blob.jpg', 'rb') as f:
-                (ok, upload) = upload.blob(f)
+                upload = upload.blob(f)
         ```
 
         """
         source = self
         if self.attributes['parse_options']['parse_source']:
-            (ok, cloned) = self.change_parse_option('parse_source').to(False).run()
-            assert ok, cloned
-            source = cloned
-
-        return source.bytes(file_handle, "application/octet-stream")
+            source = self.change_parse_option('parse_source').to(False).run()
+        return source._chunked_bytes(file_handle, "application/octet-stream")
 
 
     def csv(self, file_handle):
@@ -155,10 +249,10 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.csv', 'rb') as f:
-                (ok, upload) = upload.csv(f)
+                upload = upload.csv(f)
         ```
         """
-        return self.bytes(file_handle, "text/csv")
+        return self._chunked_bytes(file_handle, "text/csv")
 
     def xls(self, file_handle):
         """
@@ -177,10 +271,10 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.xls', 'rb') as f:
-                (ok, upload) = upload.xls(f)
+                upload = upload.xls(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.ms-excel")
+        return self._chunked_bytes(file_handle, "application/vnd.ms-excel")
 
     def xlsx(self, file_handle):
         """
@@ -199,10 +293,10 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.xlsx', 'rb') as f:
-                (ok, upload) = upload.xlsx(f)
+                upload = upload.xlsx(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        return self._chunked_bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     def tsv(self, file_handle):
         """
@@ -221,10 +315,10 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-file.tsv', 'rb') as f:
-                (ok, upload) = upload.tsv(f)
+                upload = upload.tsv(f)
         ```
         """
-        return self.bytes(file_handle, "text/tab-separated-values")
+        return self._chunked_bytes(file_handle, "text/tab-separated-values")
 
     def shapefile(self, file_handle):
         """
@@ -243,10 +337,10 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-shapefile-archive.zip', 'rb') as f:
-                (ok, upload) = upload.shapefile(f)
+                upload = upload.shapefile(f)
         ```
         """
-        return self.bytes(file_handle, "application/zip")
+        return self._chunked_bytes(file_handle, "application/zip")
 
     def kml(self, file_handle):
         """
@@ -265,10 +359,10 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-kml-file.kml', 'rb') as f:
-                (ok, upload) = upload.kml(f)
+                upload = upload.kml(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.google-earth.kml+xml")
+        return self._chunked_bytes(file_handle, "application/vnd.google-earth.kml+xml")
 
 
     def geojson(self, file_handle):
@@ -288,10 +382,10 @@ class Source(Resource, ParseOptionBuilder):
         Examples:
         ```python
             with open('my-geojson-file.geojson', 'rb') as f:
-                (ok, upload) = upload.geojson(f)
+                upload = upload.geojson(f)
         ```
         """
-        return self.bytes(file_handle, "application/vnd.geo+json")
+        return self._chunked_bytes(file_handle, "application/vnd.geo+json")
 
 
     def df(self, dataframe):
@@ -312,12 +406,12 @@ class Source(Resource, ParseOptionBuilder):
         ```python
             import pandas
             df = pandas.read_csv('test/fixtures/simple.csv')
-            (ok, upload) = upload.df(df)
+            upload = upload.df(df)
         ```
         """
         s = io.StringIO()
         dataframe.to_csv(s, index=False)
-        return self.bytes(bytes(s.getvalue().encode()),"text/csv")
+        return self._chunked_bytes(bytes(s.getvalue().encode()),"text/csv")
 
     def add_to_revision(self, uri, revision):
         """
@@ -342,14 +436,12 @@ class Source(Resource, ParseOptionBuilder):
         ))
 
     def show_input_schema(self, uri, input_schema_id):
-        (ok, res) = result = get(
+        res = get(
             self.path(uri.format(input_schema_id = input_schema_id)),
             auth = self.auth
         )
 
-        if ok:
-            return self._subresource(InputSchema, result)
-        return result
+        return self._subresource(InputSchema, res)
 
     def get_latest_input_schema(self):
         return max(self.input_schemas, key = lambda s: s.attributes['id'])

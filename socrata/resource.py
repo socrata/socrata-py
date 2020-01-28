@@ -25,7 +25,7 @@ def parameterize_links(links, id_name, id_val):
 
 class ResourceFailedException(Exception):
     def __init__(self, body):
-        super(ResourceFailedException, self).__init__("Response indicated that resource failed to process {body}".format(body))
+        super(ResourceFailedException, self).__init__("Response indicated that resource failed to process {body}".format(body=body))
         self.body = body
 
 class ChildResourceSpec(object):

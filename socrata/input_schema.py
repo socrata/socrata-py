@@ -28,7 +28,7 @@ class InputSchema(Resource):
         which descends from this InputSchema
 
         Returns:
-            result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+            OutputSchema
         """
         return self._subresource(OutputSchema, get(
             self.path(uri),

@@ -26,7 +26,7 @@ class Sources(Collection):
 
         Returns:
         ```
-            result (bool, dict | Source): The Source resulting from this API call, or an error
+            Source: Returns the new Source The Source resulting from this API call, or an error
         ```
         """
         return self._subresource(Source, get(
@@ -46,7 +46,7 @@ class Sources(Collection):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -183,7 +183,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
         """
         return self._mutate(put(
@@ -216,7 +216,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -243,7 +243,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -265,7 +265,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -287,7 +287,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -309,7 +309,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -331,7 +331,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -353,7 +353,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -376,7 +376,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:
@@ -399,7 +399,7 @@ class Source(Resource, ParseOptionBuilder):
 
         Returns:
         ```
-            result (bool, Source | dict): Returns an API Result; the new Source or an error response
+            Source: Returns the new Source
         ```
 
         Examples:

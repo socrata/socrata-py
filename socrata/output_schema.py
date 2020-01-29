@@ -139,7 +139,7 @@ class OutputSchema(Resource):
 
         Returns:
         ```
-            result (bool, dict): Returns an API Result; where the response says if it can be used as a row id
+            boolean
         ```
         """
         output_column = [oc for oc in self.attributes['output_columns'] if oc['field_name'] == field_name]
@@ -165,7 +165,7 @@ class OutputSchema(Resource):
 
         Returns:
         ```
-            result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+            OutputSchema
         ```
 
         Examples:
@@ -309,7 +309,7 @@ class OutputSchema(Resource):
 
         Returns:
         ```
-            result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+            OutputSchema
         ```
 
         Examples:

@@ -593,8 +593,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Revision | dict): Returns an API Result; the Revision if it was created
-        or an API Error response
+    Revision
 ```
 
 Examples:
@@ -694,7 +693,7 @@ Args:
 
 Returns:
 ```
-    result (bool, dict | Revision): The new revision, or an error
+    Revision The new revision, or an error
 ```
 
 Examples:
@@ -722,7 +721,7 @@ Args:
 ```
 Returns:
 ```
-    result (bool, dict | Revision): The new revision, or an error
+    Revision The new revision, or an error
 ```
 Examples:
 ```
@@ -750,7 +749,7 @@ Args:
 
 Returns:
 ```
-    result (bool, dict | Revision): The new revision, or an error
+    Revision The new revision, or an error
 ```
 
 Examples:
@@ -776,7 +775,7 @@ List all the revisions on the view
 
 Returns:
 ```
-    result (bool, dict | list[Revision])
+    list[Revision]
 ```
 
 #### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L145)
@@ -794,7 +793,7 @@ Args:
 
 Returns:
 ```
-    result (bool, dict | Revision): The Revision resulting from this API call, or an error
+    Revision The Revision resulting from this API call, or an error
 ```
 
 ### [Revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L177)
@@ -823,7 +822,7 @@ Args:
 
 Returns:
 ```
-    result (bool, dict | Job): Returns the job that is being run to apply the revision
+    Job
 ```
 
 Examples:
@@ -846,7 +845,7 @@ Args:
 ```
 Returns:
 ```
-    result (bool, dict | Source): The Source created by this API call, or an error
+    Source: Returns the new Source The Source created by this API call, or an error
 ```
 
 #### [discard](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L301)
@@ -856,7 +855,7 @@ Discard this open revision.
 
 Returns:
 ```
-    result (bool, dict | Revision): The closed Revision or an error
+    Revision The closed Revision or an error
 ```
 
 #### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L135)
@@ -878,7 +877,7 @@ Return the list of operations this revision will make when it is applied
 
 Returns:
 ```
-    result (bool, dict): The revision plan
+    dict
 ```
 
 #### [set_output_schema](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L278)
@@ -897,7 +896,7 @@ Args:
 
 Returns:
 ```
-    result (bool, dict | Revision): The updated Revision as a result of this API call, or an error
+    Revision The updated Revision as a result of this API call, or an error
 ```
 
 Examples:
@@ -947,7 +946,7 @@ Args:
 ```
 Returns:
 ```
-    result (bool, dict | Source): The Source created by this API call, or an error
+    Source: Returns the new Source The Source created by this API call, or an error
 ```
 
 #### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L404)
@@ -976,7 +975,7 @@ Args:
 
 Returns:
 ```
-    result (bool, dict | Revision): The updated Revision as a result of this API call, or an error
+    Revision The updated Revision as a result of this API call, or an error
 ```
 
 Examples:
@@ -989,7 +988,7 @@ Examples:
     })
 ```
 
-### [Sources](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L11)
+### [Sources](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L12)
 ```
 ArgSpec
     Args: auth
@@ -997,7 +996,7 @@ ArgSpec
 
 
 
-#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L36)
+#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L37)
 ```
 ArgSpec
     Args: filename
@@ -1013,7 +1012,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1021,7 +1020,7 @@ Examples:
     upload = revision.create_upload('foo.csv')
 ```
 
-#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L17)
+#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L18)
 ```
 ArgSpec
     Args: source_id
@@ -1036,10 +1035,10 @@ Args:
 
 Returns:
 ```
-    result (bool, dict | Source): The Source resulting from this API call, or an error
+    Source: Returns the new Source The Source resulting from this API call, or an error
 ```
 
-### [Source](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L92)
+### [Source](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L119)
 ```
 ArgSpec
     Args: auth, response, parent
@@ -1047,7 +1046,7 @@ ArgSpec
 
 
 
-#### [add_to_revision](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L389)
+#### [add_to_revision](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L416)
 ```
 ArgSpec
     Args: revision
@@ -1055,7 +1054,7 @@ ArgSpec
 
 Associate this Source with the given revision.
 
-#### [blob](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L184)
+#### [blob](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L211)
 ```
 ArgSpec
     Args: file_handle
@@ -1067,7 +1066,7 @@ ie: an image, video, etc.
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1125,7 +1124,7 @@ Examples:
     source = source            .change_parse_option('header_count').to(2)            .change_parse_option('column_header').to(2)            .run()
 ```
 
-#### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L208)
+#### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L235)
 ```
 ArgSpec
     Args: file_handle
@@ -1140,7 +1139,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1149,7 +1148,7 @@ Examples:
         upload = upload.csv(f)
 ```
 
-#### [df](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L364)
+#### [df](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L391)
 ```
 ArgSpec
     Args: dataframe
@@ -1164,7 +1163,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1174,7 +1173,7 @@ Examples:
     upload = upload.df(df)
 ```
 
-#### [geojson](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L341)
+#### [geojson](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L368)
 ```
 ArgSpec
     Args: file_handle
@@ -1189,7 +1188,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1198,7 +1197,7 @@ Examples:
         upload = upload.geojson(f)
 ```
 
-#### [kml](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L318)
+#### [kml](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L345)
 ```
 ArgSpec
     Args: file_handle
@@ -1213,7 +1212,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1229,22 +1228,22 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-#### [load](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L153)
+#### [load](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L180)
 
 
 Forces the source to load, if it's a view source.
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
-#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L452)
+#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L479)
 
 
 Open this source in your browser, this will open a window
 
-#### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L296)
+#### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L323)
 ```
 ArgSpec
     Args: file_handle
@@ -1259,7 +1258,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1268,7 +1267,7 @@ Examples:
         upload = upload.shapefile(f)
 ```
 
-#### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L274)
+#### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L301)
 ```
 ArgSpec
     Args: file_handle
@@ -1283,7 +1282,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1292,7 +1291,7 @@ Examples:
         upload = upload.tsv(f)
 ```
 
-#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L435)
+#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L462)
 
 
 This is the URL to the landing page in the UI for the sources
@@ -1302,17 +1301,17 @@ Returns:
     url (str): URL you can paste into a browser to view the source UI
 ```
 
-#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L422)
+#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L449)
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fc69a3d11e0>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f2091a387b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
 and a timeout.
 
-#### [xls](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L230)
+#### [xls](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L257)
 ```
 ArgSpec
     Args: file_handle
@@ -1327,7 +1326,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1336,7 +1335,7 @@ Examples:
         upload = upload.xls(f)
 ```
 
-#### [xlsx](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L252)
+#### [xlsx](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L279)
 ```
 ArgSpec
     Args: file_handle
@@ -1351,7 +1350,7 @@ Args:
 
 Returns:
 ```
-    result (bool, Source | dict): Returns an API Result; the new Source or an error response
+    Source: Returns the new Source
 ```
 
 Examples:
@@ -1502,7 +1501,7 @@ Get the latest (most recently created) OutputSchema
 which descends from this InputSchema
 
 Returns:
-    result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+    OutputSchema
 
 #### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L135)
 
@@ -1685,7 +1684,7 @@ Run all adds, drops, and column changes.
 
 Returns:
 ```
-    result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+    OutputSchema
 ```
 
 Examples:
@@ -1740,7 +1739,7 @@ Args:
 
 Returns:
 ```
-    result (bool, OutputSchema | dict): Returns an API Result; the new OutputSchema or an error response
+    OutputSchema
 ```
 
 Examples:
@@ -1763,14 +1762,14 @@ Args:
 
 Returns:
 ```
-    result (bool, dict): Returns an API Result; where the response says if it can be used as a row id
+    boolean
 ```
 
 #### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L71)
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fc69a3d11e0>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f2091a387b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
@@ -1800,7 +1799,7 @@ in the `links` section of each resource
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fc69a3d11e0>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f2091a387b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function

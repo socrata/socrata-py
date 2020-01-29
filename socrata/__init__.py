@@ -109,8 +109,7 @@ class Socrata(Collection):
 
         Returns:
         ```
-            result (bool, Revision | dict): Returns an API Result; the Revision if it was created
-                or an API Error response
+            Revision
         ```
 
         Examples:

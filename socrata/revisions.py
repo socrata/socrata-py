@@ -38,7 +38,7 @@ class Revisions(Collection):
 
         Returns:
         ```
-            result (bool, dict | list[Revision])
+            list[Revision]
         ```
         """
         return self._subresources(Revision, get(
@@ -59,7 +59,7 @@ class Revisions(Collection):
         ```
         Returns:
         ```
-            result (bool, dict | Revision): The new revision, or an error
+            Revision The new revision, or an error
         ```
         Examples:
         ```
@@ -84,7 +84,7 @@ class Revisions(Collection):
 
         Returns:
         ```
-            result (bool, dict | Revision): The new revision, or an error
+            Revision The new revision, or an error
         ```
 
         Examples:
@@ -111,7 +111,7 @@ class Revisions(Collection):
 
         Returns:
         ```
-            result (bool, dict | Revision): The new revision, or an error
+            Revision The new revision, or an error
         ```
 
         Examples:
@@ -153,7 +153,7 @@ class Revisions(Collection):
 
         Returns:
         ```
-            result (bool, dict | Revision): The Revision resulting from this API call, or an error
+            Revision The Revision resulting from this API call, or an error
         ```
         """
         return self._subresource(Revision, get(
@@ -189,7 +189,7 @@ class Revision(Resource):
         ```
         Returns:
         ```
-            result (bool, dict | Source): The Source created by this API call, or an error
+            Source: Returns the new Source The Source created by this API call, or an error
         ```
         """
         return self.create_source({
@@ -207,7 +207,7 @@ class Revision(Resource):
         ```
         Returns:
         ```
-            result (bool, dict | Source): The Source created by this API call, or an error
+            Source: Returns the new Source The Source created by this API call, or an error
         ```
         """
         return self.create_source({
@@ -287,7 +287,7 @@ class Revision(Resource):
 
         Returns:
         ```
-            result (bool, dict | Revision): The updated Revision as a result of this API call, or an error
+            Revision The updated Revision as a result of this API call, or an error
         ```
 
         Examples:
@@ -304,7 +304,7 @@ class Revision(Resource):
 
         Returns:
         ```
-            result (bool, dict | Revision): The closed Revision or an error
+            Revision The closed Revision or an error
         ```
         """
         return delete(self.path(uri), auth = self.auth)
@@ -315,7 +315,7 @@ class Revision(Resource):
 
         Returns:
         ```
-            result (bool, dict): The revision plan
+            dict
         ```
         """
         return pluck_resource(get(self.path(uri), auth = self.auth))
@@ -333,7 +333,7 @@ class Revision(Resource):
 
         Returns:
         ```
-            result (bool, dict | Revision): The updated Revision as a result of this API call, or an error
+            Revision The updated Revision as a result of this API call, or an error
         ```
 
         Examples:
@@ -366,7 +366,7 @@ class Revision(Resource):
 
         Returns:
         ```
-            result (bool, dict | Job): Returns the job that is being run to apply the revision
+            Job
         ```
 
         Examples:

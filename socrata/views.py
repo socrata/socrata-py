@@ -29,7 +29,7 @@ class Views(Collection):
         ```
         Returns:
         ```
-            result (bool, Revision | dict): Returns an API Result; the View or an error response
+            View
         ```
         """
         return self._subresource(View, get(

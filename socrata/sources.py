@@ -139,16 +139,16 @@ class Source(Resource, ParseOptionBuilder):
         )
 
 
-    def _chunked_bytes(self, file_or_string_or_generator, content_type):
+    def _chunked_bytes(self, file_or_string_or_bytes_or_generator, content_type):
 
-        if type(file_or_string_or_generator) is str:
-            file_handle = io.StringIO(file_or_string_or_generator)
-        if type(file_or_string_or_generator) is bytes:
-            file_handle = io.BytesIO(file_or_string_or_generator)
-        elif isinstance(file_or_string_or_generator, types.GeneratorType):
-            file_handle = FileLikeGenerator(file_or_string_or_generator)
-        elif hasattr(file_or_string_or_generator, 'read'):
-            file_handle = file_or_string_or_generator
+        if type(file_or_string_or_bytes_or_generator) is str:
+            file_handle = io.StringIO(file_or_string_or_bytes_or_generator)
+        if type(file_or_string_or_bytes_or_generator) is bytes:
+            file_handle = io.BytesIO(file_or_string_or_bytes_or_generator)
+        elif isinstance(file_or_string_or_bytes_or_generator, types.GeneratorType):
+            file_handle = FileLikeGenerator(file_or_string_or_bytes_or_generator)
+        elif hasattr(file_or_string_or_bytes_or_generator, 'read'):
+            file_handle = file_or_string_or_bytes_or_generator
         else:
             raise ValueError("The thing to upload must be a file, string, bytes, or generator which yields bytes")
 

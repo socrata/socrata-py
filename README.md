@@ -91,7 +91,6 @@ Python SDK for the Socrata Data Management API
       - [transform](#transform)
     + [OutputSchema](#outputschema)
       - [add_column](#add_column)
-      - [any_failed](#any_failed)
       - [build_config](#build_config)
       - [change_column_metadata](#change_column_metadata)
       - [change_column_transform](#change_column_transform)
@@ -1046,7 +1045,7 @@ ArgSpec
 
 
 
-#### [add_to_revision](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L416)
+#### [add_to_revision](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L419)
 ```
 ArgSpec
     Args: revision
@@ -1054,7 +1053,7 @@ ArgSpec
 
 Associate this Source with the given revision.
 
-#### [blob](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L211)
+#### [blob](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L214)
 ```
 ArgSpec
     Args: file_handle
@@ -1124,7 +1123,7 @@ Examples:
     source = source            .change_parse_option('header_count').to(2)            .change_parse_option('column_header').to(2)            .run()
 ```
 
-#### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L235)
+#### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L238)
 ```
 ArgSpec
     Args: file_handle
@@ -1148,7 +1147,7 @@ Examples:
         upload = upload.csv(f)
 ```
 
-#### [df](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L391)
+#### [df](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L394)
 ```
 ArgSpec
     Args: dataframe
@@ -1173,7 +1172,7 @@ Examples:
     upload = upload.df(df)
 ```
 
-#### [geojson](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L368)
+#### [geojson](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L371)
 ```
 ArgSpec
     Args: file_handle
@@ -1197,7 +1196,7 @@ Examples:
         upload = upload.geojson(f)
 ```
 
-#### [kml](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L345)
+#### [kml](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L348)
 ```
 ArgSpec
     Args: file_handle
@@ -1228,7 +1227,7 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-#### [load](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L180)
+#### [load](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L183)
 
 
 Forces the source to load, if it's a view source.
@@ -1238,12 +1237,12 @@ Returns:
     Source: Returns the new Source
 ```
 
-#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L479)
+#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L482)
 
 
 Open this source in your browser, this will open a window
 
-#### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L323)
+#### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L326)
 ```
 ArgSpec
     Args: file_handle
@@ -1267,7 +1266,7 @@ Examples:
         upload = upload.shapefile(f)
 ```
 
-#### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L301)
+#### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L304)
 ```
 ArgSpec
     Args: file_handle
@@ -1291,7 +1290,7 @@ Examples:
         upload = upload.tsv(f)
 ```
 
-#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L462)
+#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L465)
 
 
 This is the URL to the landing page in the UI for the sources
@@ -1301,17 +1300,17 @@ Returns:
     url (str): URL you can paste into a browser to view the source UI
 ```
 
-#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L449)
+#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L452)
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7f2091a387b8>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f83097f67b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
 and a timeout.
 
-#### [xls](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L257)
+#### [xls](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L260)
 ```
 ArgSpec
     Args: file_handle
@@ -1335,7 +1334,7 @@ Examples:
         upload = upload.xls(f)
 ```
 
-#### [xlsx](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L279)
+#### [xlsx](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L282)
 ```
 ArgSpec
     Args: file_handle
@@ -1527,7 +1526,7 @@ the
 
 This is data as transformed from an InputSchema
 
-#### [add_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L184)
+#### [add_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L209)
 ```
 ArgSpec
     Args: field_name, display_name, transform_expr, description
@@ -1558,11 +1557,6 @@ new_output_schema = output
     .run()
 ```
 
-#### [any_failed](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L65)
-
-
-Whether or not any transform in this output schema has failed
-
 #### [build_config](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L50)
 ```
 ArgSpec
@@ -1572,7 +1566,7 @@ ArgSpec
 Create a new ImportConfig from this OutputSchema. See the API
 docs for what an ImportConfig is and why they're useful
 
-#### [change_column_metadata](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L247)
+#### [change_column_metadata](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L272)
 ```
 ArgSpec
     Args: field_name, attribute
@@ -1604,7 +1598,7 @@ Examples:
         .run()
 ```
 
-#### [change_column_transform](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L277)
+#### [change_column_transform](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L302)
 ```
 ArgSpec
     Args: field_name
@@ -1634,7 +1628,7 @@ Examples:
         .run()
 ```
 
-#### [drop_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L223)
+#### [drop_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L248)
 ```
 ArgSpec
     Args: field_name
@@ -1666,7 +1660,7 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-#### [rows](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L101)
+#### [rows](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L126)
 ```
 ArgSpec
     Args: offset, limit
@@ -1676,7 +1670,7 @@ ArgSpec
 Get the rows for this OutputSchema. Acceps `offset` and `limit` params
 for paging through the data.
 
-#### [run](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L305)
+#### [run](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L330)
 
 
 Run all adds, drops, and column changes.
@@ -1705,7 +1699,7 @@ Examples:
         .run()
 ```
 
-#### [schema_errors](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L109)
+#### [schema_errors](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L134)
 ```
 ArgSpec
     Args: offset, limit
@@ -1715,7 +1709,7 @@ ArgSpec
 Get the errors that resulted in transforming into this output schema.
 Accepts `offset` and `limit` params
 
-#### [schema_errors_csv](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L116)
+#### [schema_errors_csv](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L141)
 
 
 Get the errors that results in transforming into this output schema
@@ -1724,7 +1718,7 @@ as a CSV stream.
 Note that this returns a Reponse, where Reponse
 is a python requests Reponse object
 
-#### [set_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L157)
+#### [set_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L182)
 ```
 ArgSpec
     Args: field_name
@@ -1747,7 +1741,7 @@ Examples:
 new_output_schema = output.set_row_id('the_id_column')
 ```
 
-#### [validate_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L131)
+#### [validate_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L156)
 ```
 ArgSpec
     Args: field_name
@@ -1765,11 +1759,11 @@ Returns:
     boolean
 ```
 
-#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L71)
+#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L96)
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7f2091a387b8>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f83097f67b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
@@ -1799,7 +1793,7 @@ in the `links` section of each resource
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7f2091a387b8>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f83097f67b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function

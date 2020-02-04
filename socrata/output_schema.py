@@ -63,10 +63,35 @@ class OutputSchema(Resource):
         return Config(self.auth, res, None)
 
     def any_failed(self):
+        self.wait_for_finish()
         """
-        Whether or not any transform in this output schema has failed
+        This is probably not the function you are looking for.
+
+        This returns whether or not any transform in this output schema has failed. "Failed" in this
+        case means an internal error (which is unexpected), not a data error (which is expected). This
+        function will wait for processing to complete if it hasn't yet.
+
+        For data errors:
+
+            Tell whether or not there are data errors
+                output_schema.any_errors()
+            Get the count of data errors
+                output_schema.attributes['error_count']
+            Get the errors themselves
+                output_schema.schema_errors(offset = 0, limit = 20)
         """
         return any([column['transform']['failed_at'] for column in self.attributes['output_columns']])
+
+
+    def any_errors(self):
+        self.wait_for_finish()
+        """
+        Whether or not any transform returned a data error in this schema. This
+        function will wait for processing to complete if it hasn't yet.
+        """
+
+        return self.attributes['error_count'] > 0
+
 
     def wait_for_finish(self, progress = noop, timeout = None, sleeptime = 1):
         """

@@ -56,6 +56,8 @@ class TestOutputSchema(TestCase):
 
         assert 'Unable to convert' in out_csv
 
+        assert output_schema.any_errors()
+
     def test_get_rows(self):
         output_schema = create_good_output_schema(self.create_input_schema())
         output_schema = output_schema.wait_for_finish()

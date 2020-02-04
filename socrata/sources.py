@@ -143,7 +143,7 @@ class Source(Resource, ParseOptionBuilder):
 
         if type(file_or_string_or_bytes_or_generator) is str:
             file_handle = io.StringIO(file_or_string_or_bytes_or_generator)
-        if type(file_or_string_or_bytes_or_generator) is bytes:
+        elif type(file_or_string_or_bytes_or_generator) is bytes:
             file_handle = io.BytesIO(file_or_string_or_bytes_or_generator)
         elif isinstance(file_or_string_or_bytes_or_generator, types.GeneratorType):
             file_handle = FileLikeGenerator(file_or_string_or_bytes_or_generator)

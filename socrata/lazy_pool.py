@@ -41,7 +41,10 @@ class LazyThreadPoolExecutor(object):
         def _w():
             with self.thread_sem:
                 for thing in self.iterable:
-                    self.result_queue.put(predicate(thing))
+                    try:
+                        self.result_queue.put(predicate(thing))
+                    except Exception as e:
+                        self.result_queue.put(e)
                     if self._shutdown.is_set():
                         break
             self.result_queue.put(THREAD_DONE)
@@ -55,7 +58,10 @@ class LazyThreadPoolExecutor(object):
             # See http://bugs.python.org/issue1360
             result = self.result_queue.get(True, ONE_YEAR)
             if result is not THREAD_DONE:
-                yield result
+                if isinstance(result, Exception):
+                    raise result
+                else:
+                    yield result
             else:
                 # if all threads have exited
                 # sorry, this is kind of a gross way to use semaphores

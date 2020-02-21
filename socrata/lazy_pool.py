@@ -6,6 +6,9 @@ ONE_YEAR = 365 * 24 * 60 * 60
 
 THREAD_DONE = object()
 
+class ExceptionBox(object):
+    def __init__(self, exc):
+        self.exc = exc
 
 class LazyThreadPoolExecutor(object):
     def __init__(self, num_workers=1):
@@ -44,7 +47,7 @@ class LazyThreadPoolExecutor(object):
                     try:
                         self.result_queue.put(predicate(thing))
                     except Exception as e:
-                        self.result_queue.put(e)
+                        self.result_queue.put(ExceptionBox(e))
                     if self._shutdown.is_set():
                         break
             self.result_queue.put(THREAD_DONE)
@@ -58,8 +61,8 @@ class LazyThreadPoolExecutor(object):
             # See http://bugs.python.org/issue1360
             result = self.result_queue.get(True, ONE_YEAR)
             if result is not THREAD_DONE:
-                if isinstance(result, Exception):
-                    raise result
+                if isinstance(result, ExceptionBox):
+                    raise result.exc
                 else:
                     yield result
             else:

@@ -987,7 +987,7 @@ Examples:
     })
 ```
 
-### [Sources](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L12)
+### [Sources](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L15)
 ```
 ArgSpec
     Args: auth
@@ -995,7 +995,7 @@ ArgSpec
 
 
 
-#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L37)
+#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L40)
 ```
 ArgSpec
     Args: filename
@@ -1019,7 +1019,7 @@ Examples:
     upload = revision.create_upload('foo.csv')
 ```
 
-#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L18)
+#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L21)
 ```
 ArgSpec
     Args: source_id
@@ -1037,7 +1037,7 @@ Returns:
     Source: Returns the new Source The Source resulting from this API call, or an error
 ```
 
-### [Source](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L119)
+### [Source](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L122)
 ```
 ArgSpec
     Args: auth, response, parent
@@ -1045,7 +1045,7 @@ ArgSpec
 
 
 
-#### [add_to_revision](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L419)
+#### [add_to_revision](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L466)
 ```
 ArgSpec
     Args: revision
@@ -1053,7 +1053,7 @@ ArgSpec
 
 Associate this Source with the given revision.
 
-#### [blob](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L214)
+#### [blob](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L237)
 ```
 ArgSpec
     Args: file_handle
@@ -1123,7 +1123,7 @@ Examples:
     source = source            .change_parse_option('header_count').to(2)            .change_parse_option('column_header').to(2)            .run()
 ```
 
-#### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L238)
+#### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L261)
 ```
 ArgSpec
     Args: file_handle
@@ -1134,6 +1134,9 @@ Upload a CSV, returns the new input schema.
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1147,7 +1150,7 @@ Examples:
         upload = upload.csv(f)
 ```
 
-#### [df](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L394)
+#### [df](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L438)
 ```
 ArgSpec
     Args: dataframe
@@ -1158,6 +1161,9 @@ Upload a pandas DataFrame, returns the new source.
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1172,7 +1178,7 @@ Examples:
     upload = upload.df(df)
 ```
 
-#### [geojson](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L371)
+#### [geojson](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L412)
 ```
 ArgSpec
     Args: file_handle
@@ -1183,6 +1189,9 @@ Upload a geojson file, returns the new input schema.
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1196,7 +1205,7 @@ Examples:
         upload = upload.geojson(f)
 ```
 
-#### [kml](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L348)
+#### [kml](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L386)
 ```
 ArgSpec
     Args: file_handle
@@ -1207,6 +1216,9 @@ Upload a KML file, returns the new input schema.
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1227,7 +1239,7 @@ Get a list of the operations that you can perform on this
 object. These map directly onto what's returned from the API
 in the `links` section of each resource
 
-#### [load](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L183)
+#### [load](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L206)
 
 
 Forces the source to load, if it's a view source.
@@ -1237,12 +1249,12 @@ Returns:
     Source: Returns the new Source
 ```
 
-#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L482)
+#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L529)
 
 
 Open this source in your browser, this will open a window
 
-#### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L326)
+#### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L361)
 ```
 ArgSpec
     Args: file_handle
@@ -1253,6 +1265,9 @@ Upload a Shapefile, returns the new input schema.
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1266,7 +1281,7 @@ Examples:
         upload = upload.shapefile(f)
 ```
 
-#### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L304)
+#### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L336)
 ```
 ArgSpec
     Args: file_handle
@@ -1277,6 +1292,9 @@ Upload a TSV, returns the new input schema.
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1290,7 +1308,7 @@ Examples:
         upload = upload.tsv(f)
 ```
 
-#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L465)
+#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L512)
 
 
 This is the URL to the landing page in the UI for the sources
@@ -1300,17 +1318,17 @@ Returns:
     url (str): URL you can paste into a browser to view the source UI
 ```
 
-#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L452)
+#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L499)
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7f83097f67b8>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f34e14fb7b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
 and a timeout.
 
-#### [xls](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L260)
+#### [xls](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L286)
 ```
 ArgSpec
     Args: file_handle
@@ -1321,6 +1339,9 @@ Upload an XLS, returns the new input schema
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1334,7 +1355,7 @@ Examples:
         upload = upload.xls(f)
 ```
 
-#### [xlsx](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L282)
+#### [xlsx](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L311)
 ```
 ArgSpec
     Args: file_handle
@@ -1345,6 +1366,9 @@ Upload an XLSX, returns the new input schema.
 Args:
 ```
     file_handle: The file handle, as returned by the python function `open()`
+
+    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
 ```
 
 Returns:
@@ -1763,7 +1787,7 @@ Returns:
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7f83097f67b8>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f34e14fb7b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
@@ -1793,7 +1817,7 @@ in the `links` section of each resource
 ```
 ArgSpec
     Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7f83097f67b8>, sleeptime=1
+    Defaults: progress=<function noop at 0x7f34e14fb7b8>, sleeptime=1
 ```
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function

@@ -2,12 +2,15 @@ import json
 import io
 import webbrowser
 import types
-from socrata.http import post, put, patch, get, noop
+from time import sleep
+from socrata.http import post, put, patch, get, noop, UnexpectedResponseException
 from socrata.resource import Resource, Collection, ChildResourceSpec
 from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
 from socrata.lazy_pool import LazyThreadPoolExecutor
 from threading import Lock
+from urllib3.exceptions import NewConnectionError
+
 
 class Sources(Collection):
     def path(self):
@@ -139,7 +142,7 @@ class Source(Resource, ParseOptionBuilder):
         )
 
 
-    def _chunked_bytes(self, file_or_string_or_bytes_or_generator, content_type):
+    def _chunked_bytes(self, file_or_string_or_bytes_or_generator, content_type, **kwargs):
 
         if type(file_or_string_or_bytes_or_generator) is str:
             file_handle = io.StringIO(file_or_string_or_bytes_or_generator)
@@ -156,11 +159,31 @@ class Source(Resource, ParseOptionBuilder):
         init = self.initiate(content_type)
         chunk_size = init['preferred_chunk_size']
         parallelism = init['preferred_upload_parallelism']
+        max_retries = kwargs.get('max_retries', 5)
+        backoff_seconds = kwargs.get('backoff_seconds', 2)
 
-        def sendit(chunk):
+        def sendit(chunk, attempts = 0):
             (seq_num, byte_offset, end_byte_offset, bytes) = chunk
-            self.chunk(seq_num, byte_offset, bytes)
+            try:
+                self.chunk(seq_num, byte_offset, bytes)
+            except NewConnectionError as e:
+                return retry(chunk, e, attempts)
+            except UnexpectedResponseException as e:
+                if e.status in [500, 502]:
+                    return retry(chunk, e, attempts)
+                else:
+                    raise e
+
             return (seq_num, byte_offset, end_byte_offset)
+
+        def retry(chunk, e, attempts):
+            if attempts < max_retries:
+                attempts = attempts + 1
+                sleep(attempts * attempts * backoff_seconds)
+                return sendit(chunk, attempts)
+            else:
+                raise e
+
 
         pool = LazyThreadPoolExecutor(parallelism)
         results = [r for r in pool.map(sendit, ChunkIterator(file_handle, chunk_size))]
@@ -175,9 +198,9 @@ class Source(Resource, ParseOptionBuilder):
     use this method directly, instead use one of the csv, xls, xlsx,
     or tsv methods which will correctly set the content_type for you.
     """
-    def bytes(self, uri, file_handle, content_type):
+    def bytes(self, uri, file_handle, content_type, **kwargs):
         # This is just for backwards compat
-        self._chunked_bytes(file_handle, content_type)
+        self._chunked_bytes(file_handle, content_type, **kwargs)
 
 
     def load(self, uri = None):
@@ -211,7 +234,7 @@ class Source(Resource, ParseOptionBuilder):
         ]
 
 
-    def blob(self, file_handle):
+    def blob(self, file_handle, **kwargs):
         """
         Uploads a Blob dataset. A blob is a file that will not be parsed as a data file,
         ie: an image, video, etc.
@@ -232,16 +255,19 @@ class Source(Resource, ParseOptionBuilder):
         source = self
         if self.attributes['parse_options']['parse_source']:
             source = self.change_parse_option('parse_source').to(False).run()
-        return source._chunked_bytes(file_handle, "application/octet-stream")
+        return source._chunked_bytes(file_handle, "application/octet-stream", **kwargs)
 
 
-    def csv(self, file_handle):
+    def csv(self, file_handle, **kwargs):
         """
         Upload a CSV, returns the new input schema.
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -255,15 +281,18 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.csv(f)
         ```
         """
-        return self._chunked_bytes(file_handle, "text/csv")
+        return self._chunked_bytes(file_handle, "text/csv", **kwargs)
 
-    def xls(self, file_handle):
+    def xls(self, file_handle, **kwargs):
         """
         Upload an XLS, returns the new input schema
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -277,15 +306,18 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.xls(f)
         ```
         """
-        return self._chunked_bytes(file_handle, "application/vnd.ms-excel")
+        return self._chunked_bytes(file_handle, "application/vnd.ms-excel", **kwargs)
 
-    def xlsx(self, file_handle):
+    def xlsx(self, file_handle, **kwargs):
         """
         Upload an XLSX, returns the new input schema.
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -299,15 +331,18 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.xlsx(f)
         ```
         """
-        return self._chunked_bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        return self._chunked_bytes(file_handle, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", **kwargs)
 
-    def tsv(self, file_handle):
+    def tsv(self, file_handle, **kwargs):
         """
         Upload a TSV, returns the new input schema.
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -321,15 +356,18 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.tsv(f)
         ```
         """
-        return self._chunked_bytes(file_handle, "text/tab-separated-values")
+        return self._chunked_bytes(file_handle, "text/tab-separated-values", **kwargs)
 
-    def shapefile(self, file_handle):
+    def shapefile(self, file_handle, **kwargs):
         """
         Upload a Shapefile, returns the new input schema.
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -343,15 +381,18 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.shapefile(f)
         ```
         """
-        return self._chunked_bytes(file_handle, "application/zip")
+        return self._chunked_bytes(file_handle, "application/zip", **kwargs)
 
-    def kml(self, file_handle):
+    def kml(self, file_handle, **kwargs):
         """
         Upload a KML file, returns the new input schema.
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -365,16 +406,19 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.kml(f)
         ```
         """
-        return self._chunked_bytes(file_handle, "application/vnd.google-earth.kml+xml")
+        return self._chunked_bytes(file_handle, "application/vnd.google-earth.kml+xml", **kwargs)
 
 
-    def geojson(self, file_handle):
+    def geojson(self, file_handle, **kwargs):
         """
         Upload a geojson file, returns the new input schema.
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -388,16 +432,19 @@ class Source(Resource, ParseOptionBuilder):
                 upload = upload.geojson(f)
         ```
         """
-        return self._chunked_bytes(file_handle, "application/vnd.geo+json")
+        return self._chunked_bytes(file_handle, "application/vnd.geo+json", **kwargs)
 
 
-    def df(self, dataframe):
+    def df(self, dataframe, **kwargs):
         """
         Upload a pandas DataFrame, returns the new source.
 
         Args:
         ```
             file_handle: The file handle, as returned by the python function `open()`
+
+            max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
+            backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
         ```
 
         Returns:
@@ -414,7 +461,7 @@ class Source(Resource, ParseOptionBuilder):
         """
         s = io.StringIO()
         dataframe.to_csv(s, index=False)
-        return self._chunked_bytes(bytes(s.getvalue().encode()),"text/csv")
+        return self._chunked_bytes(bytes(s.getvalue().encode()),"text/csv", **kwargs)
 
     def add_to_revision(self, uri, revision):
         """

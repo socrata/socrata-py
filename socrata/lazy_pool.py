@@ -1,8 +1,6 @@
-from threading import Thread, Lock, Semaphore, Event
+from threading import Thread, Lock, Semaphore, Event, TIMEOUT_MAX
 from queue import Queue
 
-
-ONE_YEAR = 365 * 24 * 60 * 60
 
 THREAD_DONE = object()
 
@@ -59,7 +57,7 @@ class LazyThreadPoolExecutor(object):
             # timeout.
             # Hopefully one year is long enough...
             # See http://bugs.python.org/issue1360
-            result = self.result_queue.get(True, ONE_YEAR)
+            result = self.result_queue.get(True, TIMEOUT_MAX)
             if result is not THREAD_DONE:
                 if isinstance(result, ExceptionBox):
                     raise result.exc

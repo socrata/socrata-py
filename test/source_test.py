@@ -119,7 +119,7 @@ class TestSource(TestCase):
         # But the reason this test doesn't make a view on demand is because
         # we blacklist local addresses, which wouldn't allow this test to run against
         # localhost
-        url = 'https://cheetah.test-socrata.com/api/views/agi2-jsej/rows.csv?accessType=DOWNLOAD'
+        url = 'https://cheetah.test-socrata.com/api/views/v8ip-u8n3/rows.csv?accessType=DOWNLOAD'
 
         rev = self.create_rev()
         source = rev.source_from_url(url)
@@ -130,7 +130,29 @@ class TestSource(TestCase):
         output_schema.wait_for_finish()
 
         actual_columns = set([oc['field_name'] for oc in output_schema.attributes['output_columns']])
-        expected_columns = set(['id', 'plausibility', 'incident_occurrence', 'incident_location', 'witness_gibberish', 'blood_alcohol_level'])
+        expected_columns = set([
+            'airport_name',
+            'year',
+            'arr_del15',
+            'late_aircraft_ct',
+            'arr_flights',
+            'nas_delay',
+            'nas_ct',
+            'carrier',
+            'airport',
+            'month',
+            'security_ct',
+            'arr_delay',
+            'late_aircraft_delay',
+            'weather_delay',
+            'carrier_delay',
+            'arr_cancelled',
+            'carrier_name',
+            'security_delay',
+            'arr_diverted',
+            'carrier_ct',
+            'weather_ct'
+        ])
 
         self.assertEqual(actual_columns, expected_columns)
 

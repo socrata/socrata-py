@@ -63,7 +63,6 @@ class OutputSchema(Resource):
         return Config(self.auth, res, None)
 
     def any_failed(self):
-        self.wait_for_finish()
         """
         This is probably not the function you are looking for.
 
@@ -84,12 +83,10 @@ class OutputSchema(Resource):
 
 
     def any_errors(self):
-        self.wait_for_finish()
         """
         Whether or not any transform returned a data error in this schema. This
         function will wait for processing to complete if it hasn't yet.
         """
-
         return self.attributes['error_count'] > 0
 
 

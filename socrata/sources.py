@@ -496,10 +496,12 @@ class Source(Resource, ParseOptionBuilder):
     def get_latest_input_schema(self):
         return max(self.input_schemas, key = lambda s: s.attributes['id'])
 
-    def wait_for_finish(self, progress = noop, timeout = None, sleeptime = 1):
+    def wait_for_finish(self, progress = noop, timeout = 43200, sleeptime = 1):
         """
         Wait for this dataset to finish transforming and validating. Accepts a progress function
         and a timeout.
+
+        Default timeout is 12 hours
         """
         return self._wait_for_finish(
             is_finished = lambda m: m.attributes['finished_at'],

@@ -1,5 +1,5 @@
 # socrata-py
-Python SDK for the Socrata Data Management API
+Python SDK for the Socrata Data Management API. Use this library to call into publishing and ETL functionality offered when writing to Socrata datasets. 
 
 <!-- toc -->
 

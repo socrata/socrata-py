@@ -93,10 +93,12 @@ class OutputSchema(Resource):
         return self.attributes['error_count'] > 0
 
 
-    def wait_for_finish(self, progress = noop, timeout = None, sleeptime = 1):
+    def wait_for_finish(self, progress = noop, timeout = 10800, sleeptime = 1):
         """
         Wait for this dataset to finish transforming and validating. Accepts a progress function
         and a timeout.
+
+        Default timeout is 3 hours
         """
         return self._wait_for_finish(
             is_finished = lambda m: m.attributes['completed_at'],

@@ -1,6 +1,16 @@
 # socrata-py
 Python SDK for the Socrata Data Management API. Use this library to call into publishing and ETL functionality offered when writing to Socrata datasets. 
 
+```python
+with open('cool_dataset.csv', 'rb') as file:
+    (revision, output) = Socrata(auth).create(
+        name = "cool dataset",
+        description = "a description"
+    ).csv(file)
+    
+    revision.apply(output_schema = output)
+```
+
 <!-- toc -->
 
   * [Installation](#installation)

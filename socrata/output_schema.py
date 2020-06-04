@@ -63,7 +63,6 @@ class OutputSchema(Resource):
         return Config(self.auth, res, None)
 
     def any_failed(self):
-        self.wait_for_finish()
         """
         This is probably not the function you are looking for.
 

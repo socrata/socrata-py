@@ -52,6 +52,7 @@ class LazyThreadPoolExecutor(object):
         return _w
 
     def _result_iterator(self):
+        done_threads = 0
         while 1:
             # Queue.get is not interruptable w/ ^C unless you specify a
             # timeout.
@@ -64,13 +65,9 @@ class LazyThreadPoolExecutor(object):
                 else:
                     yield result
             else:
-                # if all threads have exited
-                # sorry, this is kind of a gross way to use semaphores
-                # break
-                if self.thread_sem._value == self.num_workers:
+                done_threads += 1
+                if done_threads == self.num_workers:
                     break
-                else:
-                    continue
 
 
 

@@ -97,7 +97,7 @@ class Socrata(Collection):
         """
         return Create(self, metadata=kwargs)
 
-    def new(self, metadata):
+    def new(self, metadata, external_datasets=[]):
         """
         Create an empty revision, on a view that doesn't exist yet. The
         view will be created for you, and the initial revision will be returned.
@@ -125,7 +125,7 @@ class Socrata(Collection):
             })
         ```
         """
-        return Revisions.new(self.auth, metadata)
+        return Revisions.new(self.auth, metadata, external_datasets)
 
 
 __all__ = [

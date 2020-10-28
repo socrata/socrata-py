@@ -125,7 +125,22 @@ class Revisions(Collection):
         return self._create('delete', metadata, permission)
 
     @staticmethod
-    def new(auth, metadata):
+    def new(auth, metadata, external_datasets=[]):
+        """
+        Initiate a new Revisions object
+
+        Args:
+        ```
+            auth (Socrata.Authorization): 
+            metadata (dict): Metadata to apply to the revision 
+            external_datasets ( [dict] ): List of external datasets to apply to the revision
+        ```
+
+        Returns:
+        ```
+            Revision The Revision resulting from this API call, or an error
+        ```
+        """
         path = 'https://{domain}/api/publishing/v1/revision'.format(
             domain = auth.domain,
         )
@@ -137,7 +152,8 @@ class Revisions(Collection):
                 'action': {
                     'type': 'update'
                 },
-                'metadata': metadata
+                'metadata': metadata,
+                'href': external_datasets
             })
         )
         return Revision(auth, response)
@@ -315,7 +331,8 @@ class Revision(Resource):
 
         Returns:
         ```
-            dict
+            
+            
         ```
         """
         return pluck_resource(get(self.path(uri), auth = self.auth))

@@ -133,7 +133,7 @@ class Revisions(Collection):
         ```
             auth (Socrata.Authorization): 
             metadata (dict): Metadata to apply to the revision 
-            external_datasets ( [dict] ): List of external datasets to apply to the revision
+            external_datasets ([dict]): List of external datasets to apply to revision
         ```
 
         Returns:

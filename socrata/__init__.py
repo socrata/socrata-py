@@ -105,6 +105,7 @@ class Socrata(Collection):
         Args:
         ```
             metadata (dict): Metadata to apply to the revision
+            external_datasets ([dict]): List of external datasets to apply to revision
         ```
 
         Returns:
@@ -115,14 +116,22 @@ class Socrata(Collection):
         Examples:
         ```python
             rev = Socrata(auth).new({
-                'name': 'hi',
-                'description': 'foo!',
-                'metadata': {
-                    'view': 'metadata',
-                    'anything': 'is allowed here'
-
-                }
-            })
+                     'name': 'hi',
+                     'description': 'foo!',
+                     'metadata': {
+                       'view': 'metadata',
+                       'anything': 'is allowed here'
+                     }
+                   }, 
+                   external_datasets=[{
+                    'title' :  'Associated search engines',
+                    'description' : 'Why would you use any of these?',
+                    'urls' : {
+                      'lycos' : 'http://www.altavista.com/',
+                      'altavista' : 'http://www.altavista.com/',
+                      'yahoo' : 'http://www.yahoo.com/'
+                    }
+                  }])
         ```
         """
         return Revisions.new(self.auth, metadata, external_datasets)

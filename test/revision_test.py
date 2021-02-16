@@ -16,14 +16,15 @@ class TestSocrata(TestCase):
             }
         })
 
-        self.assertEqual(rev.attributes['metadata']['name'], 'socrata-py test_create_revision_and_view')
-        self.assertEqual(rev.attributes['metadata']['description'], 'foo!')
-        self.assertEqual(rev.attributes['metadata']['metadata']['lol'], 'anything')
-        self.assertEqual(rev.attributes['metadata']['metadata']['is'], 'allowed here')
-
-        # Clean up the view we created inside this method
-        view = self.pub.views.lookup(rev.view_id())
-        view.delete()
+        try:
+            self.assertEqual(rev.attributes['metadata']['name'], 'socrata-py test_create_revision_and_view')
+            self.assertEqual(rev.attributes['metadata']['description'], 'foo!')
+            self.assertEqual(rev.attributes['metadata']['metadata']['lol'], 'anything')
+            self.assertEqual(rev.attributes['metadata']['metadata']['is'], 'allowed here')
+        finally:
+            # Clean up the view we created inside this method
+            view = self.pub.views.lookup(rev.view_id())
+            view.delete()
 
     def test_replace_revision(self):
         r = self.view.revisions.create_replace_revision()

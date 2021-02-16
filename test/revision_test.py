@@ -7,7 +7,7 @@ from test.auth import auth, TestCase
 class TestSocrata(TestCase):
     def test_create_revision_and_view(self):
         rev = self.pub.new({
-            'name': 'hi',
+            'name': 'socrata-py test_create_revision_and_view',
             'description': 'foo!',
             'metadata': {
                 'lol': 'anything',
@@ -16,10 +16,14 @@ class TestSocrata(TestCase):
             }
         })
 
-        self.assertEqual(rev.attributes['metadata']['name'], 'hi')
+        self.assertEqual(rev.attributes['metadata']['name'], 'socrata-py test_create_revision_and_view')
         self.assertEqual(rev.attributes['metadata']['description'], 'foo!')
         self.assertEqual(rev.attributes['metadata']['metadata']['lol'], 'anything')
         self.assertEqual(rev.attributes['metadata']['metadata']['is'], 'allowed here')
+
+        # Clean up the view we created inside this method
+        view = self.pub.views.lookup(rev.view_id())
+        view.delete()
 
     def test_replace_revision(self):
         r = self.view.revisions.create_replace_revision()

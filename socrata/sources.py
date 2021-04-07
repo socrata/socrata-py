@@ -169,7 +169,7 @@ class Source(Resource, ParseOptionBuilder):
             except RequestException as e:
                 return retry(chunk, e, attempts)
             except UnexpectedResponseException as e:
-                if e.status in [500, 502]:
+                if 500 <= e.status <= 599:
                     return retry(chunk, e, attempts)
                 else:
                     raise e

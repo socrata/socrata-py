@@ -5,6 +5,9 @@ import binascii
 import logging
 log = logging.getLogger(__name__)
 
+# No request that we send should ever take more than 5 minutes to process!
+REQUEST_TIMEOUT = 5 * 60
+
 class TimeoutException(Exception):
     pass
 
@@ -66,7 +69,8 @@ def post(path, auth = None, data = None, headers = {}):
         headers = headers,
         auth = auth.basic,
         verify = auth.verify,
-        data = data
+        data = data,
+        timeout = REQUEST_TIMEOUT
     ), request_id = request_id)
 
 
@@ -79,7 +83,8 @@ def put(path, auth = None, data = None, headers = {}):
         headers = headers,
         auth = auth.basic,
         verify = auth.verify,
-        data = data
+        data = data,
+        timeout = REQUEST_TIMEOUT
     ), request_id = request_id)
 
 
@@ -91,7 +96,8 @@ def patch(path, auth = None, data = None, headers = {}):
         headers = headers,
         auth = auth.basic,
         verify = auth.verify,
-        data = data
+        data = data,
+        timeout = REQUEST_TIMEOUT
     ), request_id = request_id)
 
 def get(path, auth = None, params = {}, headers = {}, **kwargs):
@@ -103,6 +109,7 @@ def get(path, auth = None, params = {}, headers = {}, **kwargs):
         headers = headers,
         auth = auth.basic,
         verify = auth.verify,
+        timeout = REQUEST_TIMEOUT,
         **kwargs
     ), request_id = request_id)
 
@@ -113,5 +120,6 @@ def delete(path, auth = None, headers = {}):
         path,
         headers = headers,
         auth = auth.basic,
-        verify = auth.verify
+        verify = auth.verify,
+        timeout = REQUEST_TIMEOUT
     ), request_id = request_id)

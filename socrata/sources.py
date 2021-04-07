@@ -9,7 +9,7 @@ from socrata.input_schema import InputSchema
 from socrata.builders.parse_options import ParseOptionBuilder
 from socrata.lazy_pool import LazyThreadPoolExecutor
 from threading import Lock
-from urllib3.exceptions import NewConnectionError
+from requests.exceptions import RequestException
 
 
 class Sources(Collection):
@@ -166,10 +166,10 @@ class Source(Resource, ParseOptionBuilder):
             (seq_num, byte_offset, end_byte_offset, bytes) = chunk
             try:
                 self.chunk(seq_num, byte_offset, bytes)
-            except NewConnectionError as e:
+            except RequestException as e:
                 return retry(chunk, e, attempts)
             except UnexpectedResponseException as e:
-                if e.status in [500, 502]:
+                if 500 <= e.status <= 599:
                     return retry(chunk, e, attempts)
                 else:
                     raise e

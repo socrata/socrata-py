@@ -2,8 +2,6 @@ import time
 import pprint
 from socrata.http import noop, get, TimeoutException
 import requests
-import logging
-log = logging.getLogger(__name__)
 
 class Collection(object):
     def __init__(self, auth):

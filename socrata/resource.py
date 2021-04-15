@@ -170,27 +170,29 @@ class Resource(object):
         ))
 
     def _wait_for_finish(self, is_finished, is_failed, progress, timeout, sleeptime):
-        def retry(e, attempts):
-            if attempts < 5:
-                attempts = attempts + 1
-                sleep(attempts * attempts * 2)
-                return wff(time.time(), attempts)
-            else:
-                raise e
-
-        def wff(started, attempts):
-            while not is_finished(self):
-                current = time.time()
-                if timeout and (current - started > timeout):
-                    timeoutWarn = "Timed out after %s seconds waiting for completion for %s on attempts %i" % (timeout, str(self), attempts)
-                    log.warn(timeoutWarn)
-                    ex = TimeoutException(timeoutWarn)
-                    retry(e, attempts)
+        consecutive_failures = 0
+        last_exception = None
+        started = time.time();
+        while not is_finished(self):
+            current = time.time()
+            if timeout and (current - started > timeout):
+                raise TimeoutException("Timed out after %s seconds waiting for completion for %s" % (timeout, str(self)))
+            if consecutive_failures > 5 and last_exception is not None:
+                raise last_exception
+            try:
                 me = self.show()
-                progress(self)
-                if is_failed(self):
-                    raise ResourceFailedException(me)
-                time.sleep(sleeptime)
-            return self
-
-        return wff(time.time(), 0)
+            except RequestException as e:
+                last_exception = e
+                consecutive_failures += 1
+                continue
+            except UnexpectedResponseException as e:
+                if 500 <= e.status <= 599:
+                    last_exception = e
+                    consecutive_failures += 1
+                    continue
+                raise e
+            progress(self)
+            if is_failed(self):
+                raise ResourceFailedException(me)
+            time.sleep(sleeptime)
+        return self

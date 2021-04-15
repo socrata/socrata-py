@@ -167,14 +167,29 @@ class Resource(object):
             auth = self.auth
         ))
 
-
     def _wait_for_finish(self, is_finished, is_failed, progress, timeout, sleeptime):
-        started = time.time()
+        consecutive_failures = 0
+        last_exception = None
+        started = time.time();
         while not is_finished(self):
             current = time.time()
             if timeout and (current - started > timeout):
                 raise TimeoutException("Timed out after %s seconds waiting for completion for %s" % (timeout, str(self)))
-            me = self.show()
+            if consecutive_failures > 5 and last_exception is not None:
+                raise last_exception
+            try:
+                me = self.show()
+            except RequestException as e:
+                last_exception = e
+                consecutive_failures += 1
+                continue
+            except UnexpectedResponseException as e:
+                if 500 <= e.status <= 599:
+                    last_exception = e
+                    consecutive_failures += 1
+                    continue
+                raise e
+            consecutive_failures = 0
             progress(self)
             if is_failed(self):
                 raise ResourceFailedException(me)

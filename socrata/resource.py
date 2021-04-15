@@ -2,6 +2,8 @@ import time
 import pprint
 from socrata.http import noop, get, TimeoutException
 import requests
+import logging
+log = logging.getLogger(__name__)
 
 class Collection(object):
     def __init__(self, auth):
@@ -167,16 +169,28 @@ class Resource(object):
             auth = self.auth
         ))
 
-
     def _wait_for_finish(self, is_finished, is_failed, progress, timeout, sleeptime):
-        started = time.time()
-        while not is_finished(self):
-            current = time.time()
-            if timeout and (current - started > timeout):
-                raise TimeoutException("Timed out after %s seconds waiting for completion for %s" % (timeout, str(self)))
-            me = self.show()
-            progress(self)
-            if is_failed(self):
-                raise ResourceFailedException(me)
-            time.sleep(sleeptime)
-        return self
+        def retry(e, attempts):
+            if attempts < 5:
+                attempts = attempts + 1
+                sleep(attempts * attempts * 2)
+                return wff(time.time(), attempts)
+            else:
+                raise e
+
+        def wff(started, attempts):
+            while not is_finished(self):
+                current = time.time()
+                if timeout and (current - started > timeout):
+                    timeoutWarn = "Timed out after %s seconds waiting for completion for %s on attempts %i" % (timeout, str(self), attempts)
+                    log.warn(timeoutWarn)
+                    ex = TimeoutException(timeoutWarn)
+                    retry(e, attempts)
+                me = self.show()
+                progress(self)
+                if is_failed(self):
+                    raise ResourceFailedException(me)
+                time.sleep(sleeptime)
+            return self
+
+        return wff(time.time(), 0)

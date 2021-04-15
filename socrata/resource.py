@@ -191,6 +191,7 @@ class Resource(object):
                     consecutive_failures += 1
                     continue
                 raise e
+            consecutive_failures = 0
             progress(self)
             if is_failed(self):
                 raise ResourceFailedException(me)

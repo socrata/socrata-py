@@ -1,5 +1,5 @@
 # socrata-py
-Python SDK for the Socrata Data Management API. Use this library to call into publishing and ETL functionality offered when writing to Socrata datasets. 
+Python SDK for the Socrata Data Management API. Use this library to call into publishing and ETL functionality offered when writing to Socrata datasets.
 
 ```python
 with open('cool_dataset.csv', 'rb') as file:
@@ -7,7 +7,7 @@ with open('cool_dataset.csv', 'rb') as file:
         name = "cool dataset",
         description = "a description"
     ).csv(file)
-    
+
     revision.apply(output_schema = output)
 ```
 
@@ -526,11 +526,33 @@ make docs
 ```
 
 ## Releasing
-release to pypi by bumping the version to something reasonable and running
+You will need to have [twine](https://pypi.org/project/twine/) installed (`pip3 install twine`), and a `.pypirc` file in your home directory.
+For help, read [this](https://web.archive.org/web/20180523182143/http://peterdowns.com/posts/first-time-with-pypi.html)
+
+An example of a pypirc file looks like:
 ```
-python setup.py sdist upload -r pypi
+[distutils]
+index-servers =
+  local
+  pypi
+
+[local]
+repository=https://repo.socrata.com/artifactory/api/pypi/pypi
+username=shared-engr
+password=<REDACTED>
+
+[pypi]
+repository=https://upload.pypi.org/legacy/
+username=socrata
+password=<REDACTED>
 ```
-Note you'll need your `.pypirc` file in your home directory. For help, read [this](https://web.archive.org/web/20180523182143/http://peterdowns.com/posts/first-time-with-pypi.html)
+
+Make sure the version in setup.py is new and makes sense for the change you're releasing. Then run:
+
+```
+python3 setup.py sdist
+twine upload dist/<your distribution file>
+```
 
 <!-- doc -->
 # Library Docs

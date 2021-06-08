@@ -526,7 +526,7 @@ make docs
 ```
 
 ## Releasing
-You will need to have twine installed, and a `.pypirc` file in your home directory.
+You will need to have [twine](https://pypi.org/project/twine/) installed, and a `.pypirc` file in your home directory.
 For help, read [this](https://web.archive.org/web/20180523182143/http://peterdowns.com/posts/first-time-with-pypi.html)
 
 An example of a pypirc file looks like:

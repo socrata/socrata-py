@@ -32,6 +32,13 @@ with open('cool_dataset.csv', 'rb') as file:
     + [Validating rows](#validating-rows)
     + [Do the upsert!](#do-the-upsert)
     + [Metadata only revisions](#metadata-only-revisions)
+  * [Other examples](#other-examples)
+    + [Update/append to existing dataset](#updateappend-to-existing-dataset)
+    + [Replace existing dataset](#replace-existing-dataset)
+    + [Create dataset with metadata](#create-dataset-with-metadata)
+    + [Create a file or "blob" dataset](#create-a-file-or-blob-dataset)
+    + [Modify column formatting](#modify-column-formatting)
+    + [Bulk column metadata editing from a spreadsheet](#bulk-column-metadata-editing-from-a-spreadsheet)
 - [Development](#development)
   * [Testing](#testing)
   * [Generating docs](#generating-docs)
@@ -507,6 +514,222 @@ new_output_schema = output_schema\
 
 revision.apply(output_schema = new_output_schema)
 ```
+
+## Other examples
+
+### Update/append to existing dataset
+
+```python
+# Initialize Socrata client using auth variable from above
+socrata = Socrata(auth)
+
+# Look up existing Socrata dataset
+dataset_id = 't2ac-5mmg'
+view = socrata.views.lookup(dataset_id)
+
+# Create new revision; use `create_update_revision(permission='private')` to publish privately
+revision = view.revisions.create_update_revision()
+
+# Upload CSV file from disk and publish revision
+filename = 'my_sample_dataset.csv'
+with open(filename, 'rb') as file:
+    upload = revision.create_upload(filename)
+    source = upload.csv(file)
+    output_schema = source.get_latest_input_schema().get_latest_output_schema()
+    output_schema.wait_for_finish()
+    job = revision.apply(output_schema=output_schema)
+    job.wait_for_finish(progress=lambda job: print('Job progress:', job.attributes['status']))
+```
+
+### Replace existing dataset
+
+```python
+# Initialize Socrata client using auth variable from above
+socrata = Socrata(auth)
+
+# Look up existing Socrata dataset
+dataset_id = 't2ac-5mmg'
+view = socrata.views.lookup(dataset_id)
+
+# Create new revision; use `create_replace_revision(permission='private')` to publish privately
+revision = view.revisions.create_replace_revision()
+
+# Upload CSV file from disk and publish revision
+filename = 'my_sample_dataset.csv'
+with open(filename, 'rb') as file:
+    upload = revision.create_upload(filename)
+    source = upload.csv(file)
+    output_schema = source.get_latest_input_schema().get_latest_output_schema()
+    output_schema.wait_for_finish()
+    job = revision.apply(output_schema=output_schema)
+    job.wait_for_finish(progress=lambda job: print('Job progress:', job.attributes['status']))
+```
+
+### Create dataset with metadata
+
+```python
+# Initialize Socrata client using auth variable from above
+socrata = Socrata(auth)
+
+# Create dictionary containing dataset metadata
+dataset_metadata = {
+    'name': 'My Dataset with Metadata',
+    'description': 'I added metadata with Socrata-py when publishing this dataset!',
+    'category': 'Government',
+    'attribution': 'My Organization',
+    'tags': ['examples', 'socrata-py'],
+    'privateMetadata': {'contactEmail': 'my-email@organization.gov'},
+    'metadata': {
+        'rowLabel': 'Daily Observation',
+        'custom_fields': {
+            'My Fieldset': {
+                'Record Number': 'MRNP-49120-63',
+                'Update Frequency': 'Annual',
+                'Team Ownership': 'Analytics Team',
+            },
+        },
+    },
+}
+
+# Upload CSV file from disk and publish dataset with metadata
+filename = 'my_sample_dataset.csv'
+with open(filename, 'rb') as file:
+    # Include dataset metadata dictionary from above in our new dataset
+    revision = socrata.new(dataset_metadata)
+
+    # Upload file and publish revision
+    upload = revision.create_upload(filename)
+    source = upload.csv(file)
+    input_schema = source.get_latest_input_schema()
+    output_schema = input_schema.get_latest_output_schema()
+    output_schema.wait_for_finish()
+    job = revision.apply(output_schema=output_schema)
+    job.wait_for_finish(progress=lambda job: print(job.attributes['status']))
+```
+
+### Create a file or "blob" dataset
+
+A file dataset, also called a "blob" dataset, is just a static file like a PDF or Word document that is hosted on Socrata and discoverable in your domain's data catalog.
+
+Here's how to create a file dataset with Socrata-py:
+
+```python
+# Initialize Socrata client using auth variable from above
+socrata = Socrata(auth)
+
+# Note: Uploading blobs can only be done with the `new` method, not with `create`
+filename = 'Reference Guide.pdf'
+with open(filename, 'rb') as file:
+    revision = socrata.new(
+        {
+            'name': 'Reference Guide',
+            'description': 'This dataset is just a PDF that you can download.',
+        }
+    )
+    upload = revision.create_upload(filename)
+    source = upload.blob(file)
+    job = revision.apply()
+    job.wait_for_finish(progress=lambda job: print('Job progress:', job.attributes['status']))
+```
+
+### Modify column formatting
+
+```python
+# Initialize Socrata client using auth variable from above
+socrata = Socrata(auth)
+
+# Create revision
+dataset_id = 'gimj-bkvr'
+view = socrata.views.lookup(dataset_id)
+revision = view.revisions.create_replace_revision()
+source = revision.source_from_dataset()
+
+# Update column formatting on output schema; see API documentation for more format examples:
+# https://socratapublishing.docs.apiary.io/#introduction/examples/column-formatting-update
+output_schema = source.get_latest_input_schema().get_latest_output_schema()
+output_schema.wait_for_finish()
+new_output_schema = (
+    output_schema.change_column_metadata('record_date', 'format')
+    .to({'view': 'date_ymd'})
+    .change_column_metadata('percent_complete', 'format')
+    .to({'precision': 1, 'precisionStyle': 'percentage', 'percentScale': 0})
+    .change_column_metadata('cost_year_to_date', 'format')
+    .to({'precision': 2, 'precisionStyle': 'currency', 'currencyStyle': 'USD', 'align': 'right'})
+    .run()
+)
+
+# Publish revision
+job = revision.apply(output_schema=output_schema)
+job.wait_for_finish(progress=lambda job: print('Job progress:', job.attributes['status']))
+```
+
+### Bulk column metadata editing from a spreadsheet
+
+Changing many column names, descriptions, formats, or transforms can be  time-consuming and complex, even when using a script. What if you need to change column metadata for hundreds of columns? One approach is to organize all your desired changes in a structure such as a spreadsheet, then loop over each change and execute it against your revision's [`OutputSchema`](#outputschema).
+
+As an example, let's say you have an Excel spreadsheet listing out your desired column metadata changes like so:
+
+field_name      | attribute      | value
+--------------- | -------------- | -----------------------------------------------------------------
+`collisiontype` | `display_name` | `Collision Type`
+`collisiontype` | `description`  | `Type of collision recorded on scene`
+`collisiontype` | `transform`    | `title_case(collisiontype)`
+`incdate`       | `display_name` | `Incident Date`
+`incdate`       | `description`  | `Date of collision recorded on scene; does not include timestamp`
+`incdate`       | `format`       | `{"view": "date_ymd"}`
+…               | …              | …
+
+This spreadsheet lists changes for several column attributes, including simple metadata (`display_name`, `description`), transform expressions (`transform`), and appearance/formatting (`format`). Note that we have specified a JSON object as the `incdate` column's desired `format` value; this will require special handling.
+
+Here is a complete script that uses the pandas library to read the spreadsheet, then loops over each row, executing each change against the `OutputSchema` before publishing:
+
+```python
+import json
+import os
+
+import pandas as pd
+from socrata import Socrata
+from socrata.authorization import Authorization
+
+# Initialize Socrata client
+auth = Authorization(
+    'my-domain.data.socrata.com',
+    os.environ['MY_SOCRATA_USERNAME'],
+    os.environ['MY_SOCRATA_PASSWORD'],
+)
+socrata = Socrata(auth)
+
+# Create revision
+dataset_id = 'gimj-bkvr'
+view = socrata.views.lookup(dataset_id)
+revision = view.revisions.create_replace_revision()
+source = revision.source_from_dataset()
+
+# Use pandas to read in an Excel spreadsheet containing our bulk metadata changes
+dataframe = pd.read_excel('bulk_metadata_changes.xlsx')
+
+# Make bulk changes to output schema
+output_schema = source.get_latest_input_schema().get_latest_output_schema()
+output_schema.wait_for_finish()
+for field_name, attribute, value in dataframe.to_records(index=False):
+    # If changing a column transform expression, we must use the `change_column_transform` method
+    if attribute == 'transform':
+        output_schema = output_schema.change_column_transform(field_name).to(value)
+    # If changing a column format, we must convert the JSON stored in our bulk changes spreadsheet
+    elif attribute == 'format':
+        col_format = json.loads(value)
+        output_schema = output_schema.change_column_metadata(field_name, attribute).to(col_format)
+    # For all other column metadata changes, no special handling is needed
+    else:
+        output_schema = output_schema.change_column_metadata(field_name, attribute).to(value)
+# Now execute the changes to produce a new output schema
+new_output_schema = output_schema.run()
+
+# Publish revision
+job = revision.apply(output_schema=new_output_schema)
+job.wait_for_finish(progress=lambda job: print('Job progress:', job.attributes['status']))
+```
+
 # Development
 
 ## Testing

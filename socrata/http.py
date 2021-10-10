@@ -61,13 +61,14 @@ def respond(response, request_id = None):
 def pluck_resource(body):
     return body['resource']
 
-def post(path, auth = None, data = None, headers = {}):
+def post(path, auth = None, data = None, headers = {}, params = {}):
     (headers, request_id) = prepare(headers, auth)
     log.info('POST %s %s', path, request_id)
     return respond(requests.post(
         path,
         headers = headers,
         auth = auth.basic,
+        params = params,
         verify = auth.verify,
         data = data,
         timeout = REQUEST_TIMEOUT

@@ -133,7 +133,7 @@ class Revisions(Collection):
         response = post(
             path,
             auth = auth,
-            params = {} if deleted_at is None else { 'deleted_at': deleted_at },
+            params = {} if deleted_at is None else { 'deleted_at': deleted_at.isoformat() },
             data = json.dumps({
                 'action': {
                     'type': 'update'

@@ -4,6 +4,10 @@ from socrata.operations.operation import Operation
 class Create(Operation):
 
     def set_deleted_at(self, date):
+        """
+        :param date: should have datetime type
+        :return: self Create class
+        """
         self._deleted_at = date
         return self
 

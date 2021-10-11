@@ -3,7 +3,7 @@ from socrata.operations.operation import Operation
 
 class Create(Operation):
 
-    def deleted_at(self, date):
+    def set_deleted_at(self, date):
         self._deleted_at = date
         return self
 

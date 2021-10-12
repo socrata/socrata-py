@@ -125,7 +125,7 @@ class Revisions(Collection):
         return self._create('delete', metadata, permission)
 
     @staticmethod
-    def new(auth, metadata):
+    def new(auth, metadata, deleted_at = None):
         path = 'https://{domain}/api/publishing/v1/revision'.format(
             domain = auth.domain,
         )
@@ -133,6 +133,7 @@ class Revisions(Collection):
         response = post(
             path,
             auth = auth,
+            params = {} if deleted_at is None else { 'deleted_at': deleted_at.isoformat() },
             data = json.dumps({
                 'action': {
                     'type': 'update'

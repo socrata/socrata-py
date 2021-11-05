@@ -268,24 +268,13 @@ class TestOutputSchema(TestCase):
         input_schema = self.create_input_schema(rev = rev)
         output_schema = input_schema.get_latest_output_schema()
         job = rev.apply(output_schema = output_schema)
-
-        done = False
-        attempts = 0
-        while not done and attempts < 20:
-            job = job.show()
-            attempts += 1
-
-            done = job.attributes['status'] == 'successful'
-            sleep(0.5)
-
-        assert done, "Polling job never resulted in a successful completion: %s" % job
+        job.wait_for_finish(timeout = 60)
 
         rev = self.view.revisions.create_replace_revision()
         self.rev.discard()
         self.rev = rev
 
         # Ok, we've got a dataset.  Let's create a revision on it and mess with its schema!
-
         source = rev.source_from_dataset()
 
         input_schema = source.get_latest_input_schema()
@@ -296,20 +285,15 @@ class TestOutputSchema(TestCase):
                                                .run()
 
         job = rev.apply(output_schema = new_output_schema)
-
-        done = False
-        attempts = 0
-        while not done and attempts < 20:
-            job = job.show()
-            attempts += 1
-
-            done = job.attributes['status'] == 'successful'
-            sleep(0.5)
-
-        assert done, "Polling job never resulted in a successful completion: %s" % job
+        job.wait_for_finish(timeout = 60)
 
         from socrata.http import get
 
         result = get("https://{domain}/id/{fourfour}".format(domain = auth.domain, fourfour = rev.attributes['fourfour']), auth)
 
-        self.assertEqual(result, [{'a': '1', 'd': '6'}, {'a': '2', 'd': '7'}, {'a': '3', 'd': '8'}, {'a': '4', 'd': '9'}])
+        self.assertEqual(result, [
+            {'a': '1', 'd': '6'},
+            {'a': '2', 'd': '7'},
+            {'a': '3', 'd': '8'},
+            {'a': '4', 'd': '9'}
+        ])

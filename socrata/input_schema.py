@@ -35,6 +35,21 @@ class InputSchema(Resource):
             auth = self.auth,
         ))
 
+    def wait_for_schema(self, progress = noop, timeout = 43200, sleeptime = 1):
+        """
+        Wait for this data source to have at least one schema present. Accepts a progress function
+        and a timeout.
+
+        Default timeout is 12 hours
+        """
+        return self._wait_for_finish(
+            is_finished = lambda m: len(m.attributes['output_schemas']) > 0,
+            is_failed = lambda m: False,
+            progress = progress,
+            timeout = timeout,
+            sleeptime = sleeptime
+        )
+
     def get_latest_output_schema(self):
         """
         Note that this does not make an API request
@@ -42,6 +57,7 @@ class InputSchema(Resource):
         Returns:
             output_schema (OutputSchema): Returns the latest output schema
         """
+        self.wait_for_schema()
         return max(self.output_schemas, key = lambda o: o.attributes['id'])
 
     def child_specs(self):

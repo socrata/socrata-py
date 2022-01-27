@@ -35,6 +35,18 @@ class TransformChange(object):
 
         return self._output_schema
 
+class SortChange(object):
+    def __init__(self, output_schema):
+        self._output_schema = output_schema
+        self._accumulated_columns = []
+
+    def on(self, field_name, ascending = True):
+        self._accumulated_columns.append({ 'field_name': field_name, 'ascending': ascending })
+        return self
+
+    def end_sort(self):
+        self._output_schema.new_sort_by = self._accumulated_columns
+        return self._output_schema
 
 class OutputSchema(Resource):
     """
@@ -46,6 +58,7 @@ class OutputSchema(Resource):
         self.column_changes = []
         self.column_additions = []
         self.column_deletions = []
+        self.new_sort_by = None
 
     def build_config(self, uri, name, data_action):
         """
@@ -328,6 +341,34 @@ class OutputSchema(Resource):
         """
         return TransformChange(field_name, self)
 
+    def set_sort_by(self):
+        """
+        Replace the columns used to sort the dataset. This returns a SortChange,
+        which implements a `.on` function to add a sort and a `.end_sort` function
+        to finish.
+
+        If you do not call this, the OutputSchema will try to preserve any existing
+        sorts, which means it will remove sorts on deleted columns or on columns
+        whose transforms are changed.
+
+        Returns:
+        ```
+            change (SortChange): The sort change, which implements the `.on` and `.end_sort` functions
+        ```
+
+        Examples:
+        ```python
+            new_output_schema = output
+                .set_sort_by()
+                .on('column_one', ascending = True)
+                .on('column_two', ascending = False)
+                .on('column_three') # ascending = True is the default
+                .end_sort()
+                .run()
+        ```
+        """
+        return SortChange(self)
+
     def run(self):
         """
         Run all adds, drops, and column changes.
@@ -361,6 +402,14 @@ class OutputSchema(Resource):
             if not (c['field_name'] in self.column_deletions)
         ] + self.column_additions
 
+        if self.new_sort_by is not None:
+            sort_bys = deepcopy(self.new_sort_by)
+        else:
+            sort_bys = [
+                sb for sb in deepcopy(self.attributes['sort_bys'])
+                if not (sb['field_name'] in self.column_deletions)
+            ]
+
         for (to_change, change_fun) in self.column_changes:
             column = [
                 column
@@ -372,7 +421,7 @@ class OutputSchema(Resource):
             else:
                 [column] = column
 
-            new_column = change_fun(column)
+            new_column = change_fun(deepcopy(column))
 
             # if there is an id, this means the column is not brand new
             if 'id' in column:
@@ -385,15 +434,37 @@ class OutputSchema(Resource):
 
             columns = [replace_with(c) for c in columns]
 
+            if self.new_sort_by is None:
+                converted_sort_bys = []
+                for sort_by in sort_bys:
+                    if sort_by['field_name'] == column['field_name']:
+                        sort_by['field_name'] = new_column['field_name']
+                        # If the transform changed, remove the sort
+                        # since we can't be sure it's valid anymore...
+                        if column['transform']['transform_expr'] == new_column['transform']['transform_expr']:
+                            converted_sort_bys.append(sort_by)
+                    else:
+                        converted_sort_bys.append(sort_by)
+                sort_bys = converted_sort_bys
+
         columns = sorted(columns, key = lambda x: x['position'])
 
         for p, c in enumerate(columns):
             c['position'] = p + 1
 
+        if self.new_sort_by is not None:
+            # Validate that the new sort doesn't name a column that
+            # doesn't exist in the light of all the other changes.
+            for sb in sort_bys:
+                if not any(column['field_name'] == sb['field_name'] for column in columns):
+                    raise ValueError('Column `%s` does not exist to sort on' % sb['field_name'])
+
         desired_schema = {
-            'output_columns': columns
+            'output_columns': columns,
+            'sort_bys': sort_bys
         }
         self.column_additions = []
         self.column_deletions = []
         self.column_changes = []
+        self.new_sort_by = None
         return self.parent.transform(desired_schema)

@@ -297,3 +297,107 @@ class TestOutputSchema(TestCase):
             {'a': '3', 'd': '8'},
             {'a': '4', 'd': '9'}
         ])
+
+    def test_sort_set(self):
+        output = self.create_input_schema().get_latest_output_schema()
+        output = output.set_sort_by()\
+            .on('b')\
+            .on('a', ascending = False)\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        self.assertEqual(output.attributes['sort_bys'],
+                         [ {'field_name': 'b', 'ascending': True },
+                           {'field_name': 'a', 'ascending': False } ])
+
+    def test_sort_clear(self):
+        output = self.create_input_schema().get_latest_output_schema()
+        output = output.set_sort_by()\
+            .on('b')\
+            .on('a', ascending = False)\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        output = output\
+            .set_sort_by()\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        self.assertEqual(output.attributes['sort_bys'], [ ])
+
+    def test_sort_preserved_across_uninteresting_schema_change(self):
+        output = self.create_input_schema().get_latest_output_schema()
+        output = output.set_sort_by()\
+            .on('b')\
+            .on('a', ascending = False)\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        output = output\
+            .change_column_metadata('b', 'description').to('the description of b')\
+            .drop_column('c')\
+            .run()
+        output = output.wait_for_finish()
+
+        self.assertEqual(output.attributes['sort_bys'],
+                         [ {'field_name': 'b', 'ascending': True },
+                           {'field_name': 'a', 'ascending': False } ])
+
+    def test_sort_follows_field_name_change(self):
+        output = self.create_input_schema().get_latest_output_schema()
+        output = output.set_sort_by()\
+            .on('b')\
+            .on('a', ascending = False)\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        output = output\
+            .change_column_metadata('a', 'field_name').to('aa')\
+            .run()
+        output = output.wait_for_finish()
+
+        self.assertEqual(output.attributes['sort_bys'],
+                         [ {'field_name': 'b', 'ascending': True },
+                           {'field_name': 'aa', 'ascending': False } ])
+
+    def test_sort_removes_deleted_column(self):
+        output = self.create_input_schema().get_latest_output_schema()
+        output = output.set_sort_by()\
+            .on('b')\
+            .on('a', ascending = False)\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        output = output\
+            .drop_column('b')\
+            .run()
+        output = output.wait_for_finish()
+
+        self.assertEqual(output.attributes['sort_bys'],
+                         [ {'field_name': 'a', 'ascending': False } ])
+
+    def test_sort_replace(self):
+        output = self.create_input_schema().get_latest_output_schema()
+        output = output.set_sort_by()\
+            .on('b')\
+            .on('a', ascending = False)\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        output = output\
+            .set_sort_by()\
+            .on('c')\
+            .end_sort()\
+            .run()
+        output = output.wait_for_finish()
+
+        self.assertEqual(output.attributes['sort_bys'],
+                         [ {'field_name': 'c', 'ascending': True } ])
+

@@ -3,6 +3,7 @@ from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
+exec(open("socrata/_version.py").read())
 
 
 setup(
@@ -11,7 +12,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.11',
+    version=__version__,
 
     description="SDK For publishing to Socrata",
     long_description="""

@@ -3,6 +3,8 @@ import os
 import requests
 import binascii
 import logging
+from socrata._version import __version__
+
 log = logging.getLogger(__name__)
 
 # No request that we send should ever take more than 5 minutes to process!
@@ -29,7 +31,7 @@ def gen_headers(extra = {}, auth = None):
     if auth:
         request_id_prefix = auth.request_id_prefix()
     d =  {
-        'user-agent': 'publish-py',
+        'user-agent': 'socrata-py/{}'.format(__version__),
         'content-type': 'application/json',
         'accept': 'application/json',
         'x-socrata-requestid': request_id_prefix + generate_request_id(32 - len(request_id_prefix))

@@ -50,7 +50,12 @@ def is_json(response):
 def respond(response, request_id = None):
     if response.status_code in [200, 201, 202]:
         if is_json(response):
-            return response.json()
+            try:
+                return response.json()
+            except requests.exceptions.JSONDecodeError as e:
+                # Core often says things are json when they aren't
+                return {}
+
         else:
             return response
     else:

@@ -299,6 +299,10 @@ class Revision(Resource):
         return self.update({'output_schema_id': output_schema_id})
 
 
+    def restore(self, uri):
+        return Revision(self.auth, post(self.path(uri), auth = self.auth))
+
+
     def discard(self, uri):
         """
         Discard this open revision.

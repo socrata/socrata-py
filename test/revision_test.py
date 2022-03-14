@@ -2,7 +2,40 @@ import unittest
 from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
+from socrata.http import post, get
+from time import sleep
+import urllib
 
+def enroll_in_archival_secondary(auth, view):
+    # Enroll the dataset in the archival secondary manifest
+    params = {
+        'id': view.attributes['id'],
+        'method': 'enroll'
+    }
+    post(
+        'https://{domain}/api/archival?{q}'.format(
+            domain=auth.domain,
+            q=urllib.parse.urlencode(params)
+        ),
+        auth
+    )
+
+    def is_enrolled():
+        response = get(
+            'https://{domain}/api/views/{id}/replication.json'.format(
+                domain=auth.domain,
+                id=view.attributes['id']
+            ),
+            auth
+        )
+
+        archival = [v['version'] for v in response['secondary_versions'] if v['name'] == 'archival']
+        if len(archival) == 1:
+            return response['truth_data_version'] == archival[0]
+        return False
+
+    while not is_enrolled():
+        sleep(1)
 
 class TestSocrata(TestCase):
     def test_create_revision_and_view(self):
@@ -127,3 +160,28 @@ class TestSocrata(TestCase):
             self.assertEqual(c['field_name'], 'ccc')
 
             self.assertEqual(rev.attributes['metadata']['description'], 'new dataset description')
+
+    def test_restore_revision(self):
+        source = self.rev.create_upload('simple.csv')
+        with open('test/fixtures/simple.csv', 'rb') as file:
+            source.csv(file)
+        self.rev.apply().wait_for_finish()
+
+        enroll_in_archival_secondary(auth, self.view)
+
+        self.rev.show()
+
+        restored = self.rev.restore()
+
+        self.assertEqual(self.rev.attributes['revision_seq'] + 1, restored.attributes['revision_seq'])
+        self.assertEqual(self.rev.attributes['metadata'], restored.attributes['metadata'])
+
+        source = restored.list_sources()[0]
+
+        source.wait_for_schema()
+        output_schema = source.get_latest_input_schema().get_latest_output_schema()
+        self.assertEqual(output_schema.attributes['total_rows'], 4)
+        self.assertEqual(
+            [oc['transform']['transform_expr'] for oc in output_schema.attributes['output_columns']],
+            ['`a`', '`b`', '`c`']
+        )

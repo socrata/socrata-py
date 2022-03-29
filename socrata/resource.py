@@ -90,8 +90,18 @@ class Resource(object):
 
     def _clone(self, res):
         return self.__class__(self.auth, res, self.parent)
+    
+    def _handle_non_standard_responses(self, response):
+        resp_non_standard = 'resource' not in response
+        if not resp_non_standard: return response
+        modded_resp = {}
+        modded_resp['resource'] = response
+        modded_resp['links'] = response.get('links', {})
+        return modded_resp
+
 
     def _on_response(self, response):
+        response = self._handle_non_standard_responses(response)
         self.attributes = response['resource']
         self.links = response['links']
         self._define_operations(self.links)

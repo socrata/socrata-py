@@ -182,6 +182,6 @@ class TestSocrata(TestCase):
         output_schema = source.get_latest_input_schema().get_latest_output_schema()
         self.assertEqual(output_schema.attributes['total_rows'], 4)
         self.assertEqual(
-            [oc['transform']['transform_expr'] for oc in output_schema.attributes['output_columns']],
-            ['`a`', '`b`', '`c`']
+            set([oc['transform']['transform_expr'] for oc in output_schema.attributes['output_columns']]),
+            set(['`a`', '`b`', '`c`'])
         )

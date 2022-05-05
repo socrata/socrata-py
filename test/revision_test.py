@@ -118,9 +118,9 @@ class TestSocrata(TestCase):
 
     def test_get_plan(self):
         r = self.view.revisions.create_replace_revision()
-        input_schema = self.create_input_schema(rev = r)
-
+        input_schema = self.create_input_schema(rev = r).wait_for_schema()
         r.set_output_schema(input_schema.get_latest_output_schema().attributes['id'])
+        input_schema.get_latest_output_schema().wait_for_finish()
 
         plan = r.plan()
         expected = set(['prepare_draft_for_import', 'set_schema', 'apply_metadata', 'upsert_task', 'set_display_type', 'publish', 'set_permission', 'wait_for_replication'])
@@ -130,7 +130,9 @@ class TestSocrata(TestCase):
     def test_create_from_dataset(self):
         with open('test/fixtures/simple.csv', 'rb') as file:
             # boilerplate
-            input_schema = self.create_input_schema()
+            input_schema = self.create_input_schema().wait_for_schema()
+            input_schema.get_latest_output_schema().wait_for_finish()
+
             job = self.rev.apply(output_schema = input_schema.get_latest_output_schema())
             job = job.wait_for_finish()
 

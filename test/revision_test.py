@@ -164,7 +164,8 @@ class TestSocrata(TestCase):
     def test_restore_revision(self):
         source = self.rev.create_upload('simple.csv')
         with open('test/fixtures/simple.csv', 'rb') as file:
-            source.csv(file)
+            input_schema = source.csv(file)
+        input_schema.wait_for_schema().get_latest_output_schema().wait_for_finish()
         self.rev.apply().wait_for_finish()
 
         enroll_in_archival_secondary(auth, self.view)

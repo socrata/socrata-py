@@ -298,6 +298,29 @@ class Revision(Resource):
         """
         return self.update({'output_schema_id': output_schema_id})
 
+    def set_notes(self, notes):
+        """
+        Set any notes on the revision. The notes is displayed in the dataset
+        changelog if the dataset is enrolled in archiving. If it is not enrolled
+        in archiving, this has no effect.
+
+        Args:
+        ```
+            notes (string): The change notes
+        ```
+
+        Returns:
+        ```
+            Revision The updated Revision as a result of this API call, or an error
+        ```
+
+        Examples:
+        ```python
+            revision = revision.set_notes("Just updating my dataset")
+        ```
+        """
+        return self.update({'notes': notes})
+
 
     def restore(self, uri):
         return Revision(self.auth, post(self.path(uri), auth = self.auth))

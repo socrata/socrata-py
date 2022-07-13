@@ -52,7 +52,13 @@ def respond(response, request_id = None):
         if is_json(response):
             try:
                 return response.json()
-            except requests.exceptions.JSONDecodeError as e:
+            except Exception as e:
+                # In python dependency hell, it's unclear if it's
+                # simplejson.errors.JSONDecodeError
+                # or a
+                # requests.exceptions.JSONDecodeError
+                # and they don't exist sometimes, so....ARGH python!
+
                 # Core often says things are json when they aren't
                 return {}
 

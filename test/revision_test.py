@@ -164,20 +164,22 @@ class TestSocrata(TestCase):
             self.assertEqual(rev.attributes['metadata']['description'], 'new dataset description')
 
     def test_restore_revision(self):
-        source = self.rev.create_upload('simple.csv')
+        # Do a revision so we can get it enrolled and revisions
+        self.rev.apply().wait_for_finish()
+        enroll_in_archival_secondary(auth, self.view)
+
+
+        rev = self.view.revisions.create_replace_revision()
+        source = rev.create_upload('simple.csv')
         with open('test/fixtures/simple.csv', 'rb') as file:
             input_schema = source.csv(file)
         input_schema.wait_for_schema().get_latest_input_schema().get_latest_output_schema().wait_for_finish()
-        self.rev.apply().wait_for_finish()
+        rev.apply().wait_for_finish()
+        rev.show()
+        restored = rev.restore()
 
-        enroll_in_archival_secondary(auth, self.view)
-
-        self.rev.show()
-
-        restored = self.rev.restore()
-
-        self.assertEqual(self.rev.attributes['revision_seq'] + 1, restored.attributes['revision_seq'])
-        self.assertEqual(self.rev.attributes['metadata'], restored.attributes['metadata'])
+        self.assertEqual(rev.attributes['revision_seq'] + 1, restored.attributes['revision_seq'])
+        self.assertEqual(rev.attributes['metadata'], restored.attributes['metadata'])
 
         source = restored.list_sources()[0]
 

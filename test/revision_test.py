@@ -164,7 +164,7 @@ class TestSocrata(TestCase):
             self.assertEqual(rev.attributes['metadata']['description'], 'new dataset description')
 
     def test_restore_revision(self):
-        # Do a revision so we can get it enrolled and revisions
+        # Do a revision so we can get it enrolled in archival
         self.rev.apply().wait_for_finish()
         enroll_in_archival_secondary(auth, self.view)
 

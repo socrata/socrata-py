@@ -1,6 +1,6 @@
 import time
 import pprint
-from socrata.http import noop, get, TimeoutException
+from socrata.http import noop, get, TimeoutException, UnexpectedResponseException
 from requests.exceptions import RequestException
 import requests
 

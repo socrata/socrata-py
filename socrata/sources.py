@@ -485,6 +485,26 @@ class Source(Resource, ParseOptionBuilder):
             data = json.dumps(body)
         ))
 
+    def give_incremental(self, uri):
+        """
+        If this source is from a Gateway, initiates the incremental data push from
+        the agent
+        """
+        return self._clone(post(
+            self.path(uri),
+            auth = self.auth
+        ))
+
+    def give_full(self, uri):
+        """
+        If this source is from a Gateway, initiates the full data push from
+        the agent.
+        """
+        return self._clone(post(
+            self.path(uri),
+            auth = self.auth
+        ))
+
     def show_input_schema(self, uri, input_schema_id):
         res = get(
             self.path(uri.format(input_schema_id = input_schema_id)),

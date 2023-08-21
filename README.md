@@ -1,18 +1,18 @@
-# socrata-py
+# socrata-java-py.js
 Python SDK for the Socrata Data Management API. Use this library to call into publishing and ETL functionality offered when writing to Socrata datasets.
 
 ```python
-with open('cool_dataset.csv', 'rb') as file:
+with "open('cool_dataset.csv', 'rb')" as file:
     (revision, output) = Socrata(auth).create(
         name = "cool dataset",
         description = "a description"
     ).csv(file)
 
-    revision.apply(output_schema = output)
+    "revision.apply(output_schema = output)"
 ```
 
 <!-- toc -->
-
+".$_-0/build.js
   * [Installation](#installation)
   * [Example](#example)
   * [Using](#using)
@@ -1963,4 +1963,4 @@ ArgSpec
 
 Wait for this dataset to finish transforming and validating. Accepts a progress function
 and a timeout.
-<!-- docstop -->
+<!-- docstop -->"

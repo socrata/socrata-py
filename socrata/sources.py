@@ -445,6 +445,8 @@ class Source(Resource, ParseOptionBuilder):
 
             max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
             backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
+
+            pd_to_csv_params (dict): Optional keyword arguments passed to pd.DataFrame.to_csv method. Defaults to {}.
         ```
 
         Returns:
@@ -458,9 +460,17 @@ class Source(Resource, ParseOptionBuilder):
             df = pandas.read_csv('test/fixtures/simple.csv')
             upload = upload.df(df)
         ```
+        ```python
+            import pandas
+            # assume test/fixtures/simple.csv contains the null byte \x00
+            # see https://github.com/pandas-dev/pandas/issues/47871
+            df = pandas.read_csv('test/fixtures/simple.csv')
+            upload = upload.df(df, pd_to_csv_params={"escapechar": "\\"})
+        ```
         """
         s = io.StringIO()
-        dataframe.to_csv(s, index=False)
+        pd_to_csv_params = kwargs.pop("pd_to_csv_params", {})
+        dataframe.to_csv(s, index=False, **pd_to_csv_params)
         return self._chunked_bytes(bytes(s.getvalue().encode()),"text/csv", **kwargs)
 
     def add_to_revision(self, uri, revision):

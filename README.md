@@ -1,1966 +1,543 @@
-# socrata-py
-Python SDK for the Socrata Data Management API. Use this library to call into publishing and ETL functionality offered when writing to Socrata datasets.
-
-```python
-with open('cool_dataset.csv', 'rb') as file:
-    (revision, output) = Socrata(auth).create(
-        name = "cool dataset",
-        description = "a description"
-    ).csv(file)
-
-    revision.apply(output_schema = output)
-```
-
-<!-- toc -->
-
-  * [Installation](#installation)
-  * [Example](#example)
-  * [Using](#using)
-    + [Boilerplate](#boilerplate)
-    + [Simple usage](#simple-usage)
-      - [Create a new Dataset from a csv, tsv, xls or xlsx file](#create-a-new-dataset-from-a-csv-tsv-xls-or-xlsx-file)
-      - [Create a new Dataset from Pandas](#create-a-new-dataset-from-pandas)
-      - [Updating a dataset](#updating-a-dataset)
-      - [Generating a config and using it to update](#generating-a-config-and-using-it-to-update)
-  * [Advanced usage](#advanced-usage)
-    + [Create a revision](#create-a-revision)
-    + [Create an upload](#create-an-upload)
-    + [Upload a file](#upload-a-file)
-    + [Transforming your data](#transforming-your-data)
-    + [Wait for the transformation to finish](#wait-for-the-transformation-to-finish)
-    + [Errors in a transformation](#errors-in-a-transformation)
-    + [Validating rows](#validating-rows)
-    + [Do the upsert!](#do-the-upsert)
-    + [Metadata only revisions](#metadata-only-revisions)
-- [Development](#development)
-  * [Testing](#testing)
-  * [Generating docs](#generating-docs)
-  * [Releasing](#releasing)
-- [Library Docs](#library-docs)
-    + [Socrata](#socrata)
-      - [create](#create)
-      - [new](#new)
-      - [using_config](#using_config)
-    + [Authorization](#authorization)
-      - [live_dangerously](#live_dangerously)
-    + [Revisions](#revisions)
-      - [create_delete_revision](#create_delete_revision)
-      - [create_replace_revision](#create_replace_revision)
-      - [create_update_revision](#create_update_revision)
-      - [create_using_config](#create_using_config)
-      - [list](#list)
-      - [lookup](#lookup)
-    + [Revision](#revision)
-      - [apply](#apply)
-      - [create_upload](#create_upload)
-      - [discard](#discard)
-      - [list_operations](#list_operations)
-      - [open_in_browser](#open_in_browser)
-      - [plan](#plan)
-      - [set_notes](#set_notes)
-      - [set_output_schema](#set_output_schema)
-      - [source_as_blob](#source_as_blob)
-      - [source_from_agent](#source_from_agent)
-      - [source_from_dataset](#source_from_dataset)
-      - [source_from_url](#source_from_url)
-      - [ui_url](#ui_url)
-      - [update](#update)
-    + [Sources](#sources)
-      - [create_upload](#create_upload-1)
-      - [lookup](#lookup-1)
-    + [Source](#source)
-      - [add_to_revision](#add_to_revision)
-      - [blob](#blob)
-      - [change_parse_option](#change_parse_option)
-      - [csv](#csv)
-      - [df](#df)
-      - [geojson](#geojson)
-      - [kml](#kml)
-      - [list_operations](#list_operations-1)
-      - [load](#load)
-      - [open_in_browser](#open_in_browser-1)
-      - [shapefile](#shapefile)
-      - [tsv](#tsv)
-      - [ui_url](#ui_url-1)
-      - [wait_for_finish](#wait_for_finish)
-      - [wait_for_schema](#wait_for_schema)
-      - [xls](#xls)
-      - [xlsx](#xlsx)
-    + [Configs](#configs)
-      - [create](#create-1)
-      - [list](#list-1)
-      - [lookup](#lookup-2)
-    + [Config](#config)
-      - [change_parse_option](#change_parse_option-1)
-      - [create_revision](#create_revision)
-      - [delete](#delete)
-      - [list_operations](#list_operations-2)
-      - [update](#update-1)
-    + [InputSchema](#inputschema)
-      - [get_latest_output_schema](#get_latest_output_schema)
-      - [latest_output](#latest_output)
-      - [list_operations](#list_operations-3)
-      - [transform](#transform)
-      - [wait_for_schema](#wait_for_schema-1)
-    + [OutputSchema](#outputschema)
-      - [add_column](#add_column)
-      - [any_failed](#any_failed)
-      - [build_config](#build_config)
-      - [change_column_metadata](#change_column_metadata)
-      - [change_column_transform](#change_column_transform)
-      - [drop_column](#drop_column)
-      - [list_operations](#list_operations-4)
-      - [rows](#rows)
-      - [run](#run)
-      - [schema_errors](#schema_errors)
-      - [schema_errors_csv](#schema_errors_csv)
-      - [set_row_id](#set_row_id)
-      - [set_sort_by](#set_sort_by)
-      - [validate_row_id](#validate_row_id)
-      - [wait_for_finish](#wait_for_finish-1)
-    + [Job](#job)
-      - [is_complete](#is_complete)
-      - [list_operations](#list_operations-5)
-      - [submitted_for_approval](#submitted_for_approval)
-      - [wait_for_finish](#wait_for_finish-2)
-
-<!-- tocstop -->
-
-## Installation
-This only supports python3.
-
-Installation is available through pip. Using a virtualenv is advised. Install
-the package by running
-
-```
-pip3 install socrata-py
-```
-
-The only hard dependency is `requests` which will be installed via pip. Pandas is not required, but creating a dataset from a Pandas dataframe is supported. See below.
-
-
-## Example
-Try the command line example with
-```bash
-python -m examples.create 'Police Reports' ~/Desktop/catalog.data.gov/Seattle_Real_Time_Fire_911_Calls.csv 'pete-test.test-socrata.com' --username $SOCRATA_USERNAME --password $SOCRATA_PASSWORD
-```
-## Using
-
-### Boilerplate
-```python
-# Import some stuff
-from socrata.authorization import Authorization
-from socrata import Socrata
-import os
-
-# Boilerplate...
-# Make an auth object
-auth = Authorization(
-  "pete-test.test-socrata.com",
-  os.environ['SOCRATA_USERNAME'],
-  os.environ['SOCRATA_PASSWORD']
-)
-
-```
-
-### Simple usage
-
-
-#### Create a new Dataset from a csv, tsv, xls or xlsx file
-To create a dataset, you can do this:
-
-```python
-with open('cool_dataset.csv', 'rb') as file:
-    # Upload + Transform step
-
-    # revision is the *change* to the view in the catalog, which has not yet been applied.
-    # output is the OutputSchema, which is a change to data which can be applied via the revision
-    (revision, output) = Socrata(auth).create(
-        name = "cool dataset",
-        description = "a description"
-    ).csv(file)
-
-    # Transformation step
-    # We want to add some metadata to our column, drop another column, and add a new column which will
-    # be filled with values from another column and then transformed
-    output = output\
-        .change_column_metadata('a_column', 'display_name').to('A Column!')\
-        .change_column_metadata('a_column', 'description').to('Here is a description of my A Column')\
-        .drop_column('b_column')\
-        .add_column('a_column_squared', 'A Column, but times itself', 'to_number(`a_column`) * to_number(`a_column`)', 'this is a column squared')\
-        .run()
-
-
-    # Validation of the results step
-    output = output.wait_for_finish()
-    # The data has been validated now, and we can access errors that happened during validation. For example, if one of the cells in `a_column` couldn't be converted to a number in the call to `to_number`, that error would be reflected in this error_count
-    assert output.attributes['error_count'] == 0
-
-    # If you want, you can get a csv stream of all the errors
-    errors = output.schema_errors_csv()
-    for line in errors.iter_lines():
-        print(line)
-
-    # Update step
-
-    # Apply the revision - this will make it public and available to make
-    # visualizations from
-    job = revision.apply(output_schema = output)
-
-    # This opens a browser window to your revision, and you will see the progress
-    # of the job
-    revision.open_in_browser()
-
-    # Application is async - this will block until all the data
-    # is in place and readable
-    job.wait_for_finish()
-```
-
-Similar to the `csv` method are the `xls`, `xlsx`, and `tsv` methods, which upload
-those files.
-
-There is a `blob` method as well, which uploads blobby data to the source. This means the data will not be parsed, and will be displayed under "Files and Documents" in the catalog once the revision is applied.
-
-#### Create a new Dataset from Pandas
-Datasets can also be created from Pandas DataFrames
-```python
-import pandas as pd
-df = pd.read_csv('socrata-py/test/fixtures/simple.csv')
-# Do various Pandas-y changes and modifications, then...
-(revision, output) = Socrata(auth).create(
-    name = "Pandas Dataset",
-    description = "Dataset made from a Pandas Dataframe"
-).df(df)
-
-# Same code as above to apply the revision.
-
-```
-
-#### Updating a dataset
-A Socrata `update` is actually an upsert. Rows are updated or created based on the row identifier. If the row-identifer doesn't exist, all updates are just appends to the dataset.
-
-A `replace` truncates the whole dataset and then inserts the new data.
-
-#### Generating a config and using it to update
-```python
-# This is how we create our view initially
-with open('cool_dataset.csv', 'rb') as file:
-    (revision, output) = Socrata(auth).create(
-        name = "cool dataset",
-        description = "a description"
-    ).csv(file)
-
-    revision.apply(output_schema = output)
-
-# This will build a configuration using the same settings (file parsing and
-# data transformation rules) that we used to get our output. The action
-# that we will take will be "update", though it could also be "replace"
-config = output.build_config("cool-dataset-config", "update")
-
-# Now we need to save our configuration name and view id somewhere so we
-# can update the view using our config
-configuration_name = "cool-dataset-config"
-view_id = revision.view_id()
-
-# Now later, if we want to use that config to update our view, we just need the view and the configuration_name
-socrata = Socrata(auth)
-view = socrata.views.lookup(view_id) # View will be the view we are updating with the new data
-
-with open('updated-cool-dataset.csv', 'rb') as my_file:
-    (revision, job) = socrata.using_config(
-        configuration_name,
-        view
-    ).csv(my_file)
-    print(job) # Our update job is now running
-```
-
-
-## Advanced usage
-
-### Create a revision
-
-```python
-# This is our socrata object, using the auth variable from above
-socrata = Socrata(auth)
-
-# This will make our initial revision, on a view that doesn't yet exist
-revision = socrata.new({'name': 'cool dataset'})
-
-# revision is a Revision object, we can print it
-print(revision)
-Revision({'created_by': {'display_name': 'rozap',
-                'email': 'chris.duranti@socrata.com',
-                'user_id': 'tugg-ikce'},
- 'fourfour': 'ij46-xpxe',
- 'id': 346,
- 'inserted_at': '2017-02-27T23:05:08.522796',
- 'metadata': None,
- 'update_seq': 285,
- 'upsert_jobs': []})
-
-# We can also access the attributes of the revision
-print(revision.attributes['metadata']['name'])
-'cool dataset'
-```
-
-### Create an upload
-```python
-# Using that revision, we can create an upload
-upload = revision.create_upload('foo.csv')
-
-# And print it
-print(upload)
-Source({'content_type': None,
- 'created_by': {'display_name': 'rozap',
-                'email': 'chris.duranti@socrata.com',
-                'user_id': 'tugg-ikce'},
- 'source_type': {
-    'filename': 'foo.csv',
-    'type': 'upload'
- },
- 'finished_at': None,
- 'id': 290,
- 'inserted_at': '2017-02-27T23:07:18.309676',
- 'schemas': []})
-```
-### Upload a file
-```python
-# And using that upload we just created, we can put bytes into it
-with open('test/fixtures/simple.csv', 'rb') as f:
-    source = upload.csv(f)
-```
-### Transforming your data
-Transforming data consists of going from input data (data exactly as it appeared in the source)
-to output data (data as you want it to appear).
-
-Transformation from input data to output data often has problems. You might, for example, have a column
-full of numbers, but one row in that column is actually the value `hehe!` which cannot be transformed into
-a number. Rather than failing at each datum which is dirty or wrong, transforming your data allows you to
-reconcile these issues.
-
-We might have a dataset called `temps.csv` that looks like
-```
-date, celsius
-8-24-2017, 22
-8-25-2017, 20
-8-26-2017, 23
-8-27-2017, hehe!
-8-28-2017,
-8-29-2017, 21
-```
-
-Suppose we uploaded it in our previous step, like this:
-
-```python
-with open('temps.csv', 'rb') as f:
-    source = upload.csv(f)
-    input_schema = source.get_latest_input_schema()
-```
-
-Our `input_schema` is the input data exactly as it appeared in the CSV, with all values of type `string`.
-
-Our `output_schema` is the output data as it was *guessed* by Socrata. Guessing may not always be correct, which is why we have import configs to "lock in" a schema for automation. We can get the `output_schema`
-like so:
-
-```python
-output_schema = input_schema.get_latest_output_schema()
-```
-
-We can now make changes to the schema, like so
-
-```python
-new_output_schema = output
-    # Change the field_name of date to the_date
-    .change_column_metadata('date', 'field_name').to('the_date')\
-    # Change the description of the celsius column
-    .change_column_metadata('celsius', 'description').to('the temperature in celsius')\
-    # Change the display name of the celsius column
-    .change_column_metadata('celsius', 'display_name').to('Degrees (Celsius)')\
-    # Change the transform of the_date column to to_fixed_timestamp(`date`)
-    .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')\
-    # Make the celsius column all numbers
-    .change_column_transform('celsius').to('to_number(`celsius`)')\
-    # Add a new column, which is computed from the `celsius` column
-    .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')\
-    .run()
-```
-
-`change_column_metadata(column_name, column_attribute)` takes the field name used to
-identify the column and the column attribute to change (`field_name`, `display_name`, `description`, `position`)
-
-`add_column(field_name, display_name, transform_expression, description)` will create a new column
-
-We can also call `drop_column(celsius)` which will drop the column.
-
-`.run()` will then make a request and return the new output_schema, or an error if something is invalid.
-
-Transforms can be complex SoQL expressions. Available functions are listed [here](http://docs.socratapublishing.apiary.io/#reference/0/inputschema). You can do lots of stuff with them;
-
-
-For example, you could change all `null` values into errors (which won't be imported) by doing
-something like
-```python
-new_output_schema = output
-    .change_column_transform('celsius').to('coalesce(to_number(`celsius`), error("Celsius was null!"))')
-    .run()
-```
-
-Or you could add a new column that says if the day was hot or not
-```python
-new_output_schema = output
-    .add_column('is_hot', 'Was the day hot?', 'to_number(`celsius`) >= 23')
-    .run()
-```
-
-Or you could geocode a column, given the following CSV
-```
-address,city,zip,state
-10028 Ravenna Ave NE, Seattle, 98128, WA
-1600 Pennsylvania Avenue, Washington DC, 20500, DC
-6511 32nd Ave NW, Seattle, 98155, WA
-```
-
-We could transform our first `output_schema` into a single column dataset, where that
-single column is a `Point` of the address
-
-```python
-output = output\
-    .add_column('location', 'Incident Location', 'geocode(`address`, `city`, `state`, `zip`)')\
-    .drop_column('address')\
-    .drop_column('city')\
-    .drop_column('state')\
-    .drop_column('zip')\
-    .run()
-```
-
-
-Composing these SoQL functions into expressions will allow you to validate, shape, clean and extend your data to make it more useful to the consumer.
-
-### Wait for the transformation to finish
-Transformations are async, so if you want to wait for it to finish, you can do so
-```ok output_schema) = new_output_schema.wait_for_finish()
-```
-
-### Errors in a transformation
-Transformations may have had errors, like in the previous example, we can't convert `hehe!` to a number. We can see the count of them like this:
-```python
-print(output_schema.attributes['error_count'])
-```
-
-We can view the detailed errors like this:
-```python
-errors = output_schema.schema_errors()
-```
-
-We can get a CSV of the errors like this:
-```python
-csv_stream = output_schema.schema_errors_csv()
-```
-
-### Validating rows
-We can look at the rows of our schema as well
-```python
-rows = output_schema.rows(offset = 0, limit = 20)
-
-self.assertEqual(rows, [
-    {'b': {'ok': ' bfoo'}},
-    {'b': {'ok': ' bfoo'}},
-    {'b': {'ok': ' bfoo'}},
-    {'b': {'ok': ' bfoo'}}
-])
-```
-
-### Do the upsert!
-```python
-# Now we have transformed our data into the shape we want, let's do an upsert
-job = revision.apply(output_schema = output_schema)
-
-# This will complete the upsert behind the scenes. If we want to
-# re-fetch the current state of the upsert job, we can do so
-job = job.show()
-
-# To get the progress
-print(job.attributes['log'])
-[
-    {'details': {'Errors': 0, 'Rows Created': 0, 'Rows Updated': 0, 'By RowIdentifier': 0, 'By SID': 0, 'Rows Deleted': 0}, 'time': '2017-02-28T20:20:59', 'stage': 'upsert_complete'},
-    {'details': {'created': 1}, 'time': '2017-02-28T20:20:59', 'stage': 'columns_created'},
-    {'details': {'created': 1}, 'time': '2017-02-28T20:20:59', 'stage': 'columns_created'},
-    {'details': None, 'time': '2017-02-28T20:20:59', 'stage': 'started'}
-]
-
-
-# So maybe we just want to wait here, printing the progress, until the job is done
-job.wait_for_finish(progress = lambda job: print(job.attributes['log']))
-
-# So now if we go look at our original four-four, our data will be there
-```
-
-### Metadata only revisions
-When there is an existing Socrata view that you'd like to update the metadata of, you can do so by creating a Source which is the Socrata view.
-
-```python
-view = socrata.views.lookup('abba-cafe')
-
-revision = view.revisions.create_replace_revision()
-source = revision.source_from_dataset()
-output_schema = source.get_latest_input_schema().get_latest_output_schema()
-new_output_schema = output_schema\
-    .change_column_metadata('a', 'description').to('meh')\
-    .change_column_metadata('b', 'display_name').to('bbbb')\
-    .change_column_metadata('c', 'field_name').to('ccc')\
-    .run()
-
-
-revision.apply(output_schema = new_output_schema)
-```
-# Development
-
-## Testing
-Install test deps by running `pip install -r requirements.txt`. This will install `pdoc` and `pandas` which are required to run the tests.
-
-Configuration is set in `test/auth.py` for tests. It reads the domain, username, and password from environment variables. If you want to run the tests, set those environment variables to something that will work.
-
-If I wanted to run the tests against my local instance, I would run:
-```bash
-SOCRATA_DOMAIN=localhost SOCRATA_USERNAME=$SOCRATA_LOCAL_USER SOCRATA_PASSWORD=$SOCRATA_LOCAL_PASS bin/test
-```
-
-## Generating docs
-make the docs by running
-```bash
-make docs
-```
-
-## Releasing
-You will need to have [twine](https://pypi.org/project/twine/) installed (`pip3 install twine`), and a `.pypirc` file in your home directory.
-For help, read [this](https://web.archive.org/web/20180523182143/http://peterdowns.com/posts/first-time-with-pypi.html)
-
-An example of a pypirc file looks like:
-```
-[distutils]
-index-servers =
-  local
-  pypi
-
-[local]
-repository=https://repo.socrata.com/artifactory/api/pypi/pypi
-username=shared-engr
-password=<REDACTED>
-
-[pypi]
-repository=https://upload.pypi.org/legacy/
-username=socrata
-password=<REDACTED>
-```
-
-Make sure the version in setup.py is new and makes sense for the change you're releasing. Then run:
-
-```
-python3 setup.py sdist
-twine upload dist/<your distribution file>
-```
-
-<!-- doc -->
-# Library Docs
-
-### [Socrata](https://github.com/socrata/socrata-py/blob/master//socrata/__init__.py#L9)
-```
-ArgSpec
-    Args: auth
-```
-
-Top level publishing object.
-
-All functions making HTTP calls return a result tuple, where the first element in the
-tuple is whether or not the call succeeded, and the second element is the returned
-object if it was a success, or a dictionary containing the error response if the call
-failed. 2xx responses are considered successes. 4xx and 5xx responses are considered failures.
-In the event of a socket hangup, an exception is raised.
-
-#### [create](https://github.com/socrata/socrata-py/blob/master//socrata/__init__.py#L61)
-
-
-Shortcut to create a dataset. Returns a `Create` object,
-which contains functions which will create a view, upload
-your file, and validate data quality in one step.
-
-To actually place the validated data into a view, you can call .apply()
-on the revision
-```
-(revision, output_schema) Socrata(auth).create(
-    name = "cool dataset",
-    description = "a description"
-).csv(file)
-
-job = revision.apply(output_schema = output_schema)
-```
-
-Args:
-```
-   **kwargs: Arbitrary revision metadata values
-```
-
-Returns:
-```
-    result (Revision, OutputSchema): Returns the revision that was created and the
-        OutputSchema created from your uploaded file
-```
-
-Examples:
-```python
-Socrata(auth).create(
-    name = "cool dataset",
-    description = "a description"
-).csv(open('my-file.csv'))
-```
-
-#### [new](https://github.com/socrata/socrata-py/blob/master//socrata/__init__.py#L100)
-```
-ArgSpec
-    Args: metadata, deleted_at
-```
-
-Create an empty revision, on a view that doesn't exist yet. The
-view will be created for you, and the initial revision will be returned.
-
-Args:
-```
-    metadata (dict): Metadata to apply to the revision
-```
-
-Returns:
-```
-    Revision
-```
-
-Examples:
-```python
-    rev = Socrata(auth).new({
-        'name': 'hi',
-        'description': 'foo!',
-        'metadata': {
-            'view': 'metadata',
-            'anything': 'is allowed here'
-
-        }
-    })
-```
-
-#### [using_config](https://github.com/socrata/socrata-py/blob/master//socrata/__init__.py#L28)
-```
-ArgSpec
-    Args: config_name, view
-```
-
-Update a dataset, using the configuration that you previously
-created, and saved the name of. Takes the `config_name` parameter
-which uniquely identifies the config, and the `View` object, which can
-be obtained from `socrata.views.lookup('view-id42')`
-
-Args:
-```
-    config_name (str): The config name
-    view (View): The view to update
-```
-
-Returns:
-```
-    result (ConfiguredJob): Returns the ConfiguredJob
-```
-
-Note:
-    Typical usage would be in a context manager block (as demonstrated in the example
-    below). In this case, the `ConfiguredJob` is created and immediately launched by way of
-    the call to the `ConfiguredJob.csv` method.
-
-Examples:
-```
-    with open('my-file.csv', 'rb') as my_file:
-        (rev, job) = p.using_config(name, view).csv(my_file)
-```
-
-### [Authorization](https://github.com/socrata/socrata-py/blob/master//socrata/authorization.py#L3)
-```
-ArgSpec
-    Args: domain, username, password, request_id_prefix
-    Defaults: domain=
-```
-
-Manages basic authorization for accessing the socrata API.
-This is passed into the `Socrata` object once, which is the entry
-point for all operations.
-
-    auth = Authorization(
-        "data.seattle.gov",
-        os.environ['SOCRATA_USERNAME'],
-        os.environ['SOCRATA_PASSWORD']
-    )
-    publishing = Socrata(auth)
-
-#### [live_dangerously](https://github.com/socrata/socrata-py/blob/master//socrata/authorization.py#L28)
-
-
-Disable SSL checking. Note that this should *only* be used while developing
-against a local Socrata instance.
-
-### [Revisions](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L9)
-```
-ArgSpec
-    Args: fourfour, auth
-```
-
-
-
-#### [create_delete_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L100)
-```
-ArgSpec
-    Args: metadata, permission
-    Defaults: metadata={}, permission=public
-```
-
-Create a revision on the view, which when applied, will delete rows of data.
-
-This is an upsert; a row id must be set.
-
-Args:
-```
-    metadata (dict): The metadata to change; these changes will be applied when the revision is applied
-    permission (string): 'public' or 'private'
-```
-
-Returns:
-```
-    Revision The new revision, or an error
-```
-
-Examples:
-```python
-    view.revisions.create_delete_revision(metadata = {
-        'name': 'new dataset name',
-        'description': 'description'
-    })
-```
-
-#### [create_replace_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L50)
-```
-ArgSpec
-    Args: metadata, permission
-    Defaults: metadata={}, permission=public
-```
-
-Create a revision on the view, which when applied, will replace the data.
-
-Args:
-```
-    metadata (dict): The metadata to change; these changes will be applied when the revision
-        is applied
-    permission (string): 'public' or 'private'
-```
-Returns:
-```
-    Revision The new revision, or an error
-```
-Examples:
-```
-    >>> view.revisions.create_replace_revision(metadata = {'name': 'new dataset name', 'description': 'updated description'})
-```
-
-#### [create_update_revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L71)
-```
-ArgSpec
-    Args: metadata, permission
-    Defaults: metadata={}, permission=public
-```
-
-Create a revision on the view, which when applied, will update the data
-rather than replacing it.
-
-This is an upsert; if there is a rowId defined and you have duplicate ID values,
-those rows will be updated. Otherwise they will be appended.
-
-Args:
-```
-    metadata (dict): The metadata to change; these changes will be applied when the revision is applied
-    permission (string): 'public' or 'private'
-```
-
-Returns:
-```
-    Revision The new revision, or an error
-```
-
-Examples:
-```python
-    view.revisions.create_update_revision(metadata = {
-        'name': 'new dataset name',
-        'description': 'updated description'
-    })
-```
-
-#### [create_using_config](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L165)
-```
-ArgSpec
-    Args: config
-```
-
-Create a revision for the given dataset.
-
-#### [list](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L35)
-
-
-List all the revisions on the view
-
-Returns:
-```
-    list[Revision]
-```
-
-#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L146)
-```
-ArgSpec
-    Args: revision_seq
-```
-
-Lookup a revision within the view based on the sequence number
-
-Args:
-```
-    revision_seq (int): The sequence number of the revision to lookup
-```
-
-Returns:
-```
-    Revision The Revision resulting from this API call, or an error
-```
-
-### [Revision](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L178)
-```
-ArgSpec
-    Args: auth, response, parent
-```
-
-A revision is a change to a dataset
-
-#### [apply](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L383)
-```
-ArgSpec
-    Args: output_schema
-```
-
-Apply the Revision to the view that it was opened on
-
-Args:
-```
-    output_schema (OutputSchema): Optional output schema. If your revision includes
-        data changes, this should be included. If it is a metadata only revision,
-        then you will not have an output schema, and you do not need to pass anything
-        here
-```
-
-Returns:
-```
-    Job
-```
-
-Examples:
-```
-job = revision.apply(output_schema = my_output_schema)
-```
-
-#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L183)
-```
-ArgSpec
-    Args: filename, parse_options
-    Defaults: filename={}
-```
-
-Create an upload within this revision
-
-Args:
-```
-    filename (str): The name of the file to upload
-```
-Returns:
-```
-    Source: Returns the new Source The Source created by this API call, or an error
-```
-
-#### [discard](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L329)
-
-
-Discard this open revision.
-
-Returns:
-```
-    Revision The closed Revision or an error
-```
-
-#### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L146)
-
-
-Get a list of the operations that you can perform on this
-object. These map directly onto what's returned from the API
-in the `links` section of each resource
-
-#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L447)
-
-
-Open this revision in your browser, this will open a window
-
-#### [plan](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L340)
-
-
-Return the list of operations this revision will make when it is applied
-
-Returns:
-```
-    dict
-```
-
-#### [set_notes](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L301)
-```
-ArgSpec
-    Args: notes
-```
-
-Set any notes on the revision. The notes is displayed in the dataset
-changelog if the dataset is enrolled in archiving. If it is not enrolled
-in archiving, this has no effect.
-
-Args:
-```
-    notes (string): The change notes
-```
-
-Returns:
-```
-    Revision The updated Revision as a result of this API call, or an error
-```
-
-Examples:
-```python
-    revision = revision.set_notes("Just updating my dataset")
-```
-
-#### [set_output_schema](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L279)
-```
-ArgSpec
-    Args: output_schema_id
-```
-
-Set the output schema id on the revision. This is what will get applied when
-the revision is applied if no ouput schema is explicitly supplied
-
-Args:
-```
-    output_schema_id (int): The output schema id
-```
-
-Returns:
-```
-    Revision The updated Revision as a result of this API call, or an error
-```
-
-Examples:
-```python
-    revision = revision.set_output_schema(42)
-```
-
-#### [source_as_blob](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L240)
-```
-ArgSpec
-    Args: filename, parse_options
-    Defaults: filename={}
-```
-
-Create a source from a file that should remain unparsed
-
-#### [source_from_agent](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L228)
-```
-ArgSpec
-    Args: agent_uid, namespace, path, parse_options, parameters
-    Defaults: agent_uid={}, namespace={}
-```
-
-Create a source from a connection agent in this revision
-
-#### [source_from_dataset](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L219)
-```
-ArgSpec
-    Args: parse_options
-    Defaults: parse_options={}
-```
-
-Create a dataset source within this revision
-
-#### [source_from_url](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L201)
-```
-ArgSpec
-    Args: url, parse_options
-    Defaults: url={}
-```
-
-Create a URL source
-
-Args:
-```
-    url (str): The URL to create the dataset from
-```
-Returns:
-```
-    Source: Returns the new Source The Source created by this API call, or an error
-```
-
-#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L432)
-
-
-This is the URL to the landing page in the UI for this revision
-
-Returns:
-```
-    url (str): URL you can paste into a browser to view the revision UI
-```
-
-#### [update](https://github.com/socrata/socrata-py/blob/master//socrata/revisions.py#L352)
-```
-ArgSpec
-    Args: body
-```
-
-Set the metadata to be applied to the view
-when this revision is applied
-
-Args:
-```
-    body (dict): The changes to make to this revision
-```
-
-Returns:
-```
-    Revision The updated Revision as a result of this API call, or an error
-```
-
-Examples:
-```python
-    revision = revision.update({
-        'metadata': {
-            'name': 'new name',
-            'description': 'new description'
-        }
-    })
-```
-
-### [Sources](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L15)
-```
-ArgSpec
-    Args: auth
-```
-
-
-
-#### [create_upload](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L40)
-```
-ArgSpec
-    Args: filename
-```
-
-Create a new source. Takes a `body` param, which must contain a `filename`
-of the file.
-
-Args:
-```
-    filename (str): The name of the file you are uploading
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    upload = revision.create_upload('foo.csv')
-```
-
-#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L21)
-```
-ArgSpec
-    Args: source_id
-```
-
-Lookup a source
-
-Args:
-```
-    source_id (int): The id
-```
-
-Returns:
-```
-    Source: Returns the new Source The Source resulting from this API call, or an error
-```
-
-### [Source](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L122)
-```
-ArgSpec
-    Args: auth, response, parent
-```
-
-
-
-#### [add_to_revision](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L466)
-```
-ArgSpec
-    Args: revision
-```
-
-Associate this Source with the given revision.
-
-#### [blob](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L237)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Uploads a Blob dataset. A blob is a file that will not be parsed as a data file,
-ie: an image, video, etc.
-
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-blob.jpg', 'rb') as f:
-        upload = upload.blob(f)
-```
-
-#### [change_parse_option](https://github.com/socrata/socrata-py/blob/master//socrata/builders/parse_options.py#L15)
-```
-ArgSpec
-    Args: name
-```
-
-Change a parse option on the source.
-
-If there are not yet bytes uploaded, these parse options will be used
-in order to parse the file.
-
-If there are already bytes uploaded, this will trigger a re-parsing of
-the file, and consequently a new InputSchema will be created. You can call
-`source.latest_input()` to get the newest one.
-
-Parse options are:
-header_count (int): the number of rows considered a header
-column_header (int): the one based index of row to use to generate the header
-encoding (string): defaults to guessing the encoding, but it can be explicitly set
-column_separator (string): For CSVs, this defaults to ",", and for TSVs "       ", but you can use a custom separator
-quote_char (string): Character used to quote values that should be escaped. Defaults to """
-
-Args:
-```
-    name (string): One of the options above, ie: "column_separator" or "header_count"
-```
-
-Returns:
-```
-    change (ParseOptionChange): implements a `.to(value)` function which you call to set the value
-```
-
-For our example, assume we have this dataset
-
-```
-This is my cool dataset
-A, B, C
-1, 2, 3
-4, 5, 6
-```
-
-We want to say that the first 2 rows are headers, and the second of those 2
-rows should be used to make the column header. We would do that like so:
-
-Examples:
-```python
-    source = source            .change_parse_option('header_count').to(2)            .change_parse_option('column_header').to(2)            .run()
-```
-
-#### [csv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L261)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Upload a CSV, returns the new input schema.
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-file.csv', 'rb') as f:
-        upload = upload.csv(f)
-```
-
-#### [df](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L438)
-```
-ArgSpec
-    Args: dataframe
-```
-
-Upload a pandas DataFrame, returns the new source.
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    import pandas
-    df = pandas.read_csv('test/fixtures/simple.csv')
-    upload = upload.df(df)
-```
-
-#### [geojson](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L412)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Upload a geojson file, returns the new input schema.
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-geojson-file.geojson', 'rb') as f:
-        upload = upload.geojson(f)
-```
-
-#### [kml](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L386)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Upload a KML file, returns the new input schema.
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-kml-file.kml', 'rb') as f:
-        upload = upload.kml(f)
-```
-
-#### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L146)
-
-
-Get a list of the operations that you can perform on this
-object. These map directly onto what's returned from the API
-in the `links` section of each resource
-
-#### [load](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L206)
-
-
-Forces the source to load, if it's a view source.
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-#### [open_in_browser](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L547)
-
-
-Open this source in your browser, this will open a window
-
-#### [shapefile](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L361)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Upload a Shapefile, returns the new input schema.
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-shapefile-archive.zip', 'rb') as f:
-        upload = upload.shapefile(f)
-```
-
-#### [tsv](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L336)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Upload a TSV, returns the new input schema.
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-file.tsv', 'rb') as f:
-        upload = upload.tsv(f)
-```
-
-#### [ui_url](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L530)
-
-
-This is the URL to the landing page in the UI for the sources
-
-Returns:
-```
-    url (str): URL you can paste into a browser to view the source UI
-```
-
-#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L515)
-```
-ArgSpec
-    Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fa34fb57040>, timeout=43200, sleeptime=1
-```
-
-Wait for this data source to finish transforming and validating. Accepts a progress function
-and a timeout.
-
-Default timeout is 12 hours
-
-#### [wait_for_schema](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L500)
-```
-ArgSpec
-    Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fa34fb57040>, timeout=43200, sleeptime=1
-```
-
-Wait for this data source to have at least one schema present. Accepts a progress function
-and a timeout.
-
-Default timeout is 12 hours
-
-#### [xls](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L286)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Upload an XLS, returns the new input schema
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-file.xls', 'rb') as f:
-        upload = upload.xls(f)
-```
-
-#### [xlsx](https://github.com/socrata/socrata-py/blob/master//socrata/sources.py#L311)
-```
-ArgSpec
-    Args: file_handle
-```
-
-Upload an XLSX, returns the new input schema.
-
-Args:
-```
-    file_handle: The file handle, as returned by the python function `open()`
-
-    max_retries (integer): Optional retry limit per chunk in the upload. Defaults to 5.
-    backoff_seconds (integer): Optional amount of time to backoff upon a chunk upload failure. Defaults to 2.
-```
-
-Returns:
-```
-    Source: Returns the new Source
-```
-
-Examples:
-```python
-    with open('my-file.xlsx', 'rb') as f:
-        upload = upload.xlsx(f)
-```
-
-### [Configs](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L8)
-```
-ArgSpec
-    Args: auth
-```
-
-
-
-#### [create](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L14)
-```
-ArgSpec
-    Args: name, data_action, parse_options, columns
-```
-
-Create a new ImportConfig. See http://docs.socratapublishing.apiary.io/
-ImportConfig section for what is supported in `data_action`, `parse_options`,
-and `columns`.
-
-#### [list](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L41)
-
-
-List all the ImportConfigs on this domain
-
-#### [lookup](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L32)
-```
-ArgSpec
-    Args: name
-```
-
-Obtain a single ImportConfig by name
-
-### [Config](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L50)
-```
-ArgSpec
-    Args: auth, response, parent
-```
-
-
-
-#### [change_parse_option](https://github.com/socrata/socrata-py/blob/master//socrata/builders/parse_options.py#L15)
-```
-ArgSpec
-    Args: name
-```
-
-Change a parse option on the source.
-
-If there are not yet bytes uploaded, these parse options will be used
-in order to parse the file.
-
-If there are already bytes uploaded, this will trigger a re-parsing of
-the file, and consequently a new InputSchema will be created. You can call
-`source.latest_input()` to get the newest one.
-
-Parse options are:
-header_count (int): the number of rows considered a header
-column_header (int): the one based index of row to use to generate the header
-encoding (string): defaults to guessing the encoding, but it can be explicitly set
-column_separator (string): For CSVs, this defaults to ",", and for TSVs "       ", but you can use a custom separator
-quote_char (string): Character used to quote values that should be escaped. Defaults to """
-
-Args:
-```
-    name (string): One of the options above, ie: "column_separator" or "header_count"
-```
-
-Returns:
-```
-    change (ParseOptionChange): implements a `.to(value)` function which you call to set the value
-```
-
-For our example, assume we have this dataset
-
-```
-This is my cool dataset
-A, B, C
-1, 2, 3
-4, 5, 6
-```
-
-We want to say that the first 2 rows are headers, and the second of those 2
-rows should be used to make the column header. We would do that like so:
-
-Examples:
-```python
-    source = source            .change_parse_option('header_count').to(2)            .change_parse_option('column_header').to(2)            .run()
-```
-
-#### [create_revision](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L68)
-```
-ArgSpec
-    Args: fourfour
-```
-
-Create a new Revision in the context of this ImportConfig.
-Sources that happen in this Revision will take on the values
-in this Config.
-
-#### [delete](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L51)
-
-
-Delete this ImportConfig. Note that this cannot be undone.
-
-#### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L146)
-
-
-Get a list of the operations that you can perform on this
-object. These map directly onto what's returned from the API
-in the `links` section of each resource
-
-#### [update](https://github.com/socrata/socrata-py/blob/master//socrata/configs.py#L57)
-```
-ArgSpec
-    Args: body
-```
-
-Mutate this ImportConfig in place. Subsequent revisions opened against this
-ImportConfig will take on its new value.
-
-### [InputSchema](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L7)
-```
-ArgSpec
-    Args: auth, response, parent
-```
-
-This represents a schema exactly as it appeared in the source
-
-#### [get_latest_output_schema](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L53)
-
-
-Note that this does not make an API request
-
-Returns:
-    output_schema (OutputSchema): Returns the latest output schema
-
-#### [latest_output](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L25)
-
-
-Get the latest (most recently created) OutputSchema
-which descends from this InputSchema
-
-Returns:
-    OutputSchema
-
-#### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L146)
-
-
-Get a list of the operations that you can perform on this
-object. These map directly onto what's returned from the API
-in the `links` section of each resource
-
-#### [transform](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L11)
-```
-ArgSpec
-    Args: body
-```
-
-Transform this InputSchema into an Output. Returns the
-new OutputSchema. Note that this call is async - the data
-may still be transforming even though the OutputSchema is
-returned. See OutputSchema.wait_for_finish to block until
-the
-
-#### [wait_for_schema](https://github.com/socrata/socrata-py/blob/master//socrata/input_schema.py#L38)
-```
-ArgSpec
-    Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fa34fb57040>, timeout=43200, sleeptime=1
-```
-
-Wait for this data source to have at least one schema present. Accepts a progress function
-and a timeout.
-
-Default timeout is 12 hours
-
-### [OutputSchema](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L51)
-
-
-This is data as transformed from an InputSchema
-
-#### [add_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L223)
-```
-ArgSpec
-    Args: field_name, display_name, transform_expr, description
-```
-
-Add a column
-
-Args:
-```
-    field_name (str): The column's field_name, must be unique
-    display_name (str): The columns display name
-    transform_expr (str): SoQL expression to evaluate and fill the column with data from
-    description (str): Optional column description
-```
-
-Returns:
-```
-    output_schema (OutputSchema): Returns self for easy chaining
-```
-
-Examples:
-```python
-new_output_schema = output
-    # Add a new column, which is computed from the `celsius` column
-    .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
-    # Add a new column, which is computed from the `celsius` column
-    .add_column('kelvin', 'Degrees (Kelvin)', '(to_number(`celsius`) + 273.15')
-    .run()
-```
-
-#### [any_failed](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L78)
-
-
-This is probably not the function you are looking for.
-
-This returns whether or not any transform in this output schema has failed. "Failed" in this
-case means an internal error (which is unexpected), not a data error (which is expected). This
-function will wait for processing to complete if it hasn't yet.
-
-For data errors:
-
-    Tell whether or not there are data errors
-        output_schema.any_errors()
-    Get the count of data errors
-        output_schema.attributes['error_count']
-    Get the errors themselves
-        output_schema.schema_errors(offset = 0, limit = 20)
-
-#### [build_config](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L63)
-```
-ArgSpec
-    Args: name, data_action
-```
-
-Create a new ImportConfig from this OutputSchema. See the API
-docs for what an ImportConfig is and why they're useful
-
-#### [change_column_metadata](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L286)
-```
-ArgSpec
-    Args: field_name, attribute
-```
-
-Change the column metadata. This returns a ColumnChange,
-which implements a `.to` function, which takes the new value to change to
-
-Args:
-```
-    field_name (str): The column to change
-    attribute (str): The attribute of the column to change
-```
-
-Returns:
-```
-    change (TransformChange): The transform change, which implements the `.to` function
-```
-
-Examples:
-```python
-    new_output_schema = output
-        # Change the field_name of date to the_date
-        .change_column_metadata('date', 'field_name').to('the_date')
-        # Change the description of the celsius column
-        .change_column_metadata('celsius', 'description').to('the temperature in celsius')
-        # Change the display name of the celsius column
-        .change_column_metadata('celsius', 'display_name').to('Degrees (Celsius)')
-        .run()
-```
-
-#### [change_column_transform](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L316)
-```
-ArgSpec
-    Args: field_name
-```
-
-Change the column transform. This returns a TransformChange,
-which implements a `.to` function, which takes a transform expression.
-
-Args:
-```
-    field_name (str): The column to change
-```
-
-Returns:
-```
-    change (TransformChange): The transform change, which implements the `.to` function
-```
-
-Examples:
-```python
-    new_output_schema = output
-        .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')
-        # Make the celsius column all numbers
-        .change_column_transform('celsius').to('to_number(`celsius`)')
-        # Add a new column, which is computed from the `celsius` column
-        .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
-        .run()
-```
-
-#### [drop_column](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L262)
-```
-ArgSpec
-    Args: field_name
-```
-
-Drop the column
-
-Args:
-```
-    field_name (str): The column to drop
-```
-
-Returns:
-```
-    output_schema (OutputSchema): Returns self for easy chaining
-```
-
-Examples:
-```python
-    new_output_schema = output
-        .drop_column('foo')
-        .run()
-```
-
-#### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L146)
-
-
-Get a list of the operations that you can perform on this
-object. These map directly onto what's returned from the API
-in the `links` section of each resource
-
-#### [rows](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L140)
-```
-ArgSpec
-    Args: offset, limit
-    Defaults: offset=0, limit=500
-```
-
-Get the rows for this OutputSchema. Acceps `offset` and `limit` params
-for paging through the data.
-
-#### [run](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L372)
-
-
-Run all adds, drops, and column changes.
-
-
-Returns:
-```
-    OutputSchema
-```
-
-Examples:
-```python
-    new_output_schema = output
-        # Change the field_name of date to the_date
-        .change_column_metadata('date', 'field_name').to('the_date')
-        # Change the description of the celsius column
-        .change_column_metadata('celsius', 'description').to('the temperature in celsius')
-        # Change the display name of the celsius column
-        .change_column_metadata('celsius', 'display_name').to('Degrees (Celsius)')
-        # Change the transform of the_date column to to_fixed_timestamp(`date`)
-        .change_column_transform('the_date').to('to_fixed_timestamp(`date`)')
-        # Make the celsius column all numbers
-        .change_column_transform('celsius').to('to_number(`celsius`)')
-        # Add a new column, which is computed from the `celsius` column
-        .add_column('fahrenheit', 'Degrees (Fahrenheit)', '(to_number(`celsius`) * (9 / 5)) + 32', 'the temperature in celsius')
-        .run()
-```
-
-#### [schema_errors](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L148)
-```
-ArgSpec
-    Args: offset, limit
-    Defaults: offset=0, limit=500
-```
-
-Get the errors that resulted in transforming into this output schema.
-Accepts `offset` and `limit` params
-
-#### [schema_errors_csv](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L155)
-
-
-Get the errors that results in transforming into this output schema
-as a CSV stream.
-
-Note that this returns a Reponse, where Reponse
-is a python requests Reponse object
-
-#### [set_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L196)
-```
-ArgSpec
-    Args: field_name
-```
-
-Set the row id. Note you must call `validate_row_id` before doing this.
-
-Args:
-```
-    field_name (str): The column to set as the row id
-```
-
-Returns:
-```
-    OutputSchema
-```
-
-Examples:
-```python
-new_output_schema = output.set_row_id('the_id_column')
-```
-
-#### [set_sort_by](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L344)
-
-
-Replace the columns used to sort the dataset. This returns a SortChange,
-which implements a `.on` function to add a sort and a `.end_sort` function
-to finish.
-
-If you do not call this, the OutputSchema will try to preserve any existing
-sorts, which means it will remove sorts on deleted columns or on columns
-whose transforms are changed.
-
-Returns:
-```
-    change (SortChange): The sort change, which implements the `.on` and `.end_sort` functions
-```
-
-Examples:
-```python
-    new_output_schema = output
-        .set_sort_by()
-        .on('column_one', ascending = True)
-        .on('column_two', ascending = False)
-        .on('column_three') # ascending = True is the default
-        .end_sort()
-        .run()
-```
-
-#### [validate_row_id](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L170)
-```
-ArgSpec
-    Args: field_name
-```
-
-Set the row id. Note you must call `validate_row_id` before doing this.
-
-Args:
-```
-    field_name (str): The column to validate as the row id
-```
-
-Returns:
-```
-    boolean
-```
-
-#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/output_schema.py#L108)
-```
-ArgSpec
-    Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fa34fb57040>, timeout=10800, sleeptime=1
-```
-
-Wait for this dataset to finish transforming and validating. Accepts a progress function
-and a timeout.
-
-Default timeout is 3 hours
-
-### [Job](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L4)
-```
-ArgSpec
-    Args: auth, response, parent
-```
-
-
-
-#### [is_complete](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L10)
-
-
-Has this job finished or failed (or been submitted for approval)
-
-#### [list_operations](https://github.com/socrata/socrata-py/blob/master//socrata/resource.py#L146)
-
-
-Get a list of the operations that you can perform on this
-object. These map directly onto what's returned from the API
-in the `links` section of each resource
-
-#### [submitted_for_approval](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L33)
-
-
-Has this job entered the approval queue (rather than finishing or failing)
-
-#### [wait_for_finish](https://github.com/socrata/socrata-py/blob/master//socrata/job.py#L18)
-```
-ArgSpec
-    Args: progress, timeout, sleeptime
-    Defaults: progress=<function noop at 0x7fa34fb57040>, sleeptime=1
-```
-
-Wait for this dataset to finish transforming and validating. Accepts a progress function
-and a timeout.
-<!-- docstop -->
+Descendants: The Rise of Red full-movie Download Filmyzilla
+
+◉ ☀🎬 PLAY  NOW 📺📱👉 https://bit.ly/3YtjT7J
+
+◉ ☀🎬 PLAY  NOW 📺📱👉 https://bit.ly/3YtjT7J
+
+When New York City comes under attack from an alien invasion, a woman and other survivors try to find a way to safety. They soon learn that they must remain absolutely silent as the mysterious creatures are drawn to the slightest sound.
+
+Title: Descendants: The Rise of Red
+
+Year: 2024
+
+"07 minutes ago — [woɹᙠɹǝuɹɐZ] While several avenues exist to view the highly praised film Descendants: The Rise of Red online streaming offers a versatile means to access its cinematic wonder From heartfelt songs to buoyant humor this genre-bending work explores the power of friendship to up Descendants: The Rise of Red communities during troubling times Directed with nuanced color and vivacious animation lighter moments are blended seamlessly with touching introspection Cinephiles and casual fans alike will find their spirits Descendants: The Rise of Red ed by this inspirational story of diverse characters joining in solidarity Why not spend an evening immersed in the vibrant world of Descendants: The Rise of Red ? Don't miss out! #Descendants: The Rise of Red Movie
+
+In the heart of a bustling metropolis lies a centuries-old mirror rumored to hold mystical powers. "The Enigmatic Mirror" follows the journey of a young archaeologist, Dr. Emily Collins, who stumbles upon this artifact during an excavation. As she delves deeper into its history, she discovers a hidden realm where reflections are gateways to parallel worlds.
+
+Driven by curiosity and haunted by a tragic past, Emily embarks on a perilous quest to unravel the mirror's secrets. Alongside her is the enigmatic historian, Professor Jameson, whose knowledge of ancient civilizations proves invaluable. Together, they navigate through surreal landscapes and encounter beings both benevolent and malevolent.
+
+As they unravel the mirror's mysteries, Emily and Jameson uncover startling truths about themselves and the interconnectedness of their world with others. The film explores themes of identity, redemption, and the consequences of tampering with the fabric of reality.
+
+With stunning visual effects and a gripping narrative, "The Enigmatic Mirror" is a captivating journey into the unknown, where each reflection holds a clue to a deeper truth waiting to be unveiled.
+
+The new Descendants: The Rise of Red prequel Descendants: The Rise of Red will be available for streaming first on Starz for subscribers Later on the movie will also be released on PeacockThanks to the agreement between distributor Lionsgate and the NBC Universal streaming platform Determining the exact arrival date of the movie is a slighDescendants: The Rise of Red y more complex matter Typically Lionsgate movies like John Wick 4 take approximately six months to become available on Starz where they tend to reDescendants: The Rise of Red n for a considerable period As for when Songbirds Snakes will be accessible on Peacock it could take nearly a year after its release although we will only receive confirmation once Lionsgate makes an official announcement However Descendants: The Rise of Red you wish to watch the movie even earlier you can rent it on Video on Demand (VOD) which will likely be available before the streaming date on Starz
+
+Warner Bros. is continuing to beat out Warner Bros. and Warner Bros,, over the New Year’s holiday weekend, with “Chasing My Rejected WDescendants: The Rise of Rede” now rising above “The Color Purple” and “Chasing My Rejected WDescendants: The Rise of Rede” With that trDescendants: The Rise of Redecta, the studio has laid claim to the three of the top five slots at the domestic box office throughout the holiday season.
+
+The Timothéee Chalamet-starring musical added another $8.6 million on Descendants: The Rise of Red y, up 32% from one week ago. The Paul King film has emerged as the theatrical favorite for the holidays, crossing $100 million domestically earlier this week. With a $119 million cume to date, the film continues to show strength and will reach $300 million globally before the calendar turns.
+
+Though it slid into second place for Descendants: The Rise of Red y with $6.75 million, Warner Bros. “Chasing My Rejected WDescendants: The Rise of Rede” fell 51% from its opening day last week. The latest and final entry in the current continuity of DC Comics adaptations has struggled for air, only reaching $65 million in its first week of release. The first “Aquaman,” released in 2018, surpassed that figure in its opening weekend alone. Bad reviews and superhero fatigue have plagued “Lost Kingdom,” which more than likely won’t even reach half the $335 million domestic total of its predecessor, much less justDescendants: The Rise of Redy a $205 million production budget.
+
+Taking a close third place, IlDescendants: The Rise of Redtion and Universal’s“Chasing My Rejected WDescendants: The Rise of Rede” is Descendants: The Rise of Red ntaining its footing with $6.7 Descendants: The Rise of Red y after a muted $12 million debut lastweekend. “Chasing My Rejected WDescendants: The Rise of Rede” has underwhelmed so far, but its 17% increase over last Descendants: The Rise of Red y reDescendants: The Rise of Red ns encouraging, especially for an original animated film with a production budget of only $70 million. However,Here’s when you can bring Descendants: The Rise of Red of ADescendants: The Rise of Red antis into your home.
+
+Where and Can I Stream Descendants: The Rise of Red ? Is Descendants: The Rise of Red Be Streaming?
+
+A movie, also known as a film, is a form of visual storytelling that uses moving images and sound to entertain, inform, and communicate various ideas, emotions, and narratives to an audience. It is typically produced as a collaborative effort involving directors, screenwriters, actors, cinematographers, editors, and other creative and technical professionals.
+
+Movies are created through a series of stages that begin with the development of a screenplay or script. This script serves as the blueprint for the entire production and includes dialogue, descriptions of scenes, and actions. Once the script is finalized, the production phase begins, which involves casting actors, securing locations, filming scenes using cameras and other equipment, and recording sound.
+
+After filming is complete, the footage undergoes editing to arrange the scenes, add visual effects, and synchronize sound and music. Post-production also includes color grading, sound mixing, and other enhancements to ensure the final product meets the creative vision of the filmmakers.
+
+Movies encompass a wide range of genres and styles, including drama, comedy, action, thriller, horror, science fiction, fantasy, and more. Each genre appeals to different audience preferences and explores diverse themes, from personal relationships and societal issues to historical events and fantastical adventures.
+
+Movies are typically released in cinemas, where audiences can watch them on large screens with high-quality sound systems. In recent years, movies are also distributed through streaming platforms, DVDs, Blu-rays, and digital downloads, allowing viewers to enjoy them at home or on portable devices.
+
+Beyond entertainment, movies have the power to influence culture, provoke thought, and evoke emotions. They often reflect the values, concerns, and aspirations of societies at different points in history and can serve as a catalyst for social change or cultural movements.
+
+Overall, movies play a significant role in global culture and entertainment, offering a compelling blend of artistic expression, storytelling, and technical innovation that continues to captivate audiences worldwide.
+
+Where Can I Stream the Original Descendants: The Rise of Red Movies in the Meantime?
+
+In the meantime you can currenDescendants: The Rise of Red y stream all four original Descendants: The Rise of Red movies on Peacock until the end of November The availability of Descendants: The Rise of Red movies onPeacock varies depending on the month so make sure to take advantage of the current availability How To Watch Descendants: The Rise of Red In English Online For Free:
+
+As of now, the only way to watch Descendants: The Rise of Red is to head out to a movie theater when it releases on Descendants: The Rise of Red y, September 8. You can find a local showing onFandango. Otherwise, you'll have to wait until it becomes available to rent or purchase on digital platforms like Vudu, Apple, YouTube, and Amazon or available to stream on Max. Descendants: The Rise of Red is still currenDescendants: The Rise of Red y in theaters Descendants: The Rise of Red you want to experience all the film's twists and turns in a traditional cinema. But there's also now an option to watch the film at home. As of November 25, 2024, Descendants: The Rise of Red is available on HBO Max. Only those with a subscription to the service can watch the movie. Because the film is distributed by 20th Century Studios, it's one of the last films of the year to head to HBO Max due to a streaming deal in lieu of Disney acquiring 20th Century Studios, as Variety reports. At the end of 2024, 20th Century Studios' films will head to Hulu or Disney+ once they leave theaters. Is Descendants: The Rise of Red Movie on Netflix, Crunchyroll, Hulu, or Amazon Prime?
+
+Hulu: Unfortunately, Descendants: The Rise of Red is not available for streaming on Hulu. However, Hulu offers a variety of other exciting options like Afro Samurai Resurrection or Ninja Scroll to keep you entertained.
+
+Disney+: Descendants: The Rise of Red is not currenDescendants: The Rise of Red y available for streaming on Disney+. Fans will have to wait until late December, when it is expected to be released on theplatform. Disney typically releases its films on Disney+ around 45-60 days after their theatrical release, ensuring an immersive cinematic experience for viewers. IS Descendants: The Rise of Red ON AMAZON PRIME VIDEO?
+
+Netflix: Descendants: The Rise of Red is currenDescendants: The Rise of Red y not available on Netflix. However, fans of dark fantasy films can explore other thrilling options such as Doctor Strange to keep themselves entertained.
+
+Crunchyroll: Crunchyroll and Funimation have acquired the rights to distribute Descendants: The Rise of Red in North America. Stay tuned for its release on the platform inthe coming months. In the meantime, indulge in dark fantasy shows like Spider-man to fulfill your entertainment needs.
+
+Descendants: The Rise of Red movie could eventually be available to watch on Prime Video, though it will likely be a paid digital release rather than being included with anAmazon Prime subscription. This means that rather than watching the movie as part of an existing subscription fee, you may have to pay money to rent the movie digitally on Amazon. However, Warner Bros. and Amazon have yet to discuss whether or not this will be the case.
+
+WHEN WILL 'Descendants: The Rise of Red ', BE AVAILABLE DVD AND BLU-RAY?
+
+As of right now, we don't know. While the film will eventually land on Blu-ray, DVD, and 4KUltraHD, Warner Bros has yet to reveal a specDescendants: The Rise of Redic date as to when that would be. The first Nun film also premiered in theaters in early September and was released on Blu-ray and DVD in December. Our best guess is that the sequel will follow a similar path and will be available around the holiday season. HERE'S HOW TO WATCH 'Descendants: The Rise of Red ' ONLINE STREAMING IN AUSTRALIA
+
+To watch 'Descendants: The Rise of Red ' (2024) for free online streaming in Australia and New Zealand, you can explore options like as mentioned in the search results. However, please note that the legality and safety of using such websites may vary, so exercise caution when accessing them. Additionally, you can check Descendants: The Rise of Red the movie is available on popular streaming platforms like Netflix, Hulu, or Amazon Prime Video, as they often offer a wide selection of movies and TV.
+
+Mark your calendars for July 8th, as that's when Descendants: The Rise of Red will be available on Disney+. This highly anticipated installment inthe franchise is packed with thrilling action and adventure, promising to captivate audiences and leave them craving for more. Captivate audiences and leave them craving for more.
+
+Here is a comprehensive guide on how to watch Descendants: The Rise of Red online in its entirety from the comfort of your own home. You can access thefull movie free of charge on the respected platform known as 123Movies. Immerse yourself in the captivating experience of Descendants: The Rise of Red by watching it online for free. Alternatively, you can also enjoy the movie by downloading it in high definition. Enhance your movie viewing experience by watching Descendants: The Rise of Red on 123movies, a trusted source for online movie streaming.
+
+Unfortunately Descendants: The Rise of Red is not currenDescendants: The Rise of Red y available to on Disney Plus and it’s not expected that the film will release on Disney Plus until late December at the absolute earliest
+
+While Disney eventually releases its various studios’ films on Disney Plus for subscribers to Watch viaits platform most major releases don’t arrive on Disney Plus until at least 45-60 days after the film’s theatrical release
+
+The sequel opened to $150 million internationally which Disney reports is 4% ahead of the first film when comparing like for likes at current exchange rates Overall the global cume comes to $330 million Can it become the year’s third film to make it past $1 billion worldwide despite China and Russia which made up around $124 million of the first film’s $682 million international box office being out of play? It may be tough but it’s not impossible Legging out past $500 million is plausible on the domestic front (that would be a multiplier of at least 27) and another $500 million abroad would be a drop of around $58 million from the original after excluding the two MIA markets It’d be another story Descendants: The Rise of Red audiences didn’t love the film but the positive reception suggests that Wakanda Forever will outperform the legs on this year’s earlier MCU tiDescendants: The Rise of Red es (Multiverse of Madness and Love and Thunder had multipliers of 22 and 23 respectively)
+
+Heres How To Watch Descendants: The Rise of Red (2024) Online full movie At Home
+
+WATCH— Descendants: The Rise of Red Movie [2024] full movie Free Online ON 123MOVIES
+
+WATCH! Descendants: The Rise of Red (2024) (full movie) Free Online
+
+WATCH Descendants: The Rise of Red 2024 (Online) Free full movie Download HD ON YDescendants: The Rise of RedY
+
+[WATCH] Descendants: The Rise of Red Movie (full movie) fRee Online on 123movies
+
+Descendants: The Rise of Red (full movie) Online Free on 123Movies
+
+Heres How To Watch Descendants: The Rise of Red Free Online At Home
+
+WATCH Descendants: The Rise of Red (free) full movie ONLINE ENGLISH/DUB/SUB STREAMING
+
+Taking the top spot this week was Aquaman with $58.3 million, although the film's star Jason Momoa recenDescendants: The Rise of Red y admitted to Entertainment Tonight that he was unsure of the franchise's future. Trailing Aquaman was Descendants: The Rise of Red , Timothée Chalamet's debut as the fictional chocolate factory owner. During the film's second week, it earned $53.1 million, along with leading all movies Thursday with $8 million. In total, Descendants: The Rise of Red boasts $110.6 million domestically, currenDescendants: The Rise of Red y morethan any other flick this season.
+
+According to Deadline, the domestic box office amassed $281.4 million during Christmas week, a 14-percent jump from Dec. 23-29 of last year ($246.4). The holiday competition was thick, as Dec. 25 marked the release of musical drama The Color Purple and sports drama biopic Descendants: The Rise of Red , while Descendants: The Rise of Red , Descendants: The Rise of Red , Descendants: The Rise of Red , Chasing My Rejected WDescendants: The Rise of Rede, Descendants: The Rise of Red and Descendants: The Rise of Red were released justdays before.
+
+Cinema refers to the art, industry, and experience of motion pictures, commonly known as movies or films. It encompasses the entire process of creating, distributing, and exhibiting films for entertainment, education, cultural enrichment, and artistic expression.
+
+At its core, cinema involves the production of moving images and sound that tell stories or convey ideas. This process typically begins with the development of a screenplay or script, which serves as the foundation for the narrative and dialogue of the film. Directors, producers, screenwriters, actors, cinematographers, and other crew members collaborate to bring the script to life through filming and post-production processes.
+
+The history of cinema dates back to the late 19th century, with the invention of motion picture cameras and the development of techniques for capturing and projecting moving images. Over the decades, cinema has evolved significantly in terms of technology, storytelling techniques, and cultural impact.
+
+Cinema encompasses a wide range of genres, including drama, comedy, action, thriller, horror, science fiction, fantasy, and more. Each genre offers unique storytelling conventions and appeals to different audience preferences and interests.
+
+Beyond its role as entertainment, cinema serves as a powerful medium for exploring complex themes, reflecting societal issues, documenting historical events, and promoting cultural diversity. Movies can provoke thought, evoke emotions, and challenge perspectives, making them a significant force in shaping public discourse and influencing popular culture.
+
+Cinema is also an industry that involves the production, distribution, and exhibition of films. Major film studios, independent filmmakers, distributors, exhibitors (such as cinemas or theaters), and streaming platforms all play crucial roles in bringing movies to audiences around the world.
+
+Audiences experience cinema in various settings, including traditional cinemas with large screens and advanced sound systems, as well as through home viewing via streaming services, DVDs, Blu-rays, and digital downloads. The communal experience of watching films in theaters remains a cherished aspect of cinema culture, offering audiences the opportunity to immerse themselves in stories alongside others.
+
+In summary, cinema encompasses the artistry, technology, industry, and cultural impact of motion pictures, providing a rich tapestry of storytelling and entertainment that continues to evolve and resonate globally.
+
+Related Searches:
+Descendants: The Rise of Red full movie download in hindi 1080p
+
+Descendants: The Rise of Red full movie download mp4moviez
+
+Descendants: The Rise of Red full movie in hindi bilibili
+
+Descendants: The Rise of Red full movie watch online
+
+Descendants: The Rise of Red full movie download
+
+Descendants: The Rise of Red movie download
+
+Chasing My Rejected WDescendants: The Rise of Rede
+
+Descendants: The Rise of Red full movie Free
+
+Descendants: The Rise of Red full movie dailymotion
+
+Descendants: The Rise of Red full movie lk21
+
+Descendants: The Rise of Red full movie hd 720p download filmywap
+
+Descendants: The Rise of Red full movie Download Filmyzilla
+
+Descendants: The Rise of Red full movie Tokyvideo
+
+Descendants: The Rise of Red full movie Bilibili
+
+Descendants: The Rise of Red full movie in Hindi
+
+Descendants: The Rise of Red full movie in Tamil
+
+Descendants: The Rise of Red full movie in Telugu
+
+Descendants: The Rise of Red full movie on Netflix
+
+Descendants: The Rise of Red full movie on Hulu
+
+Descendants: The Rise of Red full movie on Amazon prime
+
+Descendants: The Rise of Red full movie on Facebook
+
+Descendants: The Rise of Red full movie on Youtube
+
+Descendants: The Rise of Red full movie
+
+Descendants: The Rise of Red volledigefilm
+
+Descendants: The Rise of Red filmcomplet
+
+Descendants: The Rise of Red helfilm
+
+Descendants: The Rise of Red całyfilm
+
+Descendants: The Rise of Red _पूरी फिल्म
+
+Descendants: The Rise of Red فيلمكامل
+
+Descendants: The Rise of Red plenafilmo
+
+Watch Descendants: The Rise of Red Movie Online
+
+Descendants: The Rise of Red PeliculaCompleta
+
+Descendants: The Rise of Red bộ phimđầy_đủ
+
+Descendants: The Rise of Red หนังเต็ม
+
+Descendants: The Rise of Red Kokoelokuva
+
+'Descendants: The Rise of Red ' is playing now in theaters worldwide Thanksᴴᴰ
+
+Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red release date
+Descendants: The Rise of Red showtimes
+Descendants: The Rise of Red cast
+Descendants: The Rise of Red review
+Descendants: The Rise of Red full movie
+Descendants: The Rise of Red trailer
+Descendants: The Rise of Red rotten tomatoes
+Descendants: The Rise of Red streaming
+Descendants: The Rise of Red timeline
+Descendants: The Rise of Red analysis
+Descendants: The Rise of Red actors
+Descendants: The Rise of Red age rating
+Descendants: The Rise of Red astronauts
+Descendants: The Rise of Red amc
+Descendants: The Rise of Red action figures
+Descendants: The Rise of Red antagonist
+Descendants: The Rise of Red about
+Descendants: The Rise of Red a sequel
+andy serkis Chasing My Rejected WDescendants: The Rise of Rede
+amiah miller Chasing My Rejected WDescendants: The Rise of Rede
+actors in Chasing My Rejected WDescendants: The Rise of Rede
+afilmywap Chasing My Rejected WDescendants: The Rise of Rede
+actress in Chasing My Rejected WDescendants: The Rise of Rede
+all Descendants: The Rise of Red movies
+freya allan Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red budget
+Descendants: The Rise of Red box office prediction
+Descendants: The Rise of Red behind the scenes
+Descendants: The Rise of Red blue eyes
+Descendants: The Rise of Red bad ape
+Descendants: The Rise of Red box office
+Descendants: The Rise of Red budget 2024
+Descendants: The Rise of Red bad guy
+Descendants: The Rise of Red banner
+budget of Chasing My Rejected WDescendants: The Rise of Rede
+bbfc Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red characters
+Descendants: The Rise of Red cornelius
+Descendants: The Rise of Red coming out
+Descendants: The Rise of Red cinemark
+Descendants: The Rise of Red caesar son
+Descendants: The Rise of Red concept art
+Descendants: The Rise of Red composer
+Descendants: The Rise of Red cgi
+cast of Chasing My Rejected WDescendants: The Rise of Rede
+cornelius Chasing My Rejected WDescendants: The Rise of Rede
+caesar Chasing My Rejected WDescendants: The Rise of Rede
+cast of Descendants: The Rise of Red cornelius
+cast of Descendants: The Rise of Red trailer
+cast of Descendants: The Rise of Red cesar
+cast of Descendants: The Rise of Red characters
+characters in Chasing My Rejected WDescendants: The Rise of Rede
+cast of Descendants: The Rise of Red nova
+Descendants: The Rise of Red director
+Descendants: The Rise of Red descanso gardens
+Descendants: The Rise of Red date
+Descendants: The Rise of Red dvd release date
+Descendants: The Rise of Red duration
+Descendants: The Rise of Red disney plus
+Descendants: The Rise of Red dar
+Descendants: The Rise of Red dr zaius
+Descendants: The Rise of Red deviantart
+download Descendants: The Rise of Red 2024
+dr zaius Chasing My Rejected WDescendants: The Rise of Rede
+director of Chasing My Rejected WDescendants: The Rise of Rede
+dawn of the Chasing My Rejected WDescendants: The Rise of Rede
+disney Chasing My Rejected WDescendants: The Rise of Rede
+dichen lachman Chasing My Rejected WDescendants: The Rise of Rede
+when does Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red embargo
+Descendants: The Rise of Red early reactions
+Descendants: The Rise of Red early reactions reddit
+Descendants: The Rise of Red ending
+Descendants: The Rise of Red early review
+Descendants: The Rise of Red explained
+Descendants: The Rise of Red early access
+Descendants: The Rise of Red eagle
+Descendants: The Rise of Red eagle clan
+empire Chasing My Rejected WDescendants: The Rise of Rede
+empire magazine Chasing My Rejected WDescendants: The Rise of Rede
+enter the Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red early screening
+Descendants: The Rise of Red trailer explained
+Descendants: The Rise of Red first reactions
+Descendants: The Rise of Red free
+Descendants: The Rise of Red full movie youtube
+Descendants: The Rise of Red figures
+Descendants: The Rise of Red fandango
+filmyzilla Chasing My Rejected WDescendants: The Rise of Rede
+full movie Chasing My Rejected WDescendants: The Rise of Rede
+full cast of Chasing My Rejected WDescendants: The Rise of Rede
+free movie Chasing My Rejected WDescendants: The Rise of Rede
+filma24 Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red film series movies
+Descendants: The Rise of Red gorilla
+Descendants: The Rise of Red gDescendants: The Rise of Red
+Descendants: The Rise of Red genre
+Descendants: The Rise of Red game
+Descendants: The Rise of Red george taylor
+Descendants: The Rise of Red gsc
+Descendants: The Rise of Red golden village
+Descendants: The Rise of Red google drive
+Descendants: The Rise of Red gallery
+Descendants: The Rise of Red plot
+girl in Chasing My Rejected WDescendants: The Rise of Rede
+gorilla Chasing My Rejected WDescendants: The Rise of Rede
+george taylor Chasing My Rejected WDescendants: The Rise of Rede
+will Descendants: The Rise of Red be good
+Descendants: The Rise of Red parents guide
+is Descendants: The Rise of Red good
+Descendants: The Rise of Red humans
+Descendants: The Rise of Red how long
+Descendants: The Rise of Red how many years
+Descendants: The Rise of Red how to watch
+Descendants: The Rise of Red hulu
+Descendants: The Rise of Red hindi dubbed filmyzilla
+Descendants: The Rise of Red hindi
+Descendants: The Rise of Red how many parts
+how long is Chasing My Rejected WDescendants: The Rise of Rede
+humans in Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red imdb
+Descendants: The Rise of Red interview
+Descendants: The Rise of Red in order
+Descendants: The Rise of Red images
+Descendants: The Rise of Red icarus
+Descendants: The Rise of Red is caesar dead
+Descendants: The Rise of Red imax reddit
+Descendants: The Rise of Red instagram
+Descendants: The Rise of Red in spanish
+is caesar in Chasing My Rejected WDescendants: The Rise of Rede
+is cornelius in Chasing My Rejected WDescendants: The Rise of Rede
+is Descendants: The Rise of Red a sequel
+imdb Chasing My Rejected WDescendants: The Rise of Rede
+is maurice in Chasing My Rejected WDescendants: The Rise of Rede
+is nova in Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red james franco
+Descendants: The Rise of Red japan release date
+Descendants: The Rise of Red japan
+Descendants: The Rise of Red time jump
+john paesano Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red movie
+james franco Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red release date japan
+original Descendants: The Rise of Red in order
+how many original Descendants: The Rise of Red are there
+the Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red king
+Descendants: The Rise of Red koba
+Descendants: The Rise of Red koro
+Descendants: The Rise of Red kuttymovies
+Descendants: The Rise of Red kapan rilis
+Descendants: The Rise of Red kinepolis
+Descendants: The Rise of Red spoilers
+Descendants: The Rise of Red reddit
+Descendants: The Rise of Red leaks
+Descendants: The Rise of Red length
+Descendants: The Rise of Red letterboxd
+Descendants: The Rise of Red logo
+Descendants: The Rise of Red logo png
+Descendants: The Rise of Red leader
+Descendants: The Rise of Red looks bad
+Descendants: The Rise of Red location
+Descendants: The Rise of Red leaks reddit
+lydia peckham Chasing My Rejected WDescendants: The Rise of Rede
+lego Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red plot leak
+Descendants: The Rise of Red filming location
+Descendants: The Rise of Red list
+Descendants: The Rise of Red mae
+Descendants: The Rise of Red movie poster
+Descendants: The Rise of Red main character
+Descendants: The Rise of Red may 10
+Descendants: The Rise of Red maurice
+Descendants: The Rise of Red movie review
+Descendants: The Rise of Red mpaa rating
+Descendants: The Rise of Red movie release date
+movie Chasing My Rejected WDescendants: The Rise of Rede
+mae Chasing My Rejected WDescendants: The Rise of Rede
+maurice Chasing My Rejected WDescendants: The Rise of Rede
+main character in Chasing My Rejected WDescendants: The Rise of Rede
+matt reeves Chasing My Rejected WDescendants: The Rise of Rede
+movies like Chasing My Rejected WDescendants: The Rise of Rede
+movie trailer for Chasing My Rejected WDescendants: The Rise of Rede
+william h macy Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red news
+Descendants: The Rise of Red noa
+Descendants: The Rise of Red nova
+Descendants: The Rise of Red near me
+Descendants: The Rise of Red new trilogy
+Descendants: The Rise of Red netflix
+Descendants: The Rise of Red novelization
+Descendants: The Rise of Red noa and mae
+Descendants: The Rise of Red new images
+noa Chasing My Rejected WDescendants: The Rise of Rede
+nova Chasing My Rejected WDescendants: The Rise of Rede
+new movie Chasing My Rejected WDescendants: The Rise of Rede
+new Descendants: The Rise of Red trailer
+netnaija Chasing My Rejected WDescendants: The Rise of Rede
+cast of Descendants: The Rise of Red noa
+Descendants: The Rise of Red order
+Descendants: The Rise of Red official trailer
+Descendants: The Rise of Red orangutan
+Descendants: The Rise of Red online
+Descendants: The Rise of Red old movie
+Descendants: The Rise of Red original movie
+Descendants: The Rise of Red on netflix
+Descendants: The Rise of Red order to watch
+Descendants: The Rise of Red official website
+owen teague Chasing My Rejected WDescendants: The Rise of Rede
+orangutan Chasing My Rejected WDescendants: The Rise of Rede
+odeon Chasing My Rejected WDescendants: The Rise of Rede
+trailer of Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red proximus caesar
+Descendants: The Rise of Red premiere
+Descendants: The Rise of Red popcorn bucket
+Descendants: The Rise of Red proximus
+Descendants: The Rise of Red pg 13
+Descendants: The Rise of Red producer
+plot of Chasing My Rejected WDescendants: The Rise of Rede
+proximus Chasing My Rejected WDescendants: The Rise of Rede
+peter macon Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red poster
+Descendants: The Rise of Red all parts
+Descendants: The Rise of Red quotes
+Descendants: The Rise of Red de que trata
+Descendants: The Rise of Red quotes 1968
+the Descendants: The Rise of Red release date
+Descendants: The Rise of Red review embargo
+Descendants: The Rise of Red release
+Descendants: The Rise of Red reactions
+Descendants: The Rise of Red runtime
+Descendants: The Rise of Red recap
+Descendants: The Rise of Red raka
+reddit Chasing My Rejected WDescendants: The Rise of Rede
+raka Chasing My Rejected WDescendants: The Rise of Rede
+rise of the Chasing My Rejected WDescendants: The Rise of Rede
+running time for Chasing My Rejected WDescendants: The Rise of Rede
+rocket Chasing My Rejected WDescendants: The Rise of Rede
+release date for Chasing My Rejected WDescendants: The Rise of Rede
+rotten tomatoes Chasing My Rejected WDescendants: The Rise of Rede
+reddit Descendants: The Rise of Red trailer
+Descendants: The Rise of Red streaming date
+Descendants: The Rise of Red showtimes near me
+Descendants: The Rise of Red series
+Descendants: The Rise of Red sequel
+Descendants: The Rise of Red social media embargo
+Descendants: The Rise of Red soona
+Descendants: The Rise of Red screening
+is Descendants: The Rise of Red a reboot
+is Descendants: The Rise of Red out yet
+is Descendants: The Rise of Red rated r
+is Descendants: The Rise of Red on netflix
+is Descendants: The Rise of Red in theaters
+Descendants: The Rise of Red tickets
+Descendants: The Rise of Red trevathan
+Descendants: The Rise of Red trailer release date
+Descendants: The Rise of Red tv tropes
+Descendants: The Rise of Red toys
+Descendants: The Rise of Red theater
+Descendants: The Rise of Red test screening
+the Descendants: The Rise of Red trailer
+the Descendants: The Rise of Red cast
+tv tropes Chasing My Rejected WDescendants: The Rise of Rede
+the Descendants: The Rise of Red movie download
+the Descendants: The Rise of Red full movie
+timeline of Chasing My Rejected WDescendants: The Rise of Rede
+the Descendants: The Rise of Red noa
+the Descendants: The Rise of Red movie
+Descendants: The Rise of Red uk release date
+Descendants: The Rise of Red uk release
+Descendants: The Rise of Red us release date
+Descendants: The Rise of Red universe
+Descendants: The Rise of Red uk cinema
+Descendants: The Rise of Red uk age rating
+Descendants: The Rise of Red uscita italia
+Descendants: The Rise of Red youtube
+urutan film Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red age rating uk
+Descendants: The Rise of Red update
+upútavka Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red uzbek tilida
+Descendants: The Rise of Red videos
+Descendants: The Rise of Red villain
+Descendants: The Rise of Red voice actors
+Descendants: The Rise of Red villains wiki
+Descendants: The Rise of Red vfx
+Descendants: The Rise of Red voices
+Descendants: The Rise of Red voice cast
+Descendants: The Rise of Red vegamovies
+Descendants: The Rise of Red vue
+Descendants: The Rise of Red vfx studio
+videos over Chasing My Rejected WDescendants: The Rise of Rede
+ver Chasing My Rejected WDescendants: The Rise of Rede
+video Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red main villain
+Descendants: The Rise of Red where to watch
+Descendants: The Rise of Red wiki
+Descendants: The Rise of Red wallpaper
+Descendants: The Rise of Red who is noa
+Descendants: The Rise of Red website
+when is Descendants: The Rise of Red set
+Descendants: The Rise of Red x reader
+Descendants: The Rise of Red xxi
+xem phim Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red year set
+Descendants: The Rise of Red years
+Descendants: The Rise of Red 300 years
+Descendants: The Rise of Red tamilyogi
+Descendants: The Rise of Red 300 years later
+youtube Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red year setting
+Descendants: The Rise of Red zaius
+Descendants: The Rise of Red forbidden zone
+Descendants: The Rise of Red ne zaman çıkacak
+zwiastun Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red waar te zien
+are there monkeys in Chasing My Rejected WDescendants: The Rise of Rede
+rise of the Descendants: The Rise of Red names of monkeys
+will there be a new planet of apes
+dDescendants: The Rise of Redferent types of monkeys in Chasing My Rejected WDescendants: The Rise of Rede
+will there be a Descendants: The Rise of Red 4
+Descendants: The Rise of Red 1968
+Descendants: The Rise of Red 123
+Descendants: The Rise of Red 1968 cast
+Descendants: The Rise of Red 1tamilmv
+Descendants: The Rise of Red rated pg 13
+original Descendants: The Rise of Red quotes
+original Descendants: The Rise of Red characters
+Descendants: The Rise of Red 2024 release date
+Descendants: The Rise of Red 2024 trailer
+Descendants: The Rise of Red 2024 cast
+Descendants: The Rise of Red 2001
+Descendants: The Rise of Red 2024 full movie
+Descendants: The Rise of Red 2017
+Descendants: The Rise of Red 2011
+Descendants: The Rise of Red 2024 rating
+Descendants: The Rise of Red 2024 imdb
+2024 Chasing My Rejected WDescendants: The Rise of Rede
+دانلود فیلم Descendants: The Rise of Red 20cast of Descendants: The Rise of Red 2001
+Descendants: The Rise of Red 3d
+Descendants: The Rise of Red trailer 3
+Descendants: The Rise of Red imax 3d
+what happens in Descendants: The Rise of Red 3
+Descendants: The Rise of Red 4dx
+Descendants: The Rise of Red 4k trailer
+Descendants: The Rise of Red 4k
+Descendants: The Rise of Red 4k wallpaper
+Descendants: The Rise of Red 4k 1968
+Descendants: The Rise of Red 4 1972
+Descendants: The Rise of Red wallpaper 4k
+is there a Descendants: The Rise of Red 4
+will there be a 4th Chasing My Rejected WDescendants: The Rise of Rede
+Descendants: The Rise of Red 5 release date

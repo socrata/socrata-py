@@ -40,7 +40,7 @@ def create_good_output_schema(input_schema):
 class TestOutputSchema(TestCase):
     def test_get_errors(self):
         output_schema = create_bad_output_schema(self.create_input_schema())
-        output_schema = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish(timeout = 300)
 
         errors = output_schema.schema_errors()
 
@@ -49,7 +49,7 @@ class TestOutputSchema(TestCase):
 
     def test_get_errors_csv(self):
         output_schema = create_bad_output_schema(self.create_input_schema())
-        output_schema = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish(timeout = 300)
 
         errors = output_schema.schema_errors_csv()
         out_csv = '\n'.join([str(line) for line in errors.iter_lines()])
@@ -60,7 +60,7 @@ class TestOutputSchema(TestCase):
 
     def test_get_rows(self):
         output_schema = create_good_output_schema(self.create_input_schema())
-        output_schema = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish(timeout = 300)
 
         rows = output_schema.rows()
 
@@ -214,7 +214,7 @@ class TestOutputSchema(TestCase):
             .run()
 
 
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         [aa, a_plus_a] = output.attributes['output_columns']
         self.assertEqual(len(output.attributes['output_columns']), 2)
@@ -243,7 +243,7 @@ class TestOutputSchema(TestCase):
             .run()
 
 
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         rows = output.rows(offset = 0, limit = 4)
 
@@ -305,7 +305,7 @@ class TestOutputSchema(TestCase):
             .on('a', ascending = False)\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         self.assertEqual(output.attributes['sort_bys'],
                          [ {'field_name': 'b', 'ascending': True },
@@ -318,13 +318,13 @@ class TestOutputSchema(TestCase):
             .on('a', ascending = False)\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         output = output\
             .set_sort_by()\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         self.assertEqual(output.attributes['sort_bys'], [ ])
 
@@ -335,13 +335,13 @@ class TestOutputSchema(TestCase):
             .on('a', ascending = False)\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         output = output\
             .change_column_metadata('b', 'description').to('the description of b')\
             .drop_column('c')\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         self.assertEqual(output.attributes['sort_bys'],
                          [ {'field_name': 'b', 'ascending': True },
@@ -354,12 +354,12 @@ class TestOutputSchema(TestCase):
             .on('a', ascending = False)\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         output = output\
             .change_column_metadata('a', 'field_name').to('aa')\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         self.assertEqual(output.attributes['sort_bys'],
                          [ {'field_name': 'b', 'ascending': True },
@@ -372,12 +372,12 @@ class TestOutputSchema(TestCase):
             .on('a', ascending = False)\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         output = output\
             .drop_column('b')\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         self.assertEqual(output.attributes['sort_bys'],
                          [ {'field_name': 'a', 'ascending': False } ])
@@ -389,14 +389,14 @@ class TestOutputSchema(TestCase):
             .on('a', ascending = False)\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         output = output\
             .set_sort_by()\
             .on('c')\
             .end_sort()\
             .run()
-        output = output.wait_for_finish()
+        output = output.wait_for_finish(timeout = 300)
 
         self.assertEqual(output.attributes['sort_bys'],
                          [ {'field_name': 'c', 'ascending': True } ])

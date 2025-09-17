@@ -31,7 +31,7 @@ class TestSource(TestCase):
         with open('test/fixtures/simple.csv', 'rb') as f:
             source = source.csv(f)
             output_schema = source.get_latest_input_schema().get_latest_output_schema()
-            output_schema = output_schema.wait_for_finish()
+            output_schema = output_schema.wait_for_finish(timeout = 300)
 
             names = sorted([ic['field_name'] for ic in output_schema.attributes['output_columns']])
             self.assertEqual(['a', 'b', 'c'], names)
@@ -50,7 +50,7 @@ class TestSource(TestCase):
 
         source = source.csv(f)
         output_schema = source.get_latest_input_schema().get_latest_output_schema()
-        output_schema = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish(timeout = 300)
 
         names = sorted([ic['field_name'] for ic in output_schema.attributes['output_columns']])
 
@@ -71,7 +71,7 @@ class TestSource(TestCase):
 
         source = source.csv(gen())
         output_schema = source.get_latest_input_schema().get_latest_output_schema()
-        output_schema = output_schema.wait_for_finish()
+        output_schema = output_schema.wait_for_finish(timeout = 300)
 
         names = sorted([ic['field_name'] for ic in output_schema.attributes['output_columns']])
 
@@ -124,10 +124,10 @@ class TestSource(TestCase):
         rev = self.create_rev()
         source = rev.source_from_url(url)
 
-        source = source.wait_for_finish()
+        source = source.wait_for_finish(timeout = 300)
 
         output_schema = source.get_latest_input_schema().get_latest_output_schema()
-        output_schema.wait_for_finish()
+        output_schema.wait_for_finish(timeout = 300)
 
         actual_columns = set([oc['field_name'] for oc in output_schema.attributes['output_columns']])
         expected_columns = set([
@@ -212,7 +212,7 @@ class TestSource(TestCase):
             .change_parse_option('column_header').to(2)\
             .run()
 
-        source = source.wait_for_finish()
+        source = source.wait_for_finish(timeout = 300)
 
         po = source.attributes['parse_options']
         self.assertEqual(po['header_count'], 2)

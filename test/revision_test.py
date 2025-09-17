@@ -120,7 +120,7 @@ class TestSocrata(TestCase):
         r = self.view.revisions.create_replace_revision()
         input_schema = self.create_input_schema(rev = r).wait_for_schema()
         r.set_output_schema(input_schema.get_latest_output_schema().attributes['id'])
-        input_schema.get_latest_output_schema().wait_for_finish()
+        input_schema.get_latest_output_schema().wait_for_finish(timeout = 300)
 
         plan = r.plan()
         expected = set(['prepare_draft_for_import', 'set_schema', 'apply_metadata', 'upsert_task', 'set_display_type', 'publish', 'set_permission', 'wait_for_replication'])
@@ -131,10 +131,10 @@ class TestSocrata(TestCase):
         with open('test/fixtures/simple.csv', 'rb') as file:
             # boilerplate
             input_schema = self.create_input_schema().wait_for_schema()
-            input_schema.get_latest_output_schema().wait_for_finish()
+            input_schema.get_latest_output_schema().wait_for_finish(timeout = 300)
 
             job = self.rev.apply(output_schema = input_schema.get_latest_output_schema())
-            job = job.wait_for_finish()
+            job = job.wait_for_finish(timeout = 300)
 
             view = self.pub.views.lookup(self.rev.attributes['fourfour'])
 
@@ -165,7 +165,7 @@ class TestSocrata(TestCase):
 
     def test_restore_revision(self):
         # Do a revision so we can get it enrolled in archival
-        self.rev.apply().wait_for_finish()
+        self.rev.apply().wait_for_finish(timeout = 300)
         enroll_in_archival_secondary(auth, self.view)
 
 
@@ -173,8 +173,8 @@ class TestSocrata(TestCase):
         source = rev.create_upload('simple.csv')
         with open('test/fixtures/simple.csv', 'rb') as file:
             input_schema = source.csv(file)
-        input_schema.wait_for_schema().get_latest_input_schema().get_latest_output_schema().wait_for_finish()
-        rev.apply().wait_for_finish()
+        input_schema.wait_for_schema().get_latest_input_schema().get_latest_output_schema().wait_for_finish(timeout = 300)
+        rev.apply().wait_for_finish(timeout = 300)
         rev.show()
         restored = rev.restore()
 
@@ -184,7 +184,7 @@ class TestSocrata(TestCase):
         source = restored.list_sources()[0]
 
         source.wait_for_schema()
-        output_schema = source.get_latest_input_schema().get_latest_output_schema().wait_for_finish()
+        output_schema = source.get_latest_input_schema().get_latest_output_schema().wait_for_finish(timeout = 300)
         self.assertEqual(output_schema.attributes['total_rows'], 4)
         self.assertEqual(
             set([oc['transform']['transform_expr'] for oc in output_schema.attributes['output_columns']]),

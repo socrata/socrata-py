@@ -90,7 +90,7 @@ class ImportConfigTest(TestCase):
             (rev, job) = p.using_config(name, self.view).csv(my_file)
             self.assertEqual(rev.attributes['action']['type'], 'replace')
             self.assertTrue(job.attributes['created_at'])
-            job.wait_for_finish()
+            job.wait_for_finish(timeout = 300)
 
     def test_config_not_found(self):
         p = Socrata(auth)
@@ -115,7 +115,7 @@ class ImportConfigTest(TestCase):
         )
         self.assertEqual(rev.attributes['action']['type'], 'replace')
         self.assertTrue(job.attributes['created_at'])
-        job.wait_for_finish()
+        job.wait_for_finish(timeout = 300)
 
 
     def test_show_config(self):

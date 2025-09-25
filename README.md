@@ -167,6 +167,7 @@ auth = Authorization(
 
 
 #### Create a new Dataset from a csv, tsv, xls or xlsx file
+Datasets are made Public by default. To make a dataset private, see the [Revision](#revision) section notes on default values for the 'permission' parameter.
 To create a dataset, you can do this:
 
 ```python

@@ -56,6 +56,7 @@ class View(CoreResource):
             path,
             headers = gen_headers(),
             auth = self.auth.basic,
+            cookies = self.auth.cookies,
             verify = self.auth.verify
         )
 

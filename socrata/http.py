@@ -81,6 +81,7 @@ def post(path, auth = None, data = None, headers = {}, params = {}):
         path,
         headers = headers,
         auth = auth.basic,
+        cookies = auth.cookies,
         params = params,
         verify = auth.verify,
         data = data,
@@ -96,6 +97,7 @@ def put(path, auth = None, data = None, headers = {}):
         path,
         headers = headers,
         auth = auth.basic,
+        cookies = auth.cookies,
         verify = auth.verify,
         data = data,
         timeout = REQUEST_TIMEOUT
@@ -122,6 +124,7 @@ def get(path, auth = None, params = {}, headers = {}, **kwargs):
         params = params,
         headers = headers,
         auth = auth.basic,
+        cookies = auth.cookies,
         verify = auth.verify,
         timeout = REQUEST_TIMEOUT,
         **kwargs
@@ -134,6 +137,7 @@ def delete(path, auth = None, headers = {}):
         path,
         headers = headers,
         auth = auth.basic,
+        cookies = auth.cookies,
         verify = auth.verify,
         timeout = REQUEST_TIMEOUT
     ), request_id = request_id)

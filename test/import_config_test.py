@@ -4,6 +4,7 @@ from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 import uuid
 from socrata.http import UnexpectedResponseException
+import time
 
 class ImportConfigTest(TestCase):
     def test_create_config(self):
@@ -61,6 +62,7 @@ class ImportConfigTest(TestCase):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         config = p.configs.create(name, "replace")
+        time.sleep(5)
 
         configs = p.configs.list()
 
@@ -129,6 +131,7 @@ class ImportConfigTest(TestCase):
         p = Socrata(auth)
         name = "some_config %s" % str(uuid.uuid4())
         config = p.configs.create(name, "replace")
+        time.sleep(5)
 
         _ = config.delete()
 

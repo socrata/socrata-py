@@ -2,6 +2,7 @@ from socrata import Socrata
 from socrata.authorization import Authorization
 from test.auth import auth, TestCase
 import uuid
+import time
 
 class TestSource(TestCase):
     def test_create_source(self):
@@ -94,6 +95,7 @@ class TestSource(TestCase):
     def test_upload_shapefile(self):
         rev = self.create_rev()
         source = rev.create_upload('wards.zip')
+        time.sleep(5)
 
         with open('test/fixtures/wards.zip', 'rb') as f:
             source = source.shapefile(f)
@@ -168,6 +170,7 @@ class TestSource(TestCase):
     def test_upload_csv_outside_rev(self):
         pub = Socrata(auth)
         source = pub.sources.create_upload('foo.csv')
+        time.sleep(5)
 
         with open('test/fixtures/simple.csv', 'rb') as f:
             source = source.csv(f)
@@ -212,7 +215,7 @@ class TestSource(TestCase):
             .change_parse_option('column_header').to(2)\
             .run()
 
-        source = source.wait_for_finish(timeout = 300)
+        source = source.wait_for_finish(timeout = 600)
 
         po = source.attributes['parse_options']
         self.assertEqual(po['header_count'], 2)

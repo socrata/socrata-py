@@ -1,11 +1,13 @@
 from socrata import Socrata
 from socrata.authorization import Authorization
 from auth import auth, TestCase
+import time
 try:
     import pandas as pd
 except ImportError:
     print("Pandas is required for this test")
     exit()
+    
 class TestPandas(TestCase):
     def test_create_source(self):
         rev = self.create_rev()
@@ -19,6 +21,7 @@ class TestPandas(TestCase):
     def test_source_csv(self):
         rev = self.create_rev()
         source = rev.create_upload('foo.csv')
+        time.sleep(5)
 
         df = pd.read_csv('test/fixtures/simple.csv')
         source = source.df(df)

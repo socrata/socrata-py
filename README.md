@@ -145,7 +145,7 @@ Try the command line example with
 python -m examples.create 'Police Reports' ~/Desktop/catalog.data.gov/Seattle_Real_Time_Fire_911_Calls.csv 'pete-test.test-socrata.com' --username $SOCRATA_USERNAME --password $SOCRATA_PASSWORD
 ```
 ## Using
-
+Datasets are made Public by default. To make a dataset private, see the [Revision](#revision) section notes on default values for the 'permission' parameter.
 ### Boilerplate
 ```python
 # Import some stuff

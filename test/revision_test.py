@@ -190,3 +190,139 @@ class TestSocrata(TestCase):
             set([oc['transform']['transform_expr'] for oc in output_schema.attributes['output_columns']]),
             set(['`a`', '`b`', '`c`'])
         )
+
+    def test_permission_retained_on_replace_revision(self):
+        # Create initial dataset
+        input_schema = self.create_input_schema().wait_for_schema()
+        output_schema = input_schema.get_latest_output_schema()
+        output_schema.wait_for_finish(timeout = 300)
+
+        job = self.rev.apply(output_schema = output_schema)
+        job.wait_for_finish(timeout = 300)
+
+        # Create a revision with explicit 'private' permission
+        view = self.pub.views.lookup(self.rev.attributes['fourfour'])
+        rev1 = view.revisions.create_replace_revision(permission='private')
+
+        with open('test/fixtures/simple.csv', 'rb') as file:
+            source1 = rev1.create_upload('simple.csv')
+            input_schema1 = source1.csv(file)
+
+        output_schema1 = input_schema1.wait_for_schema().get_latest_input_schema().get_latest_output_schema()
+        output_schema1.wait_for_finish(timeout = 300)
+
+        job1 = rev1.apply(output_schema = output_schema1)
+        job1.wait_for_finish(timeout = 300)
+
+        view.show()
+        initial_permission = view.attributes.get('permissions', {}).get('scope')
+
+        # Create a revision without specifying permission (should retain 'private')
+        rev2 = view.revisions.create_replace_revision()
+
+        with open('test/fixtures/simple.csv', 'rb') as file2:
+            source2 = rev2.create_upload('simple.csv')
+            input_schema2 = source2.csv(file2)
+
+        output_schema2 = input_schema2.wait_for_schema().get_latest_input_schema().get_latest_output_schema()
+        output_schema2.wait_for_finish(timeout = 300)
+
+        job2 = rev2.apply(output_schema = output_schema2)
+        job2.wait_for_finish(timeout = 300)
+
+        view.show()
+        final_permission = view.attributes.get('permissions', {}).get('scope')
+        self.assertEqual(initial_permission, final_permission)
+        self.assertEqual(final_permission, 'private')
+
+    def test_permission_retained_on_update_revision(self):
+        # Create initial dataset
+        input_schema = self.create_input_schema().wait_for_schema()
+        output_schema = input_schema.get_latest_output_schema()
+        output_schema.wait_for_finish(timeout = 300)
+
+        job = self.rev.apply(output_schema = output_schema)
+        job.wait_for_finish(timeout = 300)
+
+        # Create a revision with explicit 'public' permission
+        view = self.pub.views.lookup(self.rev.attributes['fourfour'])
+        rev1 = view.revisions.create_replace_revision(permission='public')
+
+        with open('test/fixtures/simple.csv', 'rb') as file:
+            source1 = rev1.create_upload('simple.csv')
+            input_schema1 = source1.csv(file)
+
+        output_schema1 = input_schema1.wait_for_schema().get_latest_input_schema().get_latest_output_schema()
+        output_schema1.wait_for_finish(timeout = 300)
+
+        job1 = rev1.apply(output_schema = output_schema1)
+        job1.wait_for_finish(timeout = 300)
+
+        view.show()
+        initial_permission = view.attributes.get('permissions', {}).get('scope')
+
+        # Create an update revision without specifying permission (should retain 'public')
+        rev2 = view.revisions.create_update_revision()
+
+        with open('test/fixtures/simple.csv', 'rb') as file2:
+            source2 = rev2.create_upload('simple.csv')
+            input_schema2 = source2.csv(file2)
+
+        output_schema2 = input_schema2.wait_for_schema().get_latest_input_schema().get_latest_output_schema()
+        output_schema2.wait_for_finish(timeout = 300)
+
+        job2 = rev2.apply(output_schema = output_schema2)
+        job2.wait_for_finish(timeout = 300)
+
+        view.show()
+        final_permission = view.attributes.get('permissions', {}).get('scope')
+        self.assertEqual(initial_permission, final_permission)
+        self.assertEqual(final_permission, 'public')
+
+    def test_permission_retained_on_delete_revision(self):
+        # Create initial dataset
+        input_schema = self.create_input_schema().wait_for_schema()
+        output_schema = input_schema.get_latest_output_schema()
+        output_schema.wait_for_finish(timeout = 300)
+
+        # Set row ID for delete operations
+        output_schema = output_schema.set_row_id('a')
+        output_schema.wait_for_finish(timeout = 300)
+
+        job = self.rev.apply(output_schema = output_schema)
+        job.wait_for_finish(timeout = 300)
+
+        # Create a revision with explicit 'private' permission
+        view = self.pub.views.lookup(self.rev.attributes['fourfour'])
+        rev1 = view.revisions.create_replace_revision(permission='private')
+
+        with open('test/fixtures/simple.csv', 'rb') as file:
+            source1 = rev1.create_upload('simple.csv')
+            input_schema1 = source1.csv(file)
+
+        output_schema1 = input_schema1.wait_for_schema().get_latest_input_schema().get_latest_output_schema()
+        output_schema1.wait_for_finish(timeout = 300)
+
+        job1 = rev1.apply(output_schema = output_schema1)
+        job1.wait_for_finish(timeout = 300)
+
+        view.show()
+        initial_permission = view.attributes.get('permissions', {}).get('scope')
+
+        # Create a delete revision without specifying permission (should retain 'private')
+        rev2 = view.revisions.create_delete_revision()
+
+        with open('test/fixtures/simple.csv', 'rb') as file2:
+            source2 = rev2.create_upload('simple.csv')
+            input_schema2 = source2.csv(file2)
+
+        output_schema2 = input_schema2.wait_for_schema().get_latest_input_schema().get_latest_output_schema()
+        output_schema2.wait_for_finish(timeout = 300)
+
+        job2 = rev2.apply(output_schema = output_schema2)
+        job2.wait_for_finish(timeout = 300)
+
+        view.show()
+        final_permission = view.attributes.get('permissions', {}).get('scope')
+        self.assertEqual(initial_permission, final_permission)
+        self.assertEqual(final_permission, 'private')

@@ -116,14 +116,25 @@ class TestSocrata(TestCase):
         output_schema = r.get_output_schema()
         self.assertTrue(output_schema != None)
 
-    def test_get_plan(self):
+    def test_get_plan_without_permission(self):
         r = self.view.revisions.create_replace_revision()
         input_schema = self.create_input_schema(rev = r).wait_for_schema()
         r.set_output_schema(input_schema.get_latest_output_schema().attributes['id'])
         input_schema.get_latest_output_schema().wait_for_finish(timeout = 300)
 
         plan = r.plan()
-        expected = set(['prepare_draft_for_import', 'set_schema', 'apply_metadata', 'upsert_task', 'set_display_type', 'publish', 'set_permission', 'wait_for_replication'])
+        expected = set(['prepare_draft_for_import', 'set_schema', 'apply_metadata', 'upsert_task', 'set_display_type', 'publish', 'wait_for_replication'])
+        actual   = set([step['type'] for step in plan])
+        self.assertTrue(set.issubset(expected, actual))
+
+    def test_get_plan_wit_permission(self):
+        r = self.view.revisions.create_replace_revision(permission='private')
+        input_schema = self.create_input_schema(rev = r).wait_for_schema()
+        r.set_output_schema(input_schema.get_latest_output_schema().attributes['id'])
+        input_schema.get_latest_output_schema().wait_for_finish(timeout = 300)
+
+        plan = r.plan()
+        expected = set(['prepare_draft_for_import', 'set_schema', 'apply_metadata', 'upsert_task', 'set_display_type', 'publish', 'wait_for_replication', 'set_permission'])
         actual   = set([step['type'] for step in plan])
         self.assertTrue(set.issubset(expected, actual))
 
@@ -285,10 +296,6 @@ class TestSocrata(TestCase):
         output_schema = input_schema.get_latest_output_schema()
         output_schema.wait_for_finish(timeout = 300)
 
-        # Set row ID for delete operations
-        output_schema = output_schema.set_row_id('a')
-        output_schema.wait_for_finish(timeout = 300)
-
         job = self.rev.apply(output_schema = output_schema)
         job.wait_for_finish(timeout = 300)
 
@@ -301,6 +308,8 @@ class TestSocrata(TestCase):
             input_schema1 = source1.csv(file)
 
         output_schema1 = input_schema1.wait_for_schema().get_latest_input_schema().get_latest_output_schema()
+        # Set row ID for delete operations
+        output_schema1 = output_schema1.set_row_id('a')
         output_schema1.wait_for_finish(timeout = 300)
 
         job1 = rev1.apply(output_schema = output_schema1)

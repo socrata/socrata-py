@@ -1,6 +1,6 @@
 #!/bin/bash
 
-virtualenv -p python3 venv
+virtualenv -p python3.9 venv
 . venv/bin/activate
 pip install -r requirements.txt
 python3 setup.py install

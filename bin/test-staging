@@ -1,6 +1,19 @@
 #!/bin/bash
 
-virtualenv -p python3.9 venv
+# Find the first available Python 3.8+
+for py_version in python3.12 python3.11 python3.10 python3.9 python3.8 python3; do
+    if command -v $py_version &> /dev/null; then
+        PYTHON_BIN=$py_version
+        break
+    fi
+done
+
+if [ -z "$PYTHON_BIN" ]; then
+    echo "Error: Python 3.8+ not found"
+    exit 1
+fi
+
+virtualenv -p $PYTHON_BIN venv
 . venv/bin/activate
 pip install -r requirements.txt
 python3 setup.py install

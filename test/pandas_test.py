@@ -1,6 +1,6 @@
 from socrata import Socrata
 from socrata.authorization import Authorization
-from auth import auth, TestCase
+from test.auth import auth, TestCase
 try:
     import pandas as pd
 except ImportError:

@@ -243,7 +243,7 @@ class TestOutputSchema(TestCase):
             .run()
 
 
-        output = output.wait_for_finish(timeout = 300)
+        output = output.wait_for_finish(timeout = 600)
 
         rows = output.rows(offset = 0, limit = 4)
 

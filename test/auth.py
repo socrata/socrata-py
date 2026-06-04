@@ -4,11 +4,34 @@ from socrata import Socrata
 import logging
 import unittest
 
-auth = Authorization(
-  os.environ['SOCRATA_DOMAIN'],
-  os.environ['SOCRATA_USERNAME'],
-  os.environ['SOCRATA_PASSWORD']
-)
+# Use cookie auth if SOCRATA_COOKIE is set, otherwise fall back to username/password
+if os.environ.get('SOCRATA_COOKIE'):
+    from http.cookies import SimpleCookie
+
+    domain = os.environ['SOCRATA_DOMAIN']
+    authCookie = os.environ['SOCRATA_COOKIE']
+
+    cookies = SimpleCookie()
+    cookie_text = authCookie.strip()
+    cookies.load(cookie_text)
+    csrf_morsel = cookies.get("socrata-csrf-token")
+    if csrf_morsel is None:
+        raise RuntimeError(
+            "Cookie missing socrata-csrf-token. "
+            f"Parsed cookie keys: {list(cookies.keys())}"
+        )
+    cookieHeader = {
+        "Cookie": authCookie,
+        "X-CSRF-Token": csrf_morsel.value,
+    }
+
+    auth = Authorization(domain, cookies=cookieHeader)
+else:
+    auth = Authorization(
+      os.environ['SOCRATA_DOMAIN'],
+      username=os.environ['SOCRATA_USERNAME'],
+      password=os.environ['SOCRATA_PASSWORD']
+    )
 
 if auth.domain == 'localhost':
     auth.live_dangerously()

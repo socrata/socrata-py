@@ -47,7 +47,7 @@ class Revisions(Collection):
         ))
 
 
-    def create_replace_revision(self, metadata = {}, permission = 'public'):
+    def create_replace_revision(self, metadata = {}, permission = None):
         """
         Create a revision on the view, which when applied, will replace the data.
 
@@ -68,7 +68,7 @@ class Revisions(Collection):
         """
         return self._create('replace', metadata, permission)
 
-    def create_update_revision(self, metadata = {}, permission = 'public'):
+    def create_update_revision(self, metadata = {}, permission = None):
         """
         Create a revision on the view, which when applied, will update the data
         rather than replacing it.
@@ -97,7 +97,7 @@ class Revisions(Collection):
         """
         return self._create('update', metadata, permission)
 
-    def create_delete_revision(self, metadata = {}, permission = 'public'):
+    def create_delete_revision(self, metadata = {}, permission = None):
         """
         Create a revision on the view, which when applied, will delete rows of data.
 

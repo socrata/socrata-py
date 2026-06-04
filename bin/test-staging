@@ -3,13 +3,21 @@
 # Find the first available Python 3.8+
 for py_version in python3.12 python3.11 python3.10 python3.9 python3.8 python3; do
     if command -v $py_version &> /dev/null; then
-        PYTHON_BIN=$py_version
-        break
+        # Check if version is >= 3.8
+        version=$($py_version -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+        major=$(echo $version | cut -d. -f1)
+        minor=$(echo $version | cut -d. -f2)
+
+        if [ "$major" -eq 3 ] && [ "$minor" -ge 8 ]; then
+            PYTHON_BIN=$py_version
+            echo "Using $py_version (version $version)"
+            break
+        fi
     fi
 done
 
 if [ -z "$PYTHON_BIN" ]; then
-    echo "Error: Python 3.8+ not found"
+    echo "Error: Python 3.8+ not found. This project requires Python >= 3.8"
     exit 1
 fi
 

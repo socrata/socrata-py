@@ -174,7 +174,6 @@ class TestSocrata(TestCase):
 
             self.assertEqual(rev.attributes['metadata']['description'], 'new dataset description')
 
-    @unittest.skip("error in enrolling to archival secondary")
     def test_restore_revision(self):
         # Do a revision so we can get it enrolled in archival
         self.rev.apply().wait_for_finish(timeout = 300)
